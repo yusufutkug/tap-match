@@ -42,15 +42,16 @@ function createCamera(viewport, content) {
     content.style.transform = "translate(" + x + "px, " + y + "px) scale(" + scale + ")";
   }
 
-  // Taşma payı: board kenarı viewport ORTASINA dek sürüklenebilir — böylece
-  // boardun ucu/köşesi de ekran ortasına getirilebilir. Board viewporttan
-  // küçükse (fit) ortalanır, pan gerekmez.
+  // Tek kural: board her zaman viewport MERKEZ noktasıyla kesişmeli —
+  // kenar/köşe ekran ortasına dek sürüklenebilir, board tamamen dışarı
+  // kaçamaz. Board viewporttan küçükken de geçerli (fit'te bile pan var);
+  // açılış ortalaması fit/refit'ten gelir.
   function clamp() {
     const r = rect();
     const cw = bw * scale, ch = bh * scale;
     const mx = r.width / 2, my = r.height / 2;
-    x = cw <= r.width ? (r.width - cw) / 2 : Math.max(mx - cw, Math.min(mx, x));
-    y = ch <= r.height ? (r.height - ch) / 2 : Math.max(my - ch, Math.min(my, y));
+    x = Math.max(mx - cw, Math.min(mx, x));
+    y = Math.max(my - ch, Math.min(my, y));
   }
 
   function setContentSize(w, h) { bw = w; bh = h; }
@@ -63,7 +64,8 @@ function createCamera(viewport, content) {
     minS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
     maxS = minS * ZOOM_RANGE;
     scale = minS;
-    clamp();
+    x = (r.width - bw * scale) / 2;
+    y = (r.height - bh * scale) / 2;
     apply();
   }
 
