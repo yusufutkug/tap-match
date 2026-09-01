@@ -5,8 +5,9 @@
 //   - fit: board viewporta sığdırılır, bu ölçek = minZoom (FullBoardView)
 //   - pinch: iki parmak arası mesafe oranıyla, pinch merkezi sabit kalarak
 //     zoom (OnScale); parmak ortalaması kayınca pan
-//   - pan: tek parmak / fare sürüklemesi, board sınırına clamp
-//     (ClampPosition); board viewporttan küçükse ortalanır
+//   - pan: tek parmak / fare sürüklemesi; clamp board kenarının viewport
+//     ortasına dek taşmasına izin verir (kenar/köşe ortalanabilir),
+//     board viewporttan küçükse ortalanır
 //   - tap vs drag: TAP_PX piksel eşiği (tapThreshold) — eşik aşılırsa o
 //     gesture'dan doğan click capture aşamasında yutulur, hücre tap'ı olmaz
 //   - atalet: bırakınca son hız damping ile söner (SwipeInertia)
@@ -41,11 +42,15 @@ function createCamera(viewport, content) {
     content.style.transform = "translate(" + x + "px, " + y + "px) scale(" + scale + ")";
   }
 
+  // Taşma payı: board kenarı viewport ORTASINA dek sürüklenebilir — böylece
+  // boardun ucu/köşesi de ekran ortasına getirilebilir. Board viewporttan
+  // küçükse (fit) ortalanır, pan gerekmez.
   function clamp() {
     const r = rect();
     const cw = bw * scale, ch = bh * scale;
-    x = cw <= r.width ? (r.width - cw) / 2 : Math.max(r.width - cw, Math.min(0, x));
-    y = ch <= r.height ? (r.height - ch) / 2 : Math.max(r.height - ch, Math.min(0, y));
+    const mx = r.width / 2, my = r.height / 2;
+    x = cw <= r.width ? (r.width - cw) / 2 : Math.max(mx - cw, Math.min(mx, x));
+    y = ch <= r.height ? (r.height - ch) / 2 : Math.max(my - ch, Math.min(my, y));
   }
 
   function setContentSize(w, h) { bw = w; bh = h; }
