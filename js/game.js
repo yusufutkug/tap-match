@@ -67,6 +67,28 @@
   }
   function doneKey(lv) { return (pack ? pack.size : "lab") + ":" + lv.id; }
 
+  // ── Dark mode ──
+  // Kayıtlı tercih yoksa sistem tercihine uyar; düğme tercihi kalıcılaştırır.
+
+  const DARK_KEY = "tm_dark";
+  function applyDark(on) {
+    document.body.classList.toggle("dark", on);
+    $("btnDark").textContent = on ? "☀️" : "🌙";
+  }
+  let darkOn = (() => {
+    try {
+      const s = localStorage.getItem(DARK_KEY);
+      if (s !== null) return s === "1";
+    } catch (e) {}
+    return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  })();
+  applyDark(darkOn);
+  $("btnDark").addEventListener("click", () => {
+    darkOn = !darkOn;
+    try { localStorage.setItem(DARK_KEY, darkOn ? "1" : "0"); } catch (e) {}
+    applyDark(darkOn);
+  });
+
   // ── Sticker teması ──
 
   function currentThemeId() {

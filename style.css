@@ -10,6 +10,48 @@
   --accent-soft: #fdeeea;
   --good: #4caf7d;
   --good-soft: #e8f6ee;
+  --good-line: #bfe3cf;
+  --btn-bg: #fbfaf7;
+  /* masa yüzeyi (viewport) + board matı + ızgara noktaları + taş yüzü */
+  --table: #efe9dc;
+  --table-hi: rgba(255, 255, 255, 0.55);
+  --table-sh: rgba(186, 165, 132, 0.2);
+  --board-mat: rgba(255, 253, 247, 0.5);
+  --dot: rgba(120, 108, 88, 0.3);
+  --dot-hi: rgba(120, 108, 88, 0.55);
+  --tile-face: #fffdf8;
+  --ripple: rgba(130, 118, 96, 0.55);
+  --overlay: rgba(255, 255, 255, 0.75);
+  --sight-strong: rgba(88, 74, 54, 0.5);
+  --sight-weak: rgba(88, 74, 54, 0.16);
+  --sight-fill: rgba(255, 255, 255, 0.35);
+}
+
+/* Dark mode: body.dark (js/game.js — tm_dark, ilk açılışta sistem tercihi).
+   Taş yüzleri açık kalır (koyu masada açık sticker), yüzey/kart/yazı koyulaşır. */
+body.dark {
+  --bg: #1b1a1d;
+  --card: #252428;
+  --ink: #e9e6df;
+  --muted: #9a948a;
+  --line: #38363c;
+  --accent-soft: #46302b;
+  --good: #58bd8c;
+  --good-soft: #243529;
+  --good-line: #33584a;
+  --btn-bg: #2e2d33;
+  --table: #202024;
+  --table-hi: rgba(255, 255, 255, 0.05);
+  --table-sh: rgba(0, 0, 0, 0.28);
+  --board-mat: rgba(255, 255, 255, 0.035);
+  --dot: rgba(210, 200, 180, 0.25);
+  --dot-hi: rgba(210, 200, 180, 0.5);
+  --tile-face: #f2ecdf;
+  --ripple: rgba(210, 200, 180, 0.5);
+  --overlay: rgba(15, 14, 17, 0.72);
+  --sight-strong: rgba(235, 225, 205, 0.55);
+  --sight-weak: rgba(235, 225, 205, 0.18);
+  --sight-fill: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -98,7 +140,7 @@ button {
   cursor: pointer;
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: #fbfaf7;
+  background: var(--btn-bg);
   color: var(--ink);
 }
 button.primary {
@@ -118,7 +160,9 @@ button.primary:hover { filter: brightness(1.06); }
   overflow-y: auto;
   padding: 44px 14px 18px;
 }
+.list-head { position: relative; }
 .list-head h1 { font-size: 21px; font-weight: 800; }
+.dark-toggle { position: absolute; top: -2px; right: 0; }
 .list-head-row { display: flex; align-items: center; gap: 12px; }
 .list-head-row h1 { font-size: 18px; }
 .pack-info { color: var(--muted); font-size: 12.5px; margin: 4px 0 14px; }
@@ -177,7 +221,7 @@ button.primary:hover { filter: brightness(1.06); }
 .level-card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(60, 50, 30, 0.1); }
 .level-card .lv-id { font-size: 15px; font-weight: 700; }
 .level-card .lv-meta { font-size: 11.5px; color: var(--muted); }
-.level-card.done { background: var(--good-soft); border-color: #bfe3cf; }
+.level-card.done { background: var(--good-soft); border-color: var(--good-line); }
 .level-card .lv-check { position: absolute; top: 9px; right: 11px; color: var(--good); font-weight: 700; }
 /* zorluk etiketi: sol kenar şeridi */
 .level-card { border-left: 4px solid transparent; }
@@ -240,9 +284,9 @@ button.primary:hover { filter: brightness(1.06); }
   cursor: grab;
   /* grid'siz sunum: board bir "masa yüzeyi", hücre kutusu yok */
   background:
-    radial-gradient(120% 90% at 30% 8%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
-    radial-gradient(110% 85% at 72% 95%, rgba(186, 165, 132, 0.2) 0%, transparent 60%),
-    #efe9dc;
+    radial-gradient(120% 90% at 30% 8%, var(--table-hi) 0%, transparent 55%),
+    radial-gradient(110% 85% at 72% 95%, var(--table-sh) 0%, transparent 60%),
+    var(--table);
 }
 .viewport.dragging { cursor: grabbing; }
 .camera {
@@ -285,7 +329,7 @@ button.primary:hover { filter: brightness(1.06); }
   position: absolute;
   inset: -12px;
   border-radius: 26px;
-  background: rgba(255, 253, 247, 0.5);
+  background: var(--board-mat);
   box-shadow:
     0 3px 18px rgba(60, 50, 30, 0.07),
     inset 0 0 0 1px rgba(60, 50, 30, 0.045);
@@ -312,10 +356,10 @@ button.primary:hover { filter: brightness(1.06); }
   height: 5px;
   margin: -2.5px 0 0 -2.5px;
   border-radius: 50%;
-  background: rgba(120, 108, 88, 0.3);
+  background: var(--dot);
   pointer-events: none;
 }
-.cell:hover::before { background: rgba(120, 108, 88, 0.55); }
+.cell:hover::before { background: var(--dot-hi); }
 
 /* boş-boş tap: su halkası gibi kısa dalga */
 .cell.pulse::after {
@@ -323,7 +367,7 @@ button.primary:hover { filter: brightness(1.06); }
   position: absolute;
   inset: 8px;
   border-radius: 50%;
-  border: 2px solid rgba(130, 118, 96, 0.55);
+  border: 2px solid var(--ripple);
   animation: ripple 0.38s ease-out both;
   pointer-events: none;
 }
@@ -398,7 +442,7 @@ button.primary:hover { filter: brightness(1.06); }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fffdf8;
+  background: var(--tile-face);
   border-radius: 26%;
   box-shadow:
     0 2px 5px rgba(60, 50, 30, 0.14),
@@ -447,20 +491,20 @@ button.primary:hover { filter: brightness(1.06); }
 }
 .sight .rays line { stroke-linecap: round; }
 .sight .rays line.hit {
-  stroke: rgba(88, 74, 54, 0.5);
+  stroke: var(--sight-strong);
   stroke-width: 2.5;
   stroke-dasharray: 0.1 8;
 }
 .sight .rays line.open {
-  stroke: rgba(88, 74, 54, 0.16);
+  stroke: var(--sight-weak);
   stroke-width: 2;
   stroke-dasharray: 0.1 9;
 }
 .sight .focus {
   position: absolute;
   border-radius: 50%;
-  border: 2px solid rgba(88, 74, 54, 0.5);
-  background: rgba(255, 255, 255, 0.35);
+  border: 2px solid var(--sight-strong);
+  background: var(--sight-fill);
   box-shadow: 0 1px 6px rgba(60, 50, 30, 0.12);
 }
 
@@ -488,6 +532,10 @@ button.primary:hover { filter: brightness(1.06); }
 .theme-sample { display: inline-flex; align-items: center; font-size: 15px; line-height: 1; }
 .theme-sample .shape { width: 14px; height: 14px; }
 .theme-sample .mj { font-size: 17px; }
+/* koyu çip zemininde koyu mürekkep kaybolur; taş yüzü fildişi kaldığı için
+   yalnız seçici örneğinde aydınlatılır */
+body.dark .theme-sample .mj { color: #cfe0d8; }
+body.dark .theme-sample .mj-red { color: #e8a29b; }
 
 /* Şekiller teması: SVG yüz, taşın içinde oransal */
 .tile .face .shape {
@@ -495,9 +543,23 @@ button.primary:hover { filter: brightness(1.06); }
   height: 62%;
 }
 
+/* Mücevher teması: biraz daha iri + hafif gölgeyle derinlik */
+.tile .face .gem {
+  width: 70%;
+  height: 70%;
+  filter: drop-shadow(0 1.5px 1px rgba(50, 40, 60, 0.22));
+}
+
 /* Mahjong teması: glifler kendi taş çerçevesiyle gelir → fildişi zemin,
-   köşeli taş; ikinci geçiş kırmızı (gerçek setlerdeki kırmızı taşlar gibi) */
-.mj { line-height: 1; color: #2f4038; }
+   köşeli taş; ikinci geçiş kırmızı (gerçek setlerdeki kırmızı taşlar gibi).
+   Glif mürekkebi em kutusunda aşağıda çizilir (asc 0.66em / desc 0.25em)
+   → görsel merkez için ~0.17em yukarı kaydırılır. */
+.mj {
+  line-height: 1;
+  color: #2f4038;
+  display: inline-block; /* inline span'e transform işlemez */
+  transform: translateY(-0.17em);
+}
 .mj-red { color: #b8433a; }
 .board.theme-mahjong .tile .face {
   background: #fffef7;
@@ -512,7 +574,7 @@ button.primary:hover { filter: brightness(1.06); }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.75);
+  background: var(--overlay);
   backdrop-filter: blur(2px);
   z-index: 20;
   padding: 16px;
