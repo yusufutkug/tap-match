@@ -201,6 +201,13 @@ button.primary:hover { filter: brightness(1.06); }
   background: var(--good);
   border-radius: 999px;
 }
+
+/* ── Favoriler ── */
+.fav-lib { width: 100%; margin-bottom: 9px; }
+.fav-heart { color: var(--accent); }
+.fav-btn { font-size: 18px; color: var(--muted); }
+.fav-btn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.fav-chip.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
 .level-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -54,7 +54,8 @@
   }
 
   let game = null;
-  let pack = null;   // seçili paket (lab levelinde null)
+  let pack = null;          // seçili paket (lab levelinde null)
+  let listMode = "pack";    // level listesi: "pack" | "favs"
   let timerId = null;
 
   // Kamera: pinch zoom + swipe pan (js/camera.js); tap onayı da oradan geçer
@@ -124,6 +125,39 @@
     try { localStorage.setItem(STORE_KEY, JSON.stringify([...s])); } catch (e) {}
   }
 
+  // ── Favoriler ──
+  // Sevilen leveller "size:id" anahtarıyla saklanır; HUD'daki ve kazanma
+  // popup'ındaki kalp ile eklenip çıkarılır, ana ekrandaki ♥ Favoriler
+  // kütüphanesinden tekrar oynanır.
+
+  const FAV_KEY = "tm_favs";
+  function favSet() {
+    try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || "[]")); }
+    catch (e) { return new Set(); }
+  }
+  function favHas(lv) { return favSet().has(doneKey(lv)); }
+  function toggleFav(lv) {
+    const s = favSet();
+    const key = doneKey(lv);
+    if (s.has(key)) s.delete(key); else s.add(key);
+    try { localStorage.setItem(FAV_KEY, JSON.stringify([...s])); } catch (e) {}
+    updateFavButtons();
+  }
+  function updateFavButtons() {
+    if (!game) return;
+    const on = favHas(game.lv);
+    const b = $("btnFav");
+    b.textContent = on ? "♥" : "♡";
+    b.classList.toggle("on", on);
+    b.title = on ? "Favorilerden çıkar" : "Favorilere ekle";
+    // lab levelı pakette yok, kütüphaneye giremez
+    b.hidden = !pack;
+    const w = $("btnWinFav");
+    w.textContent = on ? "♥ Favorilerde" : "♡ Favorilere ekle";
+    w.classList.toggle("on", on);
+    w.hidden = !pack;
+  }
+
   // ── Boyut seçim ekranı ──
 
   function renderSizeGrid() {
@@ -141,49 +175,72 @@
         '<span class="sz-name">' + p.cols + "×" + p.rows + "</span>" +
         '<span class="sz-meta">' + p.levels.length + " level · " + dn + " tamamlandı</span>" +
         '<span class="sz-bar"><i style="width:' + (100 * dn / p.levels.length) + '%"></i></span>';
-      card.addEventListener("click", () => { pack = p; showList(); });
+      card.addEventListener("click", () => { pack = p; listMode = "pack"; showList(); });
       grid.appendChild(card);
     }
+    const favN = favSet().size;
+    $("favLibMeta").textContent = favN ? favN + " level" : "henüz boş — oyunda ♡ ile ekle";
     renderThemeRow();
   }
 
   function showSizes() {
     stopTimer();
     pack = null;
+    listMode = "pack";
     $("playScreen").hidden = true;
     $("levelScreen").hidden = true;
     $("sizeScreen").hidden = false;
     renderSizeGrid();
   }
 
-  // ── Level seçim ekranı (seçili boyut) ──
+  // ── Level seçim ekranı (seçili boyut ya da favori kütüphanesi) ──
+
+  function levelCard(p, lv, done, showSize) {
+    const label = lv.meta && lv.meta.label;
+    const key = p.size + ":" + lv.id;
+    const card = document.createElement("button");
+    card.className = "level-card" +
+      (label ? " diff-" + label : "") +
+      (done.has(key) ? " done" : "");
+    card.innerHTML =
+      '<span class="lv-id">' + (showSize ? p.cols + "×" + p.rows + " · " : "") +
+        lv.id + " · " + lv.name + "</span>" +
+      '<span class="lv-meta">' + lv.pairs.length + " çift</span>" +
+      (done.has(key) ? '<span class="lv-check">✓</span>' : "");
+    card.addEventListener("click", () => { pack = p; startLevel(lv); });
+    return card;
+  }
 
   function renderLevelGrid() {
     const done = doneSet();
+    const grid = $("levelGrid");
+    grid.innerHTML = "";
+
+    if (listMode === "favs") {
+      const favs = favSet();
+      let n = 0;
+      for (const p of PACKS) {
+        for (const lv of p.levels) {
+          if (!favs.has(p.size + ":" + lv.id)) continue;
+          grid.appendChild(levelCard(p, lv, done, true));
+          n++;
+        }
+      }
+      $("packTitle").textContent = "♥ Favoriler";
+      $("packInfo").textContent =
+        n ? n + " level" : "henüz boş — oyunda ♡ ile ekle";
+      return;
+    }
+
     const dn = pack.levels.filter((lv) => done.has(pack.size + ":" + lv.id)).length;
     $("packTitle").textContent = pack.cols + "×" + pack.rows;
     $("packInfo").textContent = pack.levels.length + " level · " + dn + " tamamlandı";
-    const grid = $("levelGrid");
-    grid.innerHTML = "";
-    for (const lv of pack.levels) {
-      const label = lv.meta && lv.meta.label;
-      const key = pack.size + ":" + lv.id;
-      const card = document.createElement("button");
-      card.className = "level-card" +
-        (label ? " diff-" + label : "") +
-        (done.has(key) ? " done" : "");
-      card.innerHTML =
-        '<span class="lv-id">' + lv.id + " · " + lv.name + "</span>" +
-        '<span class="lv-meta">' + lv.pairs.length + " çift</span>" +
-        (done.has(key) ? '<span class="lv-check">✓</span>' : "");
-      card.addEventListener("click", () => startLevel(lv));
-      grid.appendChild(card);
-    }
+    for (const lv of pack.levels) grid.appendChild(levelCard(pack, lv, done, false));
   }
 
   function showList() {
     stopTimer();
-    if (!pack) return showSizes();
+    if (listMode !== "favs" && !pack) return showSizes();
     $("playScreen").hidden = true;
     $("sizeScreen").hidden = true;
     $("levelScreen").hidden = false;
@@ -272,6 +329,7 @@
     $("hudLevel").innerHTML =
       "Level " + lv.id + "<small>" + lv.cols + "×" + lv.rows + " · " + lv.name + "</small>";
     renderLives();
+    updateFavButtons();
     startTimer();
 
     const boardEl = $("board");
@@ -532,6 +590,9 @@
   $("btnToList").addEventListener("click", showList);
   $("btnFailList").addEventListener("click", showList);
   $("btnSizeBack").addEventListener("click", showSizes);
+  $("btnFav").addEventListener("click", () => { if (game) toggleFav(game.lv); });
+  $("btnWinFav").addEventListener("click", () => { if (game) toggleFav(game.lv); });
+  $("btnFavLib").addEventListener("click", () => { listMode = "favs"; showList(); });
   $("btnRestart").addEventListener("click", () => { if (game) startLevel(game.lv); });
   $("btnRetry").addEventListener("click", () => { if (game) startLevel(game.lv); });
   $("btnHint").addEventListener("click", showHint);
