@@ -609,6 +609,7 @@ function generateLevel(opts) {
   const dipMax = typeof opts.dipMax === "number" ? opts.dipMax : 0.5;
   const waistPosTarget = typeof opts.waistPosTarget === "number" ? opts.waistPosTarget : null;
   const waistOpenMax = typeof opts.waistOpenMax === "number" ? opts.waistOpenMax : null;
+  const fillMin = typeof opts.fillMin === "number" ? opts.fillMin : null; // doluluk tabanı
   const maxAttempts = opts.maxAttempts || 400;
   const baseSeed = typeof opts.seed === "number" ? opts.seed >>> 0 : hashSeed(String(opts.seed));
 
@@ -616,6 +617,7 @@ function generateLevel(opts) {
     let s = 0;
     if (!c.dipOk) s += 100;
     if (!c.waistOk) s += 100;
+    if (!c.fillOk) s += 100 + (fillMin - c.fill) * 200; // taban altı: açığa orantılı ceza
     if (waistPosTarget !== null) s += Math.abs(c.curve.waistPos - waistPosTarget) * 10;
     s += c.inertShare * 3; // etkisiz giriş = ölü içerik, güçlü ceza
     s += c.curve.dip;
@@ -623,7 +625,7 @@ function generateLevel(opts) {
     return s;
   };
   const onTarget = (c) =>
-    c.dipOk && c.waistOk && c.curve.cornerShare >= 0.4 && c.inertShare <= 0.25 &&
+    c.dipOk && c.waistOk && c.fillOk && c.curve.cornerShare >= 0.4 && c.inertShare <= 0.25 &&
     (waistPosTarget === null || Math.abs(c.curve.waistPos - waistPosTarget) <= 0.08);
 
   let best = null, bestScore = Infinity;
@@ -665,13 +667,15 @@ function generateLevel(opts) {
     const inertEntries = entryIdx.filter((i) => outDeg[i] === 0).length;
     const inertShare = entryIdx.length ? inertEntries / entryIdx.length : 0;
 
+    const fill = (geo.pairCells.length * 2) / (rows * cols);
     const cand = {
       pairCells: geo.pairCells, roles: geo.roles, curve, flow,
       dipOk: curve.dip <= dipMax,
       waistOk: waistOpenMax === null || waistOpenAbs <= waistOpenMax,
+      fillOk: fillMin === null || fill >= fillMin,
       waistOpenAbs, endOpen, inertEntries, inertShare,
       designedEntries, fused: geo.fused,
-      fill: (geo.pairCells.length * 2) / (rows * cols),
+      fill,
       gateDepths: geo.gateDepths, lockedDepths: geo.lockedDepths,
       attempts: attempt + 1,
     };
@@ -693,6 +697,7 @@ function generateLevel(opts) {
     fill: best.fill,
     dipOk: best.dipOk,
     waistOk: best.waistOk,
+    fillOk: best.fillOk,
     waistOpenAbs: best.waistOpenAbs,
     endOpen: best.endOpen,
     curve: best.curve,

@@ -88,29 +88,33 @@ opsiyonel kadranlar:
 - `waistOpenMax` — belde MUTLAK açık çift tavanı (AG zorluğu oransal dip
   yerine "belde 2-3 açık seçenek" ile ölçekliyor; start/waist birlikte düşer).
 
-## 100 Levellik Funnel
+## Paketler: boyut başına 100 levellik funnel
 
-Paket, AG'nin `LevelSequence` + Warmup/Relief desenini izleyen testere-dişi
-bir funnel'dır: **10 levellik döngü × 10 dekat**. Döngü etiketi:
+Oyuncu önce **boyutu** (10 paket: 6×8 … 12×18), sonra **leveli** seçer.
+Her paket, AG'nin `LevelSequence` + Warmup/Relief desenini izleyen
+testere-dişi bir funnel'dır: **10 levellik döngü × 10 dekat**. Döngü etiketi:
 
 ```
 easy easy medium medium hard easy easy medium veryhard easy
 ```
 
-Zirvelerden (hard, very hard) hemen sonra easy rahatlama gelir. Boyutlar
-(kolon×satır) dekada göre tablodan gelir: dekat 1 `6x8/7x10/8x12/9x12`,
-dekat 2 `6x9/8x10/9x12/8x14`, dekat 3-10 `7x9/8x10/9x12/8x14`; dekat ≥ 7'de
-very hard `9x15`e büyür; **49 ve 99 dev 12×18 çift kapı** zirveleridir.
+Zirvelerden (hard, very hard) hemen sonra easy rahatlama gelir.
 
-Zorluk iki eksende korele: **etiket bandı** (lockedN, derinlik, cornerP,
-bel kısıtları etikete göre) + **global rampa** (`t = (dekat-1)/9` ile aynı
-etiket dekat ilerledikçe sertleşir). Her level için karşılaştırılabilir
-**zorluk skoru** hesaplanır (çift sayısı, derinlik, efor zirvesi, köşe payı,
-belde nefes alanı); üretim sonrası **onarım geçidi** sıralamayı bozan
-hard/very hard levelleri farklı seedlerle yeniden üretir — sonuç: her
-dekatta easy < medium < hard ≤ very hard ve dört etiketin de dekatlar
-boyunca yükselen trendi. Üretemeyen reçete kademeli gevşetilir (deneme
-tavanı ↑ → bel kısıtı ↑ → kilitli ↓ → derinlik ↓), funnel'da delik kalmaz.
+**Doluluk sözleşmesi:** her level en az %50 dolu (`fillMin`, etiket hedefi
+%52-60) — çift sayısı sabit verilmez, doluluk hedefinden çözülür
+(`lockedN ≈ (hedef çift − giriş − kapı·L) / L`). Köşe oranı önceki pakete
+göre bilinçli düşük (cornerP 0.30-0.70 bandı; bel-köşe payı ~%58-68).
+
+Boyut artık zorluk taşımadığı için zorluk tamamen **yapıdan** gelir:
+**etiket bandı** (derinlik bandı, cornerP, giriş sayısı, bel kısıtları) +
+**global rampa** (`t = (dekat-1)/9`). Very hard, hard'dan daha derin zincir
+bandı (derinlik tavanı hard için 1 kısılır) ve daha az girişle ayrışır.
+Her level için **zorluk skoru** hesaplanır (derinlik, efor zirvesi, köşe
+payı, belde nefes alanı); üretim sonrası **çok geçişli onarım geçidi**
+sıralamayı bozan levelleri farklı seedlerle yeniden üretir, gerekirse üst
+etiketi banda indirir — sonuç: her pakette her dekatta easy < medium <
+hard ≤ very hard ve very hard'ın dekatlar boyunca yükselen trendi.
+Üretemeyen reçete kademeli gevşetilir, funnel'da delik kalmaz.
 
 ## Oyun kabuğu: telefon çerçevesi + can + kamera
 
@@ -118,6 +122,16 @@ Oyun, sayfa ortasındaki telefon çerçevesinde oynanır. HUD'da geçen süre
 (yukarı sayar, win/fail'de durur) ve **3 can** vardır: `miss` (taşlar gelip
 eşleşemeden dönen hatalı tap) bir can yakar; boş `blank` tap yakmaz. Canlar
 bitince level başarısız olur — Tekrar Dene canları ve süreyi sıfırlar.
+
+Sunum **noktalı ızgaradır**: hücre kutusu çizilmez; her hücrenin merkezinde
+silik bir nokta durur ve taş noktanın üstünü kapatır → görünürde yalnız
+**boş** hücreler noktalıdır. Tap hedefleri ve hiza kutu olmadan okunur,
+board silik bir mat üstünde düzgün hizalı sticker'lar gibi görünür. Bunu
+**basılı-tut görüş önizlemesi** tamamlar: parmak boş noktada ~160ms
+beklerse hücrenin 4 yön görüşü çizilir — taşa çarpan ışın koyu noktalı,
+boşa giden silik; gören taşlar noktaya doğru eğilir. Önizleme yeni bilgi
+vermez (taşlar zaten açık), yalnız okumayı hızlandırır; parmak tap eşiğini
+aşarsa (drag/pinch) ya da kalkarsa kapanır.
 
 Board, Amaze GO'nun kamera modeliyle gezilir (`js/camera.js`): açılışta
 board viewporta sığdırılır (fit = minZoom, AG FullBoardView), pinch/tekerlek
@@ -144,14 +158,14 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı) |
 | `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates` |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
-| `levels_gen.js` | üretilmiş funnel (100 level, E-E-M-M-H-E-E-M-VH-E × 10 dekat; `tools/gen_levels.js` yazar — elle düzenleme) |
-| `js/game.js` + `index.html` + `style.css` | oyun sayfası: telefon çerçevesi + HUD (süre, 3 can), hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı; level grid'de zorluk şeridi |
+| `levels_gen.js` | üretilmiş paketler (`TM_PACKS`: 10 boyut × 100 level; `tools/gen_levels.js` yazar — elle düzenleme) |
+| `js/game.js` + `index.html` + `style.css` | oyun sayfası: boyut seçimi → level grid → oyun; telefon çerçevesi + HUD (süre, 3 can), noktalı ızgara sunumu (mat + boş hücre noktaları) + basılı-tut görüş önizlemesi, hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı; level grid'de zorluk şeridi |
 | `js/camera.js` | board kamerası: pinch zoom + swipe pan + clamp + atalet, tap/drag ayrımı (AG'nin LeanTouch kamera modelinin web karşılığı) |
 | `lab.html` + `js/lab.js` | level lab: parametreyle üret, eğrileri gör, tek tıkla oyna |
 | `tools/test_board.js` | çekirdek duman testleri + level doğrulama |
 | `tools/test_flow.js` | ölçüm katmanı testleri (dalga, deadlock, eğri) + level raporu |
 | `tools/test_generator.js` | üretici duman testi + konfigürasyon istatistikleri |
-| `tools/gen_levels.js` | funnel üretimi (döngü/boyut/rampa tabloları + onarım geçidi → `levels_gen.js`) |
+| `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
 
 ## Çalıştırma
 

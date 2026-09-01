@@ -119,7 +119,44 @@ button.primary:hover { filter: brightness(1.06); }
   padding: 44px 14px 18px;
 }
 .list-head h1 { font-size: 21px; font-weight: 800; }
+.list-head-row { display: flex; align-items: center; gap: 12px; }
+.list-head-row h1 { font-size: 18px; }
 .pack-info { color: var(--muted); font-size: 12.5px; margin: 4px 0 14px; }
+
+/* boyut kartları */
+.size-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+}
+.size-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--card);
+  text-align: left;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.size-card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(60, 50, 30, 0.1); }
+.size-card .sz-name { font-size: 17px; font-weight: 800; }
+.size-card .sz-meta { font-size: 11.5px; color: var(--muted); }
+.size-card .sz-bar {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.size-card .sz-bar i {
+  display: block;
+  height: 100%;
+  background: var(--good);
+  border-radius: 999px;
+}
 .level-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -201,8 +238,11 @@ button.primary:hover { filter: brightness(1.06); }
   overflow: hidden;
   touch-action: none;
   cursor: grab;
+  /* grid'siz sunum: board bir "masa yüzeyi", hücre kutusu yok */
   background:
-    radial-gradient(90% 70% at 50% 30%, #f8f5ef 0%, #efeadf 100%);
+    radial-gradient(120% 90% at 30% 8%, rgba(255, 255, 255, 0.55) 0%, transparent 55%),
+    radial-gradient(110% 85% at 72% 95%, rgba(186, 165, 132, 0.2) 0%, transparent 60%),
+    #efe9dc;
 }
 .viewport.dragging { cursor: grabbing; }
 .camera {
@@ -231,9 +271,25 @@ button.primary:hover { filter: brightness(1.06); }
 /* Board: mutlak konumlu hücre + taş katmanları.
    Hücre/taş boyutu JS'ten % olarak, konum transform: translate ile verilir —
    uçuş animasyonu bu transform'un transition'ıdır. Piksel boyutu JS'ten
-   (BASE_CELL × satır/sütun); zoom kamera transform'undan gelir. */
+   (BASE_CELL × satır/sütun); zoom kamera transform'undan gelir.
+
+   Noktalı ızgara: hücre kutusu çizilmez; her hücrenin merkezinde silik bir
+   nokta durur (::before). Taş noktanın üstünü kapatır → görünürde yalnız
+   BOŞ hücreler noktalıdır: tap hedefleri ve hiza, kutu olmadan okunur.
+   Basılı-tut görüş önizlemesi (.sight, js/game.js) bunu tamamlar. */
 .board {
   position: relative;
+}
+.board::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 26px;
+  background: rgba(255, 253, 247, 0.5);
+  box-shadow:
+    0 3px 18px rgba(60, 50, 30, 0.07),
+    inset 0 0 0 1px rgba(60, 50, 30, 0.045);
+  pointer-events: none;
 }
 
 .cell {
@@ -244,22 +300,36 @@ button.primary:hover { filter: brightness(1.06); }
   border: none;
   border-radius: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
+/* ızgara noktası: hücre merkezinde silik benek (taş üstünü kapatır) */
 .cell::before {
   content: "";
   position: absolute;
-  inset: 3px;
-  border-radius: 10px;
-  background: #efeadf;
-  box-shadow: inset 0 1px 3px rgba(60, 50, 30, 0.07);
-  transition: background 0.15s;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: rgba(120, 108, 88, 0.3);
+  pointer-events: none;
 }
-.cell:hover::before { background: #e9e2d3; }
+.cell:hover::before { background: rgba(120, 108, 88, 0.55); }
 
-/* boş-boş tap: hafif nabız */
-.cell.pulse::before { animation: cellPulse 0.32s ease; }
-@keyframes cellPulse {
-  40% { background: #e0d8c6; transform: scale(0.93); }
+/* boş-boş tap: su halkası gibi kısa dalga */
+.cell.pulse::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(130, 118, 96, 0.55);
+  animation: ripple 0.38s ease-out both;
+  pointer-events: none;
+}
+@keyframes ripple {
+  0% { transform: scale(0.35); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
 }
 
 /* hatalı tap: ✕ işareti */
@@ -283,12 +353,12 @@ button.primary:hover { filter: brightness(1.06); }
   100% { opacity: 0; transform: scale(1); }
 }
 
-/* patlama: hücrede genişleyen halka */
+/* patlama: noktada genişleyen halka */
 .cell.boom::after {
   content: "";
   position: absolute;
-  inset: 3px;
-  border-radius: 10px;
+  inset: 8px;
+  border-radius: 50%;
   border: 2px solid var(--accent);
   animation: boomRing 0.42s ease-out 0.19s both;
   pointer-events: none;
@@ -298,9 +368,22 @@ button.primary:hover { filter: brightness(1.06); }
   100% { transform: scale(1.7); opacity: 0; }
 }
 
-/* ipucu */
-.cell.hintmark::before { background: var(--good-soft); box-shadow: inset 0 0 0 2px var(--good); }
+/* ipucu: yumuşak yeşil parıltı (nokta ::before'da kaldığı için ::after) */
+.cell.hintmark::after {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: rgba(76, 175, 125, 0.16);
+  box-shadow: 0 0 0 2px var(--good), 0 0 14px rgba(76, 175, 125, 0.5);
+  animation: hintPulse 0.45s ease-in-out 2;
+  pointer-events: none;
+}
+@keyframes hintPulse {
+  50% { transform: scale(1.16); }
+}
 
+/* Taş = düzgün hizalı sticker: hücre merkezinde, kutu/çizgi olmadan. */
 .tile {
   position: absolute;
   top: 0;
@@ -311,18 +394,25 @@ button.primary:hover { filter: brightness(1.06); }
 }
 .tile .face {
   position: absolute;
-  inset: 3px;
+  inset: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fbfaf7;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: 0 1px 2px rgba(60, 50, 30, 0.08);
-  transition: background 0.15s, border-color 0.15s;
+  background: #fffdf8;
+  border-radius: 26%;
+  box-shadow:
+    0 2px 5px rgba(60, 50, 30, 0.14),
+    inset 0 0 0 1px rgba(60, 50, 30, 0.05);
+  transition: transform 0.16s ease, background 0.15s, box-shadow 0.16s;
 }
 .tile.flying { z-index: 5; }
-.tile.bad .face { background: var(--accent-soft); border-color: var(--accent); }
+.tile.bad .face { background: var(--accent-soft); box-shadow: 0 2px 5px rgba(60, 50, 30, 0.14), inset 0 0 0 2px var(--accent); }
+
+/* görüş önizlemesinde görülen taş: noktaya doğru eğilir (--lx/--ly JS'ten) */
+.tile.seen:not(.flying) .face {
+  transform: translate(var(--lx, 0px), var(--ly, 0px)) scale(1.09);
+  box-shadow: 0 4px 12px rgba(60, 50, 30, 0.22), inset 0 0 0 1px rgba(60, 50, 30, 0.08);
+}
 
 /* pop, konumu taşıyan tile transform'unu ezmesin diye face üzerinden ölçeklenir */
 .tile.pop .face { animation: popFace 0.23s ease-in forwards; }
@@ -336,6 +426,83 @@ button.primary:hover { filter: brightness(1.06); }
   25% { transform: translateX(-3px) rotate(-2deg); }
   50% { transform: translateX(3px) rotate(2deg); }
   75% { transform: translateX(-2px); }
+}
+
+/* ── Basılı-tut görüş önizlemesi (js/game.js showSight) ── */
+.sight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  animation: sightIn 0.15s ease both;
+}
+@keyframes sightIn {
+  from { opacity: 0; }
+}
+.sight .rays {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+}
+.sight .rays line { stroke-linecap: round; }
+.sight .rays line.hit {
+  stroke: rgba(88, 74, 54, 0.5);
+  stroke-width: 2.5;
+  stroke-dasharray: 0.1 8;
+}
+.sight .rays line.open {
+  stroke: rgba(88, 74, 54, 0.16);
+  stroke-width: 2;
+  stroke-dasharray: 0.1 9;
+}
+.sight .focus {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(88, 74, 54, 0.5);
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 1px 6px rgba(60, 50, 30, 0.12);
+}
+
+/* ── Sticker temaları (js/themes.js) ── */
+
+/* boyut ekranındaki tema seçici */
+.theme-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -6px 0 14px;
+}
+.theme-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.theme-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-chip.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.theme-sample { display: inline-flex; align-items: center; font-size: 15px; line-height: 1; }
+.theme-sample .shape { width: 14px; height: 14px; }
+.theme-sample .mj { font-size: 17px; }
+
+/* Şekiller teması: SVG yüz, taşın içinde oransal */
+.tile .face .shape {
+  width: 62%;
+  height: 62%;
+}
+
+/* Mahjong teması: glifler kendi taş çerçevesiyle gelir → fildişi zemin,
+   köşeli taş; ikinci geçiş kırmızı (gerçek setlerdeki kırmızı taşlar gibi) */
+.mj { line-height: 1; color: #2f4038; }
+.mj-red { color: #b8433a; }
+.board.theme-mahjong .tile .face {
+  background: #fffef7;
+  border-color: #ddd5c2;
+  border-radius: 8px;
 }
 
 /* ── Kazanma / kaybetme overlay'i ── */

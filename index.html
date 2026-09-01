@@ -12,11 +12,27 @@
       <div class="phone-screen">
         <div class="phone-notch"></div>
 
-        <!-- Level seçimi -->
-        <section id="levelScreen" class="level-screen">
+        <!-- Boyut seçimi -->
+        <section id="sizeScreen" class="level-screen">
           <div class="list-head">
             <h1>Tap Match</h1>
-            <div id="packInfo" class="pack-info"></div>
+            <div id="sizeInfo" class="pack-info"></div>
+          </div>
+          <div class="theme-row">
+            <span class="theme-label">Sticker</span>
+            <div id="themeRow" class="theme-chips"></div>
+          </div>
+          <div id="sizeGrid" class="size-grid"></div>
+        </section>
+
+        <!-- Level seçimi (seçili boyut) -->
+        <section id="levelScreen" class="level-screen" hidden>
+          <div class="list-head list-head-row">
+            <button id="btnSizeBack" class="hud-btn" title="Boyutlar">←</button>
+            <div>
+              <h1 id="packTitle"></h1>
+              <div id="packInfo" class="pack-info"></div>
+            </div>
           </div>
           <div id="levelGrid" class="level-grid"></div>
         </section>
@@ -76,6 +92,7 @@
   <script src="levels_gen.js"></script>
   <script src="js/board.js"></script>
   <script src="js/camera.js"></script>
+  <script src="js/themes.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
