@@ -68,19 +68,22 @@
   function doneKey(lv) { return (pack ? pack.size : "lab") + ":" + lv.id; }
 
   // ── Dark mode ──
-  // Kayıtlı tercih yoksa sistem tercihine uyar; düğme tercihi kalıcılaştırır.
+  // Varsayılan KOYU; düğme tercihi kalıcılaştırır. theme-color meta'sı da
+  // güncellenir ki telefonda tarayıcı/durum çubuğu oyuna uysun.
 
   const DARK_KEY = "tm_dark";
   function applyDark(on) {
     document.body.classList.toggle("dark", on);
     $("btnDark").textContent = on ? "☀️" : "🌙";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", on ? "#1b1a1d" : "#f5f2ec");
   }
   let darkOn = (() => {
     try {
       const s = localStorage.getItem(DARK_KEY);
       if (s !== null) return s === "1";
     } catch (e) {}
-    return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+    return true;
   })();
   applyDark(darkOn);
   $("btnDark").addEventListener("click", () => {
