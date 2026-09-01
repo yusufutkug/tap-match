@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap Match — Level Lab</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .lab-layout { padding: 4px 24px 40px; max-width: 1180px; margin: 0 auto; }
+  .lab-panel { margin-bottom: 16px; }
+  .lab-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .lab-params {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+    gap: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .lab-params label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--muted); }
+  .lab-params input {
+    font: inherit; font-size: 14px; padding: 6px 8px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fbfaf7; color: var(--ink);
+    width: 100%;
+  }
+  .lab-params input:focus { outline: none; border-color: var(--accent); }
+  .lab-run { display: flex; align-items: center; gap: 14px; }
+  #labProgress { color: var(--muted); font-size: 13px; }
+  #labSummary { color: var(--ink); font-size: 13px; margin: 4px 0 14px; }
+  #labSummary b { color: var(--accent); }
+
+  .cand-grid { display: flex; flex-direction: column; gap: 14px; }
+  .cand { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+  .cand.fail { color: var(--muted); font-size: 13px; }
+  .cand-info { flex: 1 1 260px; min-width: 240px; }
+  .cand-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+  .cand-title small { color: var(--muted); font-weight: 500; margin-left: 6px; }
+  .cand-metrics { font-size: 12.5px; line-height: 1.9; color: var(--ink); }
+  .cand-metrics b { font-variant-numeric: tabular-nums; }
+  .m-ok { color: var(--good); font-weight: 700; }
+  .m-bad { color: var(--accent); font-weight: 700; }
+  .cand-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .cand canvas { border: 1px solid var(--line); border-radius: 10px; background: #fffdf9; }
+  .curve-wrap, .prev-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .curve-wrap small, .prev-wrap small { color: var(--muted); font-size: 11px; }
+  .legend { display: flex; gap: 12px; font-size: 11px; color: var(--muted); }
+  .legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Tap Match — Level Lab <span>üret · ölç · oyna</span></h1>
+  </div>
+
+  <div class="lab-layout">
+    <div class="card lab-panel">
+      <div class="lab-presets" id="labPresets"></div>
+      <div class="lab-params" id="labParams"></div>
+      <div class="lab-run">
+        <button class="primary" id="btnGen">Üret</button>
+        <span id="labProgress"></span>
+      </div>
+    </div>
+
+    <div id="labSummary"></div>
+    <div class="legend" style="margin-bottom:10px">
+      <span><i style="background:#e2725b"></i>açık/kalan eğrisi</span>
+      <span><i style="background:#e8b23a"></i>arama eforu (norm.)</span>
+      <span><i style="background:#b9b2a6"></i>Amaze GO ort. referansı</span>
+      <span><i style="background:#c33;width:3px;height:12px"></i>bel</span>
+      <span style="margin-left:12px">board: <i style="background:#34d399"></i>giriş <i style="background:#f87171"></i>kapı <i style="background:#60a5fa"></i>kilitli</span>
+    </div>
+    <div class="cand-grid" id="candGrid"></div>
+  </div>
+
+  <script src="js/board.js"></script>
+  <script src="js/flow.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/lab.js"></script>
+</body>
+</html>

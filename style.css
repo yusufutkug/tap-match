@@ -1,0 +1,343 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f2ec;
+  --card: #ffffff;
+  --ink: #2c2a26;
+  --muted: #8a857c;
+  --line: #e8e3da;
+  --accent: #e2725b;
+  --accent-soft: #fdeeea;
+  --good: #4caf7d;
+  --good-soft: #e8f6ee;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #23211d;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── Telefon çerçevesi ── */
+.phone-stage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: radial-gradient(120% 90% at 50% 0%, #35322c 0%, #201e1a 70%);
+}
+.phone {
+  /* ~9:19.5 gövde; yüksekliğe ve genişliğe göre sığdır */
+  width: min(430px, 100vw - 24px, calc((100vh - 24px) * 9 / 19.5));
+  aspect-ratio: 9 / 19.5;
+  background: #17161a;
+  border-radius: 46px;
+  padding: 11px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 2px #3a383f,
+    inset 0 0 0 5px #0c0b0e;
+}
+.phone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 36px;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+.phone-notch {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 34%;
+  height: 21px;
+  background: #17161a;
+  border-radius: 999px;
+  z-index: 30;
+  pointer-events: none;
+}
+[hidden] { display: none !important; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(60, 50, 30, 0.05);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fbfaf7;
+  color: var(--ink);
+}
+button.primary {
+  padding: 9px 26px;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+button.primary:hover { filter: brightness(1.06); }
+.chip { padding: 6px 12px; font-size: 12.5px; border-radius: 999px; }
+
+/* ── Level seçimi ── */
+.level-screen {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 44px 14px 18px;
+}
+.list-head h1 { font-size: 21px; font-weight: 800; }
+.pack-info { color: var(--muted); font-size: 12.5px; margin: 4px 0 14px; }
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 9px;
+}
+.level-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card);
+  text-align: left;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.level-card:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(60, 50, 30, 0.1); }
+.level-card .lv-id { font-size: 15px; font-weight: 700; }
+.level-card .lv-meta { font-size: 11.5px; color: var(--muted); }
+.level-card.done { background: var(--good-soft); border-color: #bfe3cf; }
+.level-card .lv-check { position: absolute; top: 9px; right: 11px; color: var(--good); font-weight: 700; }
+/* zorluk etiketi: sol kenar şeridi */
+.level-card { border-left: 4px solid transparent; }
+.level-card.diff-easy { border-left-color: #6fbf8a; }
+.level-card.diff-medium { border-left-color: #e3c14f; }
+.level-card.diff-hard { border-left-color: #e88f4a; }
+.level-card.diff-veryhard { border-left-color: #d95f5f; }
+
+/* ── Oyun ── */
+.play-screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HUD: geri · level + süre · canlar */
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 38px 12px 8px; /* üstte çentik payı */
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+}
+.hud-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.hud-mid { text-align: center; line-height: 1.25; }
+.hud-level { font-weight: 800; font-size: 14.5px; }
+.hud-level small { color: var(--muted); font-weight: 600; margin-left: 5px; font-size: 11.5px; }
+.hud-time {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.hud-lives { display: flex; gap: 3px; font-size: 17px; flex-shrink: 0; }
+.hud-lives .heart { transition: filter 0.2s, opacity 0.2s; }
+.hud-lives .heart.lost { filter: grayscale(1); opacity: 0.3; }
+.hud-lives .heart.breaking { animation: heartBreak 0.55s ease both; }
+@keyframes heartBreak {
+  20% { transform: scale(1.35) rotate(-8deg); }
+  55% { transform: scale(0.8) rotate(6deg); filter: grayscale(0.5); }
+  100% { transform: scale(1); filter: grayscale(1); opacity: 0.3; }
+}
+
+/* Kamera viewport'u: pinch zoom + swipe pan (js/camera.js) */
+.viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  background:
+    radial-gradient(90% 70% at 50% 30%, #f8f5ef 0%, #efeadf 100%);
+}
+.viewport.dragging { cursor: grabbing; }
+.camera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Alt bar: kalan çift/istatistik + ipucu */
+.playbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+}
+.play-actions { display: flex; gap: 6px; }
+
+.stats { display: flex; gap: 11px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.stats b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Board: mutlak konumlu hücre + taş katmanları.
+   Hücre/taş boyutu JS'ten % olarak, konum transform: translate ile verilir —
+   uçuş animasyonu bu transform'un transition'ıdır. Piksel boyutu JS'ten
+   (BASE_CELL × satır/sütun); zoom kamera transform'undan gelir. */
+.board {
+  position: relative;
+}
+
+.cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+}
+.cell::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 10px;
+  background: #efeadf;
+  box-shadow: inset 0 1px 3px rgba(60, 50, 30, 0.07);
+  transition: background 0.15s;
+}
+.cell:hover::before { background: #e9e2d3; }
+
+/* boş-boş tap: hafif nabız */
+.cell.pulse::before { animation: cellPulse 0.32s ease; }
+@keyframes cellPulse {
+  40% { background: #e0d8c6; transform: scale(0.93); }
+}
+
+/* hatalı tap: ✕ işareti */
+.cell.miss::after {
+  content: "✕";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.9em;
+  animation: missMark 0.55s ease both;
+  pointer-events: none;
+}
+@keyframes missMark {
+  0% { opacity: 0; transform: scale(0.4); }
+  30% { opacity: 1; transform: scale(1.15); }
+  70% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+/* patlama: hücrede genişleyen halka */
+.cell.boom::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 10px;
+  border: 2px solid var(--accent);
+  animation: boomRing 0.42s ease-out 0.19s both;
+  pointer-events: none;
+}
+@keyframes boomRing {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+/* ipucu */
+.cell.hintmark::before { background: var(--good-soft); box-shadow: inset 0 0 0 2px var(--good); }
+
+.tile {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none; /* tap her zaman alttaki hücreye gider */
+  transition: transform 0.19s cubic-bezier(0.55, 0, 0.7, 1.2);
+  z-index: 2;
+}
+.tile .face {
+  position: absolute;
+  inset: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbfaf7;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(60, 50, 30, 0.08);
+  transition: background 0.15s, border-color 0.15s;
+}
+.tile.flying { z-index: 5; }
+.tile.bad .face { background: var(--accent-soft); border-color: var(--accent); }
+
+/* pop, konumu taşıyan tile transform'unu ezmesin diye face üzerinden ölçeklenir */
+.tile.pop .face { animation: popFace 0.23s ease-in forwards; }
+@keyframes popFace {
+  35% { transform: scale(1.22); opacity: 1; }
+  100% { transform: scale(0.25); opacity: 0; }
+}
+
+.tile.wiggle .face { animation: wiggle 0.28s; }
+@keyframes wiggle {
+  25% { transform: translateX(-3px) rotate(-2deg); }
+  50% { transform: translateX(3px) rotate(2deg); }
+  75% { transform: translateX(-2px); }
+}
+
+/* ── Kazanma / kaybetme overlay'i ── */
+.win {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 20;
+  padding: 16px;
+}
+.win-box {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px 26px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(60, 50, 30, 0.15);
+  max-width: 100%;
+}
+.win-title { font-size: 19px; font-weight: 700; margin-bottom: 10px; }
+#winStats, #failStats { color: var(--muted); font-size: 13.5px; margin-bottom: 16px; }
+.win-actions { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }

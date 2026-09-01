@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Tap Match</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="phone-stage">
+    <div class="phone">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+
+        <!-- Level seçimi -->
+        <section id="levelScreen" class="level-screen">
+          <div class="list-head">
+            <h1>Tap Match</h1>
+            <div id="packInfo" class="pack-info"></div>
+          </div>
+          <div id="levelGrid" class="level-grid"></div>
+        </section>
+
+        <!-- Oyun ekranı -->
+        <section id="playScreen" class="play-screen" hidden>
+          <div class="hud">
+            <button id="btnBack" class="hud-btn" title="Level listesi">←</button>
+            <div class="hud-mid">
+              <div id="hudLevel" class="hud-level"></div>
+              <div id="hudTime" class="hud-time">00:00</div>
+            </div>
+            <div id="hudLives" class="hud-lives"></div>
+          </div>
+
+          <div id="viewport" class="viewport">
+            <div id="camera" class="camera">
+              <div id="board" class="board"></div>
+            </div>
+          </div>
+
+          <div class="playbar">
+            <div class="stats" id="playStats"></div>
+            <div class="play-actions">
+              <button id="btnHint" class="chip">İpucu</button>
+              <button id="btnRestart" class="chip" title="Yeniden başlat">↻</button>
+            </div>
+          </div>
+
+          <div id="winOverlay" class="win" hidden>
+            <div class="win-box">
+              <div class="win-title">Level tamamlandı 🎉</div>
+              <div id="winStats"></div>
+              <div class="win-actions">
+                <button id="btnNext" class="primary">Sonraki level</button>
+                <button id="btnToList" class="chip">Level listesi</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="failOverlay" class="win" hidden>
+            <div class="win-box">
+              <div class="win-title">Canlar bitti 💔</div>
+              <div id="failStats"></div>
+              <div class="win-actions">
+                <button id="btnRetry" class="primary">Tekrar dene</button>
+                <button id="btnFailList" class="chip">Level listesi</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="levels.js"></script>
+  <script src="levels_gen.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/camera.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
