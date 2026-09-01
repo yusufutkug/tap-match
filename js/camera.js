@@ -19,12 +19,14 @@
 function createCamera(viewport, content) {
   const TAP_PX = 8;          // tap/drag ayrım eşiği
   const ZOOM_RANGE = 2.2;    // maxZoom = fit × bu (AG: 2.1→4.0 ≈ ×1.9)
+  const ZOOM_OUT = 0.8;      // minZoom = fit × bu: fit'in biraz altına inilebilir
   const WHEEL_K = 0.0016;    // tekerlek hassasiyeti
   const DAMPING = 0.93;      // atalet sönümü (kare başına ~60fps)
   const MIN_V = 0.04;        // px/ms: bunun altında atalet durur
 
   let bw = 0, bh = 0;                 // içerik taban boyutu (px)
   let scale = 1, minS = 0.1, maxS = 4;
+  let fitS = 1;                       // boardu tam sığdıran ölçek (açılış)
   let x = 0, y = 0;
   let raf = null;                     // atalet döngüsü
 
@@ -56,14 +58,16 @@ function createCamera(viewport, content) {
 
   function setContentSize(w, h) { bw = w; bh = h; }
 
-  // Boardu sığdır ve ortala; sığdırma ölçeği = minZoom
+  // Boardu sığdır ve ortala; açılış ölçeği = fit, ama fit'in biraz altına
+  // (ZOOM_OUT) da uzaklaşılabilir — board ekranda küçülüp nefes alanı kazanır
   function fit() {
     stopInertia();
     const r = rect();
     const pad = 14;
-    minS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
-    maxS = minS * ZOOM_RANGE;
-    scale = minS;
+    fitS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
+    minS = fitS * ZOOM_OUT;
+    maxS = fitS * ZOOM_RANGE;
+    scale = fitS;
     x = (r.width - bw * scale) / 2;
     y = (r.height - bh * scale) / 2;
     apply();
@@ -72,12 +76,13 @@ function createCamera(viewport, content) {
   // Pencere boyutu değişince mevcut zoom oranını koruyarak yeniden hesapla
   function refit() {
     if (!bw) return;
-    const ratio = minS > 0 ? scale / minS : 1;
+    const ratio = fitS > 0 ? scale / fitS : 1;
     const r = rect();
     const pad = 14;
-    minS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
-    maxS = minS * ZOOM_RANGE;
-    scale = Math.min(maxS, Math.max(minS, minS * ratio));
+    fitS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
+    minS = fitS * ZOOM_OUT;
+    maxS = fitS * ZOOM_RANGE;
+    scale = Math.min(maxS, Math.max(minS, fitS * ratio));
     clamp();
     apply();
   }
