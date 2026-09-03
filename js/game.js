@@ -99,6 +99,28 @@
     applyDark(darkOn);
   });
 
+  // ── Tarama efekti (opsiyonel) ──
+  // Tap'teki 4 yönlü scan ışınları kapatılabilir; kapalıyken scan beklemesi
+  // de kalkar (taşlar anında uçar). Ana ekrandaki çip ile açılıp kapanır.
+
+  const SCAN_KEY = "tm_scan";
+  let scanOn = (() => {
+    try { return localStorage.getItem(SCAN_KEY) !== "0"; } catch (e) { return true; }
+  })();
+  const scanDelay = () => (scanOn ? SCAN_MS : 0);
+  function applyScanBtn() {
+    const b = $("btnScan");
+    b.textContent = scanOn ? "Açık" : "Kapalı";
+    b.classList.toggle("on", scanOn);
+    b.classList.toggle("theme-chip", scanOn); // .theme-chip.on accent görünümü
+  }
+  applyScanBtn();
+  $("btnScan").addEventListener("click", () => {
+    scanOn = !scanOn;
+    try { localStorage.setItem(SCAN_KEY, scanOn ? "1" : "0"); } catch (e) {}
+    applyScanBtn();
+  });
+
   // ── Sticker teması ──
 
   function currentThemeId() {
@@ -289,7 +311,7 @@
     game.lives--;
     const heart = $("hudLives").children[game.lives];
     // kalp, scan bitip hata görünür olduktan sonra kırılsın
-    if (heart) setTimeout(() => heart.classList.add("breaking"), SCAN_MS);
+    if (heart) setTimeout(() => heart.classList.add("breaking"), scanDelay());
     if (game.lives === 0) {
       game.over = true;
       stopTimer();
@@ -297,7 +319,7 @@
         fmtTime(Date.now() - game.startT) + " · " + game.taps + " tap · " +
         game.alive.size + " çift kaldı";
       // scan + hatalı taşların geri dönüş animasyonu bitince göster
-      setTimeout(() => { $("failOverlay").hidden = false; }, SCAN_MS + FLY_MS * 2 + 250);
+      setTimeout(() => { $("failOverlay").hidden = false; }, scanDelay() + FLY_MS * 2 + 250);
     }
   }
 
@@ -349,6 +371,8 @@
     boardEl.style.width = bw + "px";
     boardEl.style.height = bh + "px";
     boardEl.style.fontSize = BASE_CELL * theme.faceScale + "px";
+    // patlama halkası çarpışma anında belirsin (tarama ayarına göre değişir)
+    boardEl.style.setProperty("--boom-delay", (scanDelay() + FLY_MS) / 1000 + "s");
 
     const w = 100 / lv.cols + "%", h = 100 / lv.rows + "%";
     for (let r = 0; r < lv.rows; r++) {
@@ -407,6 +431,7 @@
   // 4 yön de çizilir — görüş/engelleme kuralı yanlış tap'lerde öğrenilir.
   // NOT: board henüz mutate edilmeden (applyMatches öncesi) çağrılmalı.
   function playScan(r, c, res) {
+    if (!scanOn) return; // efekt kapalı: ışın çizilmez (scanDelay de 0'dır)
     const cs = BASE_CELL;
     const cx = (c + 0.5) * cs, cy = (r + 0.5) * cs;
     const matched = new Set();
@@ -511,13 +536,13 @@
     if (res.kind === "miss") {
       game.mistakes++;
       playScan(r, c, res);
-      flashCell(key, "active", SCAN_MS);
+      flashCell(key, "active", scanDelay() || 120);
       setTimeout(() => {
         if (game !== g) return;
         flashCell(key, "miss", 600);
         for (const [tr, tc] of res.bounce) flyAndReturn(tr, tc, r, c);
         vibrate(35);
-      }, SCAN_MS);
+      }, scanDelay());
       loseLife();
       refresh();
       return;
@@ -528,21 +553,21 @@
     const isCombo = res.matches.length >= 2;
     if (isCombo) game.combos++;
     playScan(r, c, res); // board mutate edilmeden: ışınlar eşleşen taşları görsün
-    flashCell(key, "good", SCAN_MS + 450); // doğru hücre: soket tap anında yeşil
+    flashCell(key, "good", scanDelay() + 450); // doğru hücre: soket tap anında yeşil
     applyMatches(game.board, res.matches);
     for (const m of res.matches) game.alive.delete(m.pairId);
     setTimeout(() => {
       if (game !== g) return;
       for (const m of res.matches)
         for (const [tr, tc] of m.tiles) flyAndBreak(tr, tc, r, c);
-    }, SCAN_MS);
+    }, scanDelay());
     setTimeout(() => {
       if (game !== g) return;
       spawnBurst(r, c, isCombo);
       if (isCombo) showFloatText(r, c, "Çifte!");
       vibrate(isCombo ? [15, 30, 15] : 12);
-    }, SCAN_MS + FLY_MS);
-    flashCell(key, isCombo ? "boom big" : "boom", SCAN_MS + FLY_MS + 550);
+    }, scanDelay() + FLY_MS);
+    flashCell(key, isCombo ? "boom big" : "boom", scanDelay() + FLY_MS + 550);
     refresh();
 
     if (game.alive.size === 0) {
@@ -553,7 +578,7 @@
         game.mistakes + " hatalı" +
         (game.combos ? " · " + game.combos + " çifte patlama" : "");
       $("btnNext").hidden = !nextLevel();
-      setTimeout(() => { $("winOverlay").hidden = false; }, SCAN_MS + FLY_MS + POP_MS + 150);
+      setTimeout(() => { $("winOverlay").hidden = false; }, scanDelay() + FLY_MS + POP_MS + 150);
     }
   }
 

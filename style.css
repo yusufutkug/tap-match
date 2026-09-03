@@ -448,14 +448,15 @@ button.primary:hover { filter: brightness(1.06); }
   100% { transform: scale(1.4); opacity: 0; }
 }
 
-/* patlama: noktada genişleyen halka — gecikme SCAN_MS + FLY_MS (js/game.js) */
+/* patlama: noktada genişleyen halka — gecikme çarpışma anına denk gelir;
+   --boom-delay startLevel'da yazılır (scan açık: SCAN_MS+FLY_MS, kapalı: FLY_MS) */
 .cell.boom::after {
   content: "";
   position: absolute;
   inset: 8px;
   border-radius: 50%;
   border: 2px solid var(--accent);
-  animation: boomRing 0.42s ease-out 0.32s both;
+  animation: boomRing 0.42s ease-out var(--boom-delay, 0.32s) both;
   pointer-events: none;
 }
 @keyframes boomRing {
@@ -469,7 +470,7 @@ button.primary:hover { filter: brightness(1.06); }
 .cell.boom.big::after {
   inset: 6px;
   border-width: 3px;
-  animation: boomRingBig 0.52s ease-out 0.32s both;
+  animation: boomRingBig 0.52s ease-out var(--boom-delay, 0.32s) both;
 }
 @keyframes boomRingBig {
   0% { transform: scale(0.4); opacity: 0; }
