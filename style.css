@@ -17,8 +17,11 @@
   --table-hi: rgba(255, 255, 255, 0.55);
   --table-sh: rgba(186, 165, 132, 0.2);
   --board-mat: rgba(255, 253, 247, 0.5);
-  --dot: rgba(120, 108, 88, 0.3);
-  --dot-hi: rgba(120, 108, 88, 0.55);
+  --socket-bg: rgba(120, 108, 88, 0.09);
+  --socket-bg-hi: rgba(120, 108, 88, 0.16);
+  --socket-ring: rgba(120, 108, 88, 0.28);
+  --socket-ring-hi: rgba(120, 108, 88, 0.5);
+  --socket-depth: rgba(90, 78, 60, 0.14);
   --tile-face: #fffdf8;
   --ripple: rgba(130, 118, 96, 0.55);
   --overlay: rgba(255, 255, 255, 0.75);
@@ -44,8 +47,11 @@ body.dark {
   --table-hi: rgba(255, 255, 255, 0.05);
   --table-sh: rgba(0, 0, 0, 0.28);
   --board-mat: rgba(255, 255, 255, 0.035);
-  --dot: rgba(210, 200, 180, 0.25);
-  --dot-hi: rgba(210, 200, 180, 0.5);
+  --socket-bg: rgba(0, 0, 0, 0.2);
+  --socket-bg-hi: rgba(0, 0, 0, 0.28);
+  --socket-ring: rgba(210, 200, 180, 0.16);
+  --socket-ring-hi: rgba(210, 200, 180, 0.38);
+  --socket-depth: rgba(0, 0, 0, 0.35);
   --tile-face: #f2ecdf;
   --ripple: rgba(210, 200, 180, 0.5);
   --overlay: rgba(15, 14, 17, 0.72);
@@ -353,20 +359,48 @@ button.primary:hover { filter: brightness(1.06); }
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
-/* ızgara noktası: hücre merkezinde silik benek (taş üstünü kapatır) */
+/* soket: hücre merkezinde hafif içe gömülü daire (taş üstünü kapatır).
+   Nokta değil dokunulabilir "yuva" hissi: silik zemin + ince halka + iç gölge.
+   Idle'da geri planda kalır; tap'te .active ile kısaca büyüyüp parlar. */
 .cell::before {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
+  width: 32%;
+  height: 32%;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: var(--dot);
+  background: var(--socket-bg);
+  box-shadow:
+    inset 0 1px 2px var(--socket-depth),
+    inset 0 0 0 1px var(--socket-ring);
+  transition: transform 0.13s ease, background 0.13s, box-shadow 0.13s;
   pointer-events: none;
 }
-.cell:hover::before { background: var(--dot-hi); }
+.cell:hover::before {
+  background: var(--socket-bg-hi);
+  box-shadow:
+    inset 0 1px 2px var(--socket-depth),
+    inset 0 0 0 1px var(--socket-ring-hi);
+}
+/* tap anı: soket kısa süreliğine aktifleşir (js/game.js flashCell "active") */
+.cell.active::before {
+  transform: translate(-50%, -50%) scale(1.22);
+  background: var(--socket-bg-hi);
+  box-shadow:
+    inset 0 1px 2px var(--socket-depth),
+    inset 0 0 0 1px var(--socket-ring-hi);
+}
+/* sonuç: doğru hücre — scan bitince soket yumuşak yeşil yanar (miss'in
+   kırmızı karşılığı; tap ÖNCESİ ipucu değil, tap SONRASI sonuç feedback'i) */
+.cell.good::before {
+  transform: translate(-50%, -50%) scale(1.18);
+  background: rgba(80, 180, 130, 0.2);
+  box-shadow:
+    inset 0 1px 2px var(--socket-depth),
+    inset 0 0 0 1px rgba(80, 180, 130, 0.55);
+}
 
 /* boş-boş tap: su halkası gibi kısa dalga */
 .cell.pulse::after {
@@ -383,40 +417,64 @@ button.primary:hover { filter: brightness(1.06); }
   100% { transform: scale(1.6); opacity: 0; }
 }
 
-/* hatalı tap: ✕ işareti */
+/* hatalı tap: scan bittikten sonra soket sallanır + yumuşak negatif halka.
+   Bilgilendirici, cezalandırıcı değil: hangi taşların görüldüğünü zaten
+   geri seken taşlar gösterir. (Hücrenin kendi transform'u konum taşıdığı
+   için shake soketin ::before'unda yapılır.) */
+.cell.miss::before {
+  animation: socketShake 0.4s ease;
+  background: rgba(226, 114, 91, 0.14);
+  box-shadow:
+    inset 0 1px 2px var(--socket-depth),
+    inset 0 0 0 1px rgba(226, 114, 91, 0.45);
+}
+@keyframes socketShake {
+  20% { transform: translate(-50%, -50%) translateX(-3px); }
+  40% { transform: translate(-50%, -50%) translateX(3px); }
+  60% { transform: translate(-50%, -50%) translateX(-2px); }
+  80% { transform: translate(-50%, -50%) translateX(1px); }
+}
 .cell.miss::after {
-  content: "✕";
+  content: "";
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-  font-weight: 800;
-  font-size: 0.9em;
-  animation: missMark 0.55s ease both;
+  inset: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(226, 114, 91, 0.5);
+  animation: missPulse 0.5s ease-out both;
   pointer-events: none;
 }
-@keyframes missMark {
-  0% { opacity: 0; transform: scale(0.4); }
-  30% { opacity: 1; transform: scale(1.15); }
-  70% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1); }
+@keyframes missPulse {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(1.4); opacity: 0; }
 }
 
-/* patlama: noktada genişleyen halka */
+/* patlama: noktada genişleyen halka — gecikme SCAN_MS + FLY_MS (js/game.js) */
 .cell.boom::after {
   content: "";
   position: absolute;
   inset: 8px;
   border-radius: 50%;
   border: 2px solid var(--accent);
-  animation: boomRing 0.42s ease-out 0.19s both;
+  animation: boomRing 0.42s ease-out 0.32s both;
   pointer-events: none;
 }
 @keyframes boomRing {
-  0% { transform: scale(0.4); opacity: 0.9; }
+  /* %0 görünmez: "both" fill gecikme boyunca bu kareyi gösterir —
+     halka tap anında değil, yalnız çarpışma anında belirsin */
+  0% { transform: scale(0.4); opacity: 0; }
+  15% { transform: scale(0.5); opacity: 0.9; }
   100% { transform: scale(1.7); opacity: 0; }
+}
+/* çifte patlama (combo): daha güçlü halka + daha geniş yayılım */
+.cell.boom.big::after {
+  inset: 6px;
+  border-width: 3px;
+  animation: boomRingBig 0.52s ease-out 0.32s both;
+}
+@keyframes boomRingBig {
+  0% { transform: scale(0.4); opacity: 0; }
+  12% { transform: scale(0.55); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
 }
 
 /* ipucu: yumuşak yeşil parıltı (nokta ::before'da kaldığı için ::after) */
@@ -513,6 +571,96 @@ button.primary:hover { filter: brightness(1.06); }
   border: 2px solid var(--sight-strong);
   background: var(--sight-fill);
   box-shadow: 0 1px 6px rgba(60, 50, 30, 0.12);
+}
+
+/* ── Tap scan'i (js/game.js playScan) ──
+   Her boş-hücre tap'inde 4 yöne hızlı, sessiz bir tarama ışını yayılır ve
+   ilk taşta durur → görüş/engelleme kuralı anlatım gerektirmeden okunur.
+   Işınlar geçici, tek kullanımlık; parlaklık/neon yok. */
+.scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+.scan .beam {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--sight-strong);
+  transform-origin: 0 50%;
+  animation: beamGrow 0.3s ease-out both;
+}
+.scan .beam.open { background: var(--sight-weak); }
+/* eşleşen yön: birazcık daha kalın/dolgun — çözüm rengi değil, anlık vurgu */
+.scan .beam.match { height: 3px; }
+@keyframes beamGrow {
+  0% { transform: rotate(var(--rot)) scaleX(0); opacity: 0.95; }
+  40% { transform: rotate(var(--rot)) scaleX(1); opacity: 0.95; }
+  100% { transform: rotate(var(--rot)) scaleX(1); opacity: 0; }
+}
+/* ışının taşta durduğu nokta: küçük "tık" beneği */
+.scan .tick {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: var(--sight-strong);
+  animation: tickIn 0.22s ease-out 0.1s both;
+}
+.scan .tick.match { width: 6px; height: 6px; margin: -3px 0 0 -3px; }
+@keyframes tickIn {
+  0% { transform: scale(0); opacity: 1; }
+  55% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* çarpışma parçacıkları (js/game.js spawnBurst): fildişi benekler dışa saçılır */
+.burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+.burst span {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--tile-face);
+  box-shadow: 0 0 0 1px rgba(60, 50, 30, 0.08);
+  animation: burstFly 0.34s ease-out both;
+}
+.burst.big span {
+  width: 5px;
+  height: 5px;
+  animation-duration: 0.44s;
+}
+@keyframes burstFly {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.35); opacity: 0; }
+}
+
+/* combo yazısı: hücreden yükselip solar */
+.floattext {
+  position: absolute;
+  pointer-events: none;
+  z-index: 7;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+  animation: floatUp 0.65s ease-out both;
+}
+@keyframes floatUp {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.7); }
+  25% { opacity: 1; transform: translate(-50%, -70%) scale(1.08); }
+  100% { opacity: 0; transform: translate(-50%, -170%) scale(1); }
 }
 
 /* ── Sticker temaları (js/themes.js) ── */

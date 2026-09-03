@@ -1,9 +1,13 @@
 "use strict";
 
 // Tap Match oyun sayfası. Girdi tek tip: hücreye tap.
-// - match  → çift(ler) hücreye uçar, çarpışıp patlar (2 çift = combo).
-// - miss   → gören taşlar hücreye uçar, kırılmadan geri döner + hata efekti.
-// - blank  → hücre pulse.
+// Her boş-hücre tap'i önce 4 yönlü kısa bir scan oynatır (playScan, SCAN_MS);
+// ışın ilk taşta durur → görüş/engelleme kuralı görsel olarak öğrenilir.
+// - match  → scan sonrası çift(ler) hücreye uçar, çarpışıp patlar + parçacık
+//            (2 çift = combo: büyük halka, daha çok parçacık, "Çifte!" yazısı).
+// - miss   → scan sonrası gören taşlar hücreye uçup geri döner; soket sallanır,
+//            negatif pulse verir, 1 can gider.
+// - blank  → scan (hepsi boşa) + hücre pulse.
 // - dolu   → taş sallanır.
 // Board modeli tap anında güncellenir; animasyonlar görsel katmandır
 // (uçuş sürerken yeni tap kabul edilir, çözüm güncel modele göre hesaplanır).
@@ -15,6 +19,8 @@
 
   const FLY_MS = 190;   // hücreye uçuş süresi (style.css .tile transition ile eş)
   const POP_MS = 230;   // patlama animasyonu süresi
+  const SCAN_MS = 130;  // tap sonrası 4 yönlü tarama süresi; uçuşlar bundan sonra
+                        // başlar (style.css .cell.boom gecikmesi = SCAN_MS + FLY_MS)
   const BASE_CELL = 64; // board taban hücre boyutu (px); zoom kameradan gelir
   const LIVES = 3;
 
@@ -282,15 +288,16 @@
     if (game.lives <= 0) return;
     game.lives--;
     const heart = $("hudLives").children[game.lives];
-    if (heart) heart.classList.add("breaking");
+    // kalp, scan bitip hata görünür olduktan sonra kırılsın
+    if (heart) setTimeout(() => heart.classList.add("breaking"), SCAN_MS);
     if (game.lives === 0) {
       game.over = true;
       stopTimer();
       $("failStats").textContent =
         fmtTime(Date.now() - game.startT) + " · " + game.taps + " tap · " +
         game.alive.size + " çift kaldı";
-      // hatalı taşların geri dönüş animasyonu bitince göster
-      setTimeout(() => { $("failOverlay").hidden = false; }, FLY_MS * 2 + 250);
+      // scan + hatalı taşların geri dönüş animasyonu bitince göster
+      setTimeout(() => { $("failOverlay").hidden = false; }, SCAN_MS + FLY_MS * 2 + 250);
     }
   }
 
@@ -377,8 +384,104 @@
 
   function flashCell(key, cls, ms) {
     const cell = game.cells.get(key);
-    cell.classList.add(cls);
-    setTimeout(() => cell.classList.remove(cls), ms);
+    const classes = cls.split(" ");
+    cell.classList.add(...classes);
+    setTimeout(() => cell.classList.remove(...classes), ms);
+  }
+
+  // Hücreden bir yönde ilk taşa (ya da board kenarına) kadar yürü.
+  // showSight ve playScan'in ortak ışın geometrisi.
+  function castRay(board, r, c, dr, dc) {
+    const rows = board.length, cols = board[0].length;
+    let rr = r + dr, cc = c + dc;
+    while (rr >= 0 && rr < rows && cc >= 0 && cc < cols) {
+      if (board[rr][cc] !== null) return { hit: [rr, cc] };
+      rr += dr; cc += dc;
+    }
+    return { hit: null, endR: rr - dr, endC: cc - dc };
+  }
+
+  // Tap scan'i: hücreden yayılan hızlı ışın — ilk taşta durur (tık beneği),
+  // boş yön board kenarına silik uzanır.
+  // Match'te YALNIZ eşleşen yönler çizilir (ödül/netlik); miss ve blank'te
+  // 4 yön de çizilir — görüş/engelleme kuralı yanlış tap'lerde öğrenilir.
+  // NOT: board henüz mutate edilmeden (applyMatches öncesi) çağrılmalı.
+  function playScan(r, c, res) {
+    const cs = BASE_CELL;
+    const cx = (c + 0.5) * cs, cy = (r + 0.5) * cs;
+    const matched = new Set();
+    for (const m of res.matches)
+      for (const [tr, tc] of m.tiles) matched.add(tr + "," + tc);
+
+    let html = "";
+    for (const [dr, dc] of DIRS) {
+      const ray = castRay(game.board, r, c, dr, dc);
+      const x1 = cx + dc * cs * 0.2, y1 = cy + dr * cs * 0.2;
+      let x2, y2;
+      if (ray.hit) {
+        // ışın taşın kenarında biter (merkezinde değil)
+        x2 = (ray.hit[1] + 0.5) * cs - dc * cs * 0.46;
+        y2 = (ray.hit[0] + 0.5) * cs - dr * cs * 0.46;
+      } else {
+        x2 = (ray.endC + 0.5) * cs + dc * cs * 0.5;
+        y2 = (ray.endR + 0.5) * cs + dr * cs * 0.5;
+      }
+      const len = Math.hypot(x2 - x1, y2 - y1);
+      if (len < cs * 0.15) continue; // kenar dibi: çizme
+      const rot = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+      const isMatch = ray.hit && matched.has(ray.hit[0] + "," + ray.hit[1]);
+      if (matched.size > 0 && !isMatch) continue; // match'te yalnız pair ışınları
+      const beamCls = "beam" + (ray.hit ? "" : " open") + (isMatch ? " match" : "");
+      html += '<div class="' + beamCls + '" style="left:' + x1.toFixed(1) +
+        "px;top:" + (y1 - 1).toFixed(1) + "px;width:" + len.toFixed(1) +
+        "px;--rot:" + rot.toFixed(1) + 'deg"></div>';
+      if (ray.hit) {
+        html += '<span class="tick' + (isMatch ? " match" : "") + '" style="left:' +
+          x2.toFixed(1) + "px;top:" + y2.toFixed(1) + 'px"></span>';
+      }
+    }
+    if (!html) return;
+    const el = document.createElement("div");
+    el.className = "scan";
+    el.innerHTML = html;
+    $("board").appendChild(el);
+    setTimeout(() => el.remove(), 450);
+  }
+
+  // Çarpışma parçacıkları: hücre merkezinden dışa saçılan küçük benekler.
+  function spawnBurst(r, c, strong) {
+    const cs = BASE_CELL;
+    const el = document.createElement("div");
+    el.className = "burst" + (strong ? " big" : "");
+    el.style.left = (c + 0.5) * cs + "px";
+    el.style.top = (r + 0.5) * cs + "px";
+    const n = strong ? 11 : 6;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement("span");
+      const a = (i / n) * Math.PI * 2 + Math.random() * 0.7;
+      const d = cs * (strong ? 0.72 : 0.48) * (0.7 + Math.random() * 0.5);
+      p.style.setProperty("--dx", (Math.cos(a) * d).toFixed(1) + "px");
+      p.style.setProperty("--dy", (Math.sin(a) * d).toFixed(1) + "px");
+      el.appendChild(p);
+    }
+    $("board").appendChild(el);
+    setTimeout(() => el.remove(), 550);
+  }
+
+  // Combo yazısı: hücreden yükselip solar.
+  function showFloatText(r, c, txt) {
+    const cs = BASE_CELL;
+    const el = document.createElement("div");
+    el.className = "floattext";
+    el.textContent = txt;
+    el.style.left = (c + 0.5) * cs + "px";
+    el.style.top = (r + 0.5) * cs + "px";
+    $("board").appendChild(el);
+    setTimeout(() => el.remove(), 750);
+  }
+
+  function vibrate(pattern) {
+    if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
   }
 
   function onCellTap(r, c) {
@@ -395,15 +498,26 @@
       return;
     }
 
+    // Her boş-hücre tap'i aynı dille başlar: soket aktifleşir + 4 yönlü scan.
+    // Sonuç (uçuş/hata) scan bittikten sonra oynar — oyuncu önce kontrolü görür.
+    const g = game; // gecikmeli callback'ler level değişince çalışmasın
+
     if (res.kind === "blank") {
-      flashCell(key, "pulse", 320);
+      playScan(r, c, res);
+      flashCell(key, "active pulse", 320);
       return;
     }
 
     if (res.kind === "miss") {
       game.mistakes++;
-      flashCell(key, "miss", FLY_MS * 2 + 200);
-      for (const [tr, tc] of res.bounce) flyAndReturn(tr, tc, r, c);
+      playScan(r, c, res);
+      flashCell(key, "active", SCAN_MS);
+      setTimeout(() => {
+        if (game !== g) return;
+        flashCell(key, "miss", 600);
+        for (const [tr, tc] of res.bounce) flyAndReturn(tr, tc, r, c);
+        vibrate(35);
+      }, SCAN_MS);
       loseLife();
       refresh();
       return;
@@ -411,13 +525,24 @@
 
     // match
     game.taps++;
-    if (res.matches.length >= 2) game.combos++;
+    const isCombo = res.matches.length >= 2;
+    if (isCombo) game.combos++;
+    playScan(r, c, res); // board mutate edilmeden: ışınlar eşleşen taşları görsün
+    flashCell(key, "good", SCAN_MS + 450); // doğru hücre: soket tap anında yeşil
     applyMatches(game.board, res.matches);
-    for (const m of res.matches) {
-      game.alive.delete(m.pairId);
-      for (const [tr, tc] of m.tiles) flyAndBreak(tr, tc, r, c);
-    }
-    flashCell(key, "boom", FLY_MS + POP_MS);
+    for (const m of res.matches) game.alive.delete(m.pairId);
+    setTimeout(() => {
+      if (game !== g) return;
+      for (const m of res.matches)
+        for (const [tr, tc] of m.tiles) flyAndBreak(tr, tc, r, c);
+    }, SCAN_MS);
+    setTimeout(() => {
+      if (game !== g) return;
+      spawnBurst(r, c, isCombo);
+      if (isCombo) showFloatText(r, c, "Çifte!");
+      vibrate(isCombo ? [15, 30, 15] : 12);
+    }, SCAN_MS + FLY_MS);
+    flashCell(key, isCombo ? "boom big" : "boom", SCAN_MS + FLY_MS + 550);
     refresh();
 
     if (game.alive.size === 0) {
@@ -428,7 +553,7 @@
         game.mistakes + " hatalı" +
         (game.combos ? " · " + game.combos + " çifte patlama" : "");
       $("btnNext").hidden = !nextLevel();
-      setTimeout(() => { $("winOverlay").hidden = false; }, FLY_MS + POP_MS + 150);
+      setTimeout(() => { $("winOverlay").hidden = false; }, SCAN_MS + FLY_MS + POP_MS + 150);
     }
   }
 
@@ -503,16 +628,12 @@
     const { r, c } = sight;
     if (game.board[r][c] !== null) return; // bu arada taş gelmiş olabilir
     const cs = BASE_CELL;
-    const rows = game.lv.rows, cols = game.lv.cols;
     const cx = (c + 0.5) * cs, cy = (r + 0.5) * cs;
     let lines = "";
 
     for (const [dr, dc] of DIRS) {
-      let rr = r + dr, cc = c + dc, hit = null;
-      while (rr >= 0 && rr < rows && cc >= 0 && cc < cols) {
-        if (game.board[rr][cc] !== null) { hit = [rr, cc]; break; }
-        rr += dr; cc += dc;
-      }
+      const ray = castRay(game.board, r, c, dr, dc);
+      const hit = ray.hit;
       const x1 = cx + dc * cs * 0.34, y1 = cy + dr * cs * 0.34;
       let x2, y2;
       if (hit) {
@@ -529,8 +650,8 @@
         }
       } else {
         // boşa giden görüş: board kenarına silik ışın
-        x2 = (cc - dc + 0.5) * cs + dc * cs * 0.5;
-        y2 = (rr - dr + 0.5) * cs + dr * cs * 0.5;
+        x2 = (ray.endC + 0.5) * cs + dc * cs * 0.5;
+        y2 = (ray.endR + 0.5) * cs + dr * cs * 0.5;
       }
       if (Math.hypot(x2 - x1, y2 - y1) < cs * 0.2) continue; // kenar dibi: çizme
       lines += '<line class="' + (hit ? "hit" : "open") + '" x1="' + x1.toFixed(1) +
