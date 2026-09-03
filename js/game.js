@@ -18,7 +18,9 @@
   const THEME_KEY = "tm_theme"; // seçili sticker teması (js/themes.js)
 
   const FLY_MS = 190;   // hücreye uçuş süresi (style.css .tile transition ile eş)
-  const POP_MS = 230;   // patlama animasyonu süresi
+  const POP_MS = 240;   // patlama animasyonu süresi (style.css popFace ile eş)
+  const POP_LEAD = 40;  // pop, varıştan bu kadar önce başlar: uçuş ve patlama
+                        // kesintisiz birleşir, temas anında duraksama olmaz
   const SCAN_MS = 130;  // tap sonrası 4 yönlü tarama süresi; uçuşlar bundan sonra
                         // başlar (style.css .cell.boom gecikmesi = SCAN_MS + FLY_MS)
   const BASE_CELL = 64; // board taban hücre boyutu (px); zoom kameradan gelir
@@ -594,7 +596,7 @@
       if (tile._seq !== seq) return;
       tile.classList.add("pop");
       setTimeout(() => tile.remove(), POP_MS);
-    }, FLY_MS);
+    }, FLY_MS - POP_LEAD);
   }
 
   // Eşi çıkmayan taş: hücreye uç, kırılma, yerine dön + hata görünümü.

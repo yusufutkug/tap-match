@@ -499,7 +499,9 @@ button.primary:hover { filter: brightness(1.06); }
   top: 0;
   left: 0;
   pointer-events: none; /* tap her zaman alttaki hücreye gider */
-  transition: transform 0.19s cubic-bezier(0.55, 0, 0.7, 1.2);
+  /* çarpışmaya doğru hızlanan varış; overshoot yok — temas anındaki
+     geri-oturma titremesi pop'un başlangıcıyla çakışıp lag hissi veriyordu */
+  transition: transform 0.19s cubic-bezier(0.5, 0, 0.75, 1);
   z-index: 2;
 }
 .tile .face {
@@ -524,10 +526,13 @@ button.primary:hover { filter: brightness(1.06); }
   box-shadow: 0 4px 12px rgba(60, 50, 30, 0.22), inset 0 0 0 1px rgba(60, 50, 30, 0.08);
 }
 
-/* pop, konumu taşıyan tile transform'unu ezmesin diye face üzerinden ölçeklenir */
-.tile.pop .face { animation: popFace 0.23s ease-in forwards; }
+/* pop, konumu taşıyan tile transform'unu ezmesin diye face üzerinden ölçeklenir.
+   Genişleme hemen ve hızlı başlar (ease-out) — varıştan hemen önce tetiklendiği
+   için uçuşla kesintisiz birleşir; sönme ease-in ile hızlanarak biter. */
+.tile.pop .face { animation: popFace 0.24s forwards; }
 @keyframes popFace {
-  35% { transform: scale(1.22); opacity: 1; }
+  0% { transform: scale(1); opacity: 1; animation-timing-function: ease-out; }
+  38% { transform: scale(1.18); opacity: 1; animation-timing-function: ease-in; }
   100% { transform: scale(0.25); opacity: 0; }
 }
 
