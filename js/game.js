@@ -50,6 +50,12 @@
     ? TM_PACKS
     : [{ size: "el", cols: 0, rows: 0, levels: TM_LEVELS }];
 
+  // Tam dolu şekil paketleri (levels_shapes.js): boyut başına 50 level;
+  // şekil silüeti %100 taş, dıştan soyularak biter. Ana ekranda ayrı
+  // bölümde listelenir; ilerleme/favori anahtarları "tam-6x8:id" biçiminde.
+  const SHAPE_PACKS = (typeof TM_SHAPE_PACKS !== "undefined") ? TM_SHAPE_PACKS : [];
+  const ALL_PACKS = PACKS.concat(SHAPE_PACKS);
+
   // Lab entegrasyonu: lab.html "Oyna" ile level'ı localStorage'a yazar ve
   // bu sayfayı ?lab=1 ile açar — level paket dışı oynanır ve otomatik başlar.
   let labLevel = null;
@@ -190,24 +196,31 @@
 
   // ── Boyut seçim ekranı ──
 
+  function sizeCard(p, done) {
+    const dn = p.levels.filter((lv) => done.has(p.size + ":" + lv.id)).length;
+    const card = document.createElement("button");
+    card.className = "size-card";
+    card.innerHTML =
+      '<span class="sz-name">' + p.cols + "×" + p.rows + "</span>" +
+      '<span class="sz-meta">' + p.levels.length + " level · " + dn + " tamamlandı</span>" +
+      '<span class="sz-bar"><i style="width:' + (100 * dn / p.levels.length) + '%"></i></span>';
+    card.addEventListener("click", () => { pack = p; listMode = "pack"; showList(); });
+    return card;
+  }
+
   function renderSizeGrid() {
     const done = doneSet();
-    const totalDone = [...done].length;
+    const totalLv = ALL_PACKS.reduce((a, p) => a + p.levels.length, 0);
     $("sizeInfo").textContent =
-      PACKS.length + " boyut · " + (PACKS.length * 100) + " level · " + totalDone + " tamamlandı";
+      PACKS.length + " boyut · " + totalLv + " level · " + [...done].length + " tamamlandı";
     const grid = $("sizeGrid");
     grid.innerHTML = "";
-    for (const p of PACKS) {
-      const dn = p.levels.filter((lv) => done.has(p.size + ":" + lv.id)).length;
-      const card = document.createElement("button");
-      card.className = "size-card";
-      card.innerHTML =
-        '<span class="sz-name">' + p.cols + "×" + p.rows + "</span>" +
-        '<span class="sz-meta">' + p.levels.length + " level · " + dn + " tamamlandı</span>" +
-        '<span class="sz-bar"><i style="width:' + (100 * dn / p.levels.length) + '%"></i></span>';
-      card.addEventListener("click", () => { pack = p; listMode = "pack"; showList(); });
-      grid.appendChild(card);
-    }
+    for (const p of PACKS) grid.appendChild(sizeCard(p, done));
+    // tam dolu şekil paketleri: ayrı bölüm (paket yoksa başlık gizlenir)
+    const sg = $("shapeGrid");
+    sg.innerHTML = "";
+    for (const p of SHAPE_PACKS) sg.appendChild(sizeCard(p, done));
+    $("shapeSection").hidden = !SHAPE_PACKS.length;
     const favN = favSet().size;
     $("favLibMeta").textContent = favN ? favN + " level" : "henüz boş — oyunda ♡ ile ekle";
     renderThemeRow();
@@ -249,7 +262,7 @@
     if (listMode === "favs") {
       const favs = favSet();
       let n = 0;
-      for (const p of PACKS) {
+      for (const p of ALL_PACKS) {
         for (const lv of p.levels) {
           if (!favs.has(p.size + ":" + lv.id)) continue;
           grid.appendChild(levelCard(p, lv, done, true));
@@ -263,7 +276,7 @@
     }
 
     const dn = pack.levels.filter((lv) => done.has(pack.size + ":" + lv.id)).length;
-    $("packTitle").textContent = pack.cols + "×" + pack.rows;
+    $("packTitle").textContent = (pack.full ? "Tam dolu " : "") + pack.cols + "×" + pack.rows;
     $("packInfo").textContent = pack.levels.length + " level · " + dn + " tamamlandı";
     for (const lv of pack.levels) grid.appendChild(levelCard(pack, lv, done, false));
   }

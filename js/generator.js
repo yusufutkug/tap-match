@@ -89,6 +89,20 @@ function buildGeometry(rng, o) {
   const emptyCell = (r, c) => grid[r][c] === null;
   const canHost = (r, c) => inb(r, c) && emptyCell(r, c) && !reserved.has(K(r, c));
 
+  // Şekil maskesi (o.mask): mask[r][c]=false → hücre şekil DIŞI. Reserved
+  // semantiği birebir uyar: taş konamaz, görüş hattı üstünden geçer, sonsuza
+  // dek boş kalır → taş kütlesi şeklin silüetini çizer. hostCells, rastgele
+  // hücre örneklemesini şekil içiyle sınırlar (dar maskede reddetme oranı
+  // patlamasın diye tam board yerine listeden çekilir).
+  const mask = o.mask || null;
+  const hostCells = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (mask && !mask[r][c]) reserved.add(K(r, c));
+      else hostCells.push([r, c]);
+    }
+  }
+
   // Uçlar hariç arası boş mu (rezerve hücre boş sayılır — hep boş kalacak)
   function segClear(r1, c1, r2, c2) {
     if (r1 === r2) {
@@ -245,7 +259,7 @@ function buildGeometry(rng, o) {
   function topCandidate(preferCorner, near) {
     let best = null, bestD = Infinity, found = 0;
     for (let t = 0; t < 60 && found < 8; t++) {
-      const r = Math.floor(rng() * rows), c = Math.floor(rng() * cols);
+      const [r, c] = hostCells[Math.floor(rng() * hostCells.length)];
       if (!canHost(r, c)) continue;
       const wantCorner = rng() < (preferCorner ? cornerP : 0.25);
       const partners = wantCorner
@@ -514,6 +528,9 @@ function buildGeometry(rng, o) {
     shuffle(cells, rng);
     for (const [r, c] of cells.slice(0, 60)) {
       if (isFuse ? !emptyCell(r, c) : !canHost(r, c)) continue;
+      // kapı dibi koridoru şekil dışından geçebilir — fitil oraya oturamaz
+      // (maske hücresi reserved.delete ile dirilmemeli)
+      if (isFuse && mask && !mask[r][c]) continue;
       if (isFuse) reserved.delete(K(r, c)); // bilinçli istisna: fitil dibe oturur
       const partners = alignedPartners([r, c], 2, 4).filter((p) => openNow([r, c], p));
       if (!partners.length) {
@@ -546,7 +563,7 @@ function buildGeometry(rng, o) {
   function freeEntry() {
     let best = null, bestD = -1;
     for (let t = 0; t < 40; t++) {
-      const r = Math.floor(rng() * rows), c = Math.floor(rng() * cols);
+      const [r, c] = hostCells[Math.floor(rng() * hostCells.length)];
       if (!canHost(r, c)) continue;
       const partners = alignedPartners([r, c], 2, 4);
       if (!partners.length) continue;
@@ -585,9 +602,30 @@ function buildGeometry(rng, o) {
   };
 }
 
+// Etkisiz giriş sayımı: hiçbir çiftin açılma seçeneğinde bloker olarak
+// geçmeyen dalga-0 çifti — kaldırılması hiçbir şey açmaz (ölü içerik).
+function inertStats(pairCells, rows, cols, waves) {
+  const n = pairCells.length;
+  const boardFull = boardFromPairs(rows, cols, pairCells);
+  const outDeg = new Array(n).fill(0);
+  for (const pc of pairCells) {
+    const union = new Set();
+    for (const s of pairOptions(boardFull, pc)) for (const b of s) union.add(b);
+    for (const b of union) outDeg[b]++;
+  }
+  const entryIdx = [];
+  for (let i = 0; i < n; i++) if (waves[i] === 0) entryIdx.push(i);
+  const inertEntries = entryIdx.filter((i) => outDeg[i] === 0).length;
+  return { inertEntries, inertShare: entryIdx.length ? inertEntries / entryIdx.length : 0 };
+}
+
 // Tek level üretimi. opts: { rows, cols, entryN, lockedN, gateN, depthMin,
 // depthMax, cornerP, gateCornerP, dipMax, waistPosTarget, waistOpenMax,
-// seed, maxAttempts }
+// seed, maxAttempts, mask }
+//
+// mask (opsiyonel): rows×cols bool — false hücreler şekil dışı, taş almaz
+// (js/shapes.js maskFor). fill maske ALANINA oranlanır (şekil dışı boşluk
+// doluluk sözleşmesini cezalandırmasın).
 //
 // Seçim skoru (küçük iyi): dipOk/waistOk cezaları baskın; sonra bel konumu
 // hedefe uzaklık (waistPosTarget verilmişse), küçük dip, yüksek cornerShare.
@@ -610,6 +648,12 @@ function generateLevel(opts) {
   const waistPosTarget = typeof opts.waistPosTarget === "number" ? opts.waistPosTarget : null;
   const waistOpenMax = typeof opts.waistOpenMax === "number" ? opts.waistOpenMax : null;
   const fillMin = typeof opts.fillMin === "number" ? opts.fillMin : null; // doluluk tabanı
+  const mask = opts.mask || null;
+  let maskArea = rows * cols;
+  if (mask) {
+    maskArea = 0;
+    for (const row of mask) for (const b of row) if (b) maskArea++;
+  }
   const maxAttempts = opts.maxAttempts || 400;
   const baseSeed = typeof opts.seed === "number" ? opts.seed >>> 0 : hashSeed(String(opts.seed));
 
@@ -633,7 +677,7 @@ function generateLevel(opts) {
     const rng = mulberry32((baseSeed + Math.imul(attempt, 2654435761)) >>> 0);
     const geo = buildGeometry(rng, {
       rows, cols, entryN, lockedN, gateN, depthMin, depthMax,
-      cornerP, gateCornerP: opts.gateCornerP,
+      cornerP, gateCornerP: opts.gateCornerP, mask,
     });
     if (!geo) continue;
 
@@ -655,19 +699,9 @@ function generateLevel(opts) {
 
     // etkisiz giriş: hiçbir çiftin seçenek blokerlerinde geçmeyen dalga-0
     // çifti — kaldırılması hiçbir şey açmaz (ölü içerik)
-    const boardFull = boardFromPairs(rows, cols, geo.pairCells);
-    const outDeg = new Array(L).fill(0);
-    for (const pc of geo.pairCells) {
-      const union = new Set();
-      for (const s of pairOptions(boardFull, pc)) for (const b of s) union.add(b);
-      for (const b of union) outDeg[b]++;
-    }
-    const entryIdx = [];
-    for (let i = 0; i < L; i++) if (flow.waves[i] === 0) entryIdx.push(i);
-    const inertEntries = entryIdx.filter((i) => outDeg[i] === 0).length;
-    const inertShare = entryIdx.length ? inertEntries / entryIdx.length : 0;
+    const { inertEntries, inertShare } = inertStats(geo.pairCells, rows, cols, flow.waves);
 
-    const fill = (geo.pairCells.length * 2) / (rows * cols);
+    const fill = (geo.pairCells.length * 2) / maskArea; // şekil alanına oran
     const cand = {
       pairCells: geo.pairCells, roles: geo.roles, curve, flow,
       dipOk: curve.dip <= dipMax,
@@ -689,6 +723,7 @@ function generateLevel(opts) {
   const roles = best.curve.order.map((i) => best.roles[i]);
   return {
     rows, cols, pairs, roles,
+    mask, maskArea,
     seed: baseSeed,
     entries: best.designedEntries,
     fused: best.fused,
@@ -704,6 +739,408 @@ function generateLevel(opts) {
     flow: best.flow,
     gateDepths: best.gateDepths,
     lockedDepths: best.lockedDepths,
+    attempts: best.attempts,
+  };
+}
+
+// ── Tam dolu üretim: ileri soyma (peel) ──
+//
+// Şekil %100 taşla dolar; boş hücre yalnız şekil DIŞIdır. Klasik yapı-önce
+// inşa burada çalışmaz (kalıcı boş koridor rezervasyonu doluluğun tam tersi;
+// greedy tersten doldurma da son hücrelerde kilitleniyor — denendi). Bunun
+// yerine oyun İLERİ simüle edilir: tam dolu boarddan her adımda bir boş
+// hücrenin O AN gördüğü iki taş "çift" ilan edilip kaldırılır. Her adım tanım
+// gereği o anda oynanabilir → kayıt sırası geçerli bir çözümdür; monotonluk
+// (taş kalkması görüşü yalnız açar) oyuncu sırasını serbest bırakır.
+// Span-1 hizalı yasak kendiliğinden sağlanır: aynı hücreden görülen iki taş
+// ya arada tap hücresi olan hizalı çifttir ya da dik yönlerden hizasızdır.
+//
+// Akış kadranları (o, hepsi opsiyonel — boş kadran rastgele davranışı korur):
+//   entryN    — açılış noktası sayısı. Şekil dışı boş bağlantılı bileşenler
+//               ("havuz") bulunur; girişler havuzlara dağıtılır (havuzdan
+//               çoksa her havuza ≥1, azsa temas/büyüklük öncelikli), havuz
+//               içinde en-uzak-nokta örneklemesiyle yayılır. İlk entryN soyma
+//               bu hücrelerden yapılır — levelın açılış cepheleri bunlardır.
+//   frontMode — soyulacak hücre disiplini:
+//               "yilan":    tek cephe, hep son soyulan hücrenin yakını;
+//               "cepheler": giriş başına bir cephe, dönüşümlü ilerler;
+//               "bolge":    taşlar girişe yakınlığa göre dilimlenir, bölge
+//                           bitmeden sıradakine geçilmez (en deterministik).
+//   frontBias — 0..1 disiplin sadakati (boş = 1): her adım 1-bias olasılıkla
+//               serbest davranılır — modlar arası yumuşak geçiş.
+//   waistOpen — orta dilimde (t 0.30..0.75) hedef açık tap noktası sayısı:
+//               aday soymaların SONRASI açıklığı ölçülür, hedefe en yakını
+//               seçilir → U-eğrisinin beli filtreyle değil inşayla çizilir.
+//   cornerP   — dik-yön (köşe/L) eşleme payı; zıt yönler hizalı koridor
+//               çifti (kolay okunur), dik yönler köşe çifti (bilişsel yük).
+//   spanBias  — 0..1 ışın mesafesi eğilimi (1 = uzak taşları eşle: geç fark
+//               edilir; 0 = dibindekileri eşle).
+function peelBuild(rng, mask, rows, cols, o) {
+  o = o || {};
+  const grid = Array.from({ length: rows }, () => Array(cols).fill(false));
+  let tiles = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!mask || mask[r][c]) { grid[r][c] = true; tiles++; }
+    }
+  }
+  if (tiles % 2 || tiles === rows * cols) return null; // parite yok / tap hücresi yok
+  const totalPairs = tiles / 2;
+
+  const frontMode = o.frontMode || null;
+  const frontBias = (o.frontBias === undefined || o.frontBias === null) ? 1 : o.frontBias;
+  const waistOpen = (o.waistOpen === undefined || o.waistOpen === null) ? null : o.waistOpen;
+  const cornerP = (o.cornerP === undefined || o.cornerP === null) ? null : o.cornerP;
+  const spanBias = (o.spanBias === undefined || o.spanBias === null) ? null : o.spanBias;
+  let entryN = o.entryN | 0;
+  // cephe modu giriş ister: yılana 1, çok cepheli modlara 2 varsayılır
+  if (!entryN && frontMode === "yilan") entryN = 1;
+  if (!entryN && (frontMode === "cepheler" || frontMode === "bolge")) entryN = 2;
+
+  const inb = (r, c) => r >= 0 && c >= 0 && r < rows && c < cols;
+  const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+
+  // ── Havuzlar: şekil dışı boş bağlantılı bileşenler → giriş hücreleri ──
+  const entryCells = [];
+  if (entryN > 0) {
+    const poolId = Array.from({ length: rows }, () => Array(cols).fill(-1));
+    const pools = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (grid[r][c] || poolId[r][c] !== -1) continue;
+        const cells = [], contact = [];
+        const q = [[r, c]];
+        poolId[r][c] = pools.length;
+        while (q.length) {
+          const [cr, cc] = q.pop();
+          cells.push([cr, cc]);
+          let touches = false;
+          for (const [dr, dc] of DIRS4) {
+            const rr = cr + dr, c2 = cc + dc;
+            if (!inb(rr, c2)) continue;
+            if (grid[rr][c2]) { touches = true; continue; }
+            if (poolId[rr][c2] === -1) { poolId[rr][c2] = pools.length; q.push([rr, c2]); }
+          }
+          if (touches) contact.push([cr, cc]);
+        }
+        pools.push({ cells, contact });
+      }
+    }
+    // dağıtım: şekle en çok temas eden / en büyük havuz öncelikli; girişler
+    // sırayla havuzlara paylaştırılır (çoksa her havuza ≥1, fazlası başa)
+    pools.sort((a, b) => (b.contact.length - a.contact.length) || (b.cells.length - a.cells.length));
+    const counts = new Array(pools.length).fill(0);
+    for (let i = 0; i < entryN; i++) counts[i % pools.length]++;
+    for (let p = 0; p < pools.length; p++) {
+      if (!counts[p]) continue;
+      const cand = pools[p].contact.length ? pools[p].contact : pools[p].cells;
+      const chosen = [cand[Math.floor(rng() * cand.length)]];
+      // havuz içi yayılım: seçilmişlere min-mesafeyi maksimize eden hücre
+      while (chosen.length < counts[p] && chosen.length < cand.length) {
+        let best = null, bestD = -1;
+        for (const cell of cand) {
+          let d = Infinity;
+          for (const ch of chosen) d = Math.min(d, dist(cell, ch));
+          if (d > bestD) { bestD = d; best = cell; }
+        }
+        if (!best || bestD === 0) break;
+        chosen.push(best);
+      }
+      for (const ch of chosen) entryCells.push(ch.slice());
+    }
+  }
+
+  // ── bölge modu: her taş en yakın girişe atanır, bölgeler sırayla soyulur ──
+  let regionOf = null;
+  const regionLeft = [];
+  if (frontMode === "bolge" && entryCells.length) {
+    regionOf = Array.from({ length: rows }, () => Array(cols).fill(-1));
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!grid[r][c]) continue;
+        let bi = 0, bd = Infinity;
+        for (let i = 0; i < entryCells.length; i++) {
+          const d = dist([r, c], entryCells[i]);
+          if (d < bd) { bd = d; bi = i; }
+        }
+        regionOf[r][c] = bi;
+        regionLeft[bi] = (regionLeft[bi] || 0) + 1;
+      }
+    }
+  }
+  let curRegion = 0;
+
+  // ── cephe durumu ──
+  const fronts = entryCells.map((c) => c.slice()); // "cepheler": giriş başına
+  let lastPeel = entryCells.length ? entryCells[0].slice() : null; // "yılan"
+
+  // hücrenin 4 yönde gördüğü taşlar (yön + ışın uzunluğuyla)
+  function seenFrom(r, c) {
+    const seen = [];
+    for (const [dr, dc] of DIRS4) {
+      let rr = r + dr, cc = c + dc, span = 1;
+      while (inb(rr, cc)) {
+        if (grid[rr][cc]) { seen.push({ t: [rr, cc], dr, dc, span }); break; }
+        rr += dr; cc += dc; span++;
+      }
+    }
+    return seen;
+  }
+
+  function allOptions() {
+    const out = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!grid[r][c] && seenFrom(r, c).length >= 2) {
+          out.push({ cell: [r, c], seen: seenFrom(r, c) });
+        }
+      }
+    }
+    return out;
+  }
+
+  // görülenlerden çift seçimi: want türü (köşe/koridor), spanBias mesafeyi
+  // yönetir. want adım başına DIŞARIDA kararlaştırılır (hücre seçimi de aynı
+  // kararı kullanır — tür arzı hücre konumundan gelir, yalnız duo filtrelemek
+  // kadranı etkisiz bırakıyordu).
+  function duosOf(seen) {
+    const duos = [];
+    for (let i = 0; i < seen.length; i++) {
+      for (let j = i + 1; j < seen.length; j++) {
+        const a = seen[i], b = seen[j];
+        const aligned = a.dr === -b.dr && a.dc === -b.dc; // zıt yön = koridor
+        duos.push({ A: a.t, B: b.t, corner: !aligned, span: a.span + b.span });
+      }
+    }
+    return duos;
+  }
+  function pickDuo(seen, want) {
+    let pool = duosOf(seen);
+    if (want !== null) {
+      const filt = pool.filter((d) => d.corner === want);
+      if (filt.length) pool = filt;
+    }
+    if (spanBias !== null && pool.length > 1) {
+      pool.sort((x, y) => x.span - y.span);
+      const q = Math.min(1, Math.max(0, spanBias + (rng() - 0.5) * 0.3));
+      return pool[Math.round(q * (pool.length - 1))];
+    }
+    return pool[Math.floor(rng() * pool.length)];
+  }
+  // hücrede istenen türde duo var mı? / hücrenin ışın-mesafe potansiyeli
+  function hasKind(op, wantCorner) {
+    return duosOf(op.seen).some((d) => d.corner === wantCorner);
+  }
+  function spanKey(op) {
+    const sp = op.seen.map((s) => s.span).sort((a, b) => b - a);
+    return sp[0] + (sp[1] || 0); // en uzun iki ışının toplamı
+  }
+
+  // duo kaldırılınca kaç hücre ≥2 taş görür? (bel hedefi ölçümü)
+  function openAfter(duo) {
+    grid[duo.A[0]][duo.A[1]] = false;
+    grid[duo.B[0]][duo.B[1]] = false;
+    let n = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!grid[r][c] && seenFrom(r, c).length >= 2) n++;
+      }
+    }
+    grid[duo.A[0]][duo.A[1]] = true;
+    grid[duo.B[0]][duo.B[1]] = true;
+    return n;
+  }
+
+  const seq = [];
+  const entryQueue = entryCells.map((c) => c.slice());
+  while (tiles > 0) {
+    const options = allOptions();
+    if (!options.length) return null; // sıkıştı — üst kat farklı seedle dener
+    const step = seq.length, t = step / totalPairs;
+
+    // 1) soyulacak hücre kümesi: giriş sırası > cephe disiplini > serbest
+    let subset = options;
+    if (entryQueue.length) {
+      // açılış: sıradaki giriş hücresi (o hücre <2 görüyorsa en yakın seçenek)
+      const e = entryQueue.shift();
+      let best = null, bd = Infinity;
+      for (const op of options) {
+        const d = dist(op.cell, e);
+        if (d < bd) { bd = d; best = op; }
+      }
+      subset = [best];
+    } else if (frontMode && rng() < frontBias) {
+      if (frontMode === "yilan" && lastPeel) {
+        let bd = Infinity;
+        for (const op of options) bd = Math.min(bd, dist(op.cell, lastPeel));
+        subset = options.filter((op) => dist(op.cell, lastPeel) <= bd + 1);
+      } else if (frontMode === "cepheler" && fronts.length) {
+        const f = fronts[step % fronts.length];
+        let bd = Infinity;
+        for (const op of options) bd = Math.min(bd, dist(op.cell, f));
+        subset = options.filter((op) => dist(op.cell, f) <= bd + 1);
+      } else if (frontMode === "bolge" && regionOf) {
+        while (curRegion < regionLeft.length && !regionLeft[curRegion]) curRegion++;
+        const inReg = options.filter((op) =>
+          op.seen.filter((s) => regionOf[s.t[0]][s.t[1]] === curRegion).length >= 2);
+        if (inReg.length) subset = inReg; // bölgeye şu an erişilemiyorsa serbest
+      }
+    }
+
+    // bölge modunda çift, bölge taşlarından seçilir (varsa)
+    const regionSeen = (op) => {
+      if (frontMode === "bolge" && regionOf && !entryQueue.length) {
+        const inReg = op.seen.filter((s) => regionOf[s.t[0]][s.t[1]] === curRegion);
+        if (inReg.length >= 2) return inReg;
+      }
+      return op.seen;
+    };
+
+    // 2) hücre + çift seçimi. Tür kararı (köşe/koridor) adım başına bir kez
+    // verilir ve hem hücre hem duo seçimini yönetir; mesafe eğilimi hücreleri
+    // ışın potansiyeline göre sıralar; bel penceresinde sonrası-açıklık
+    // hedefe çekilir (öncelik: bel > tür/mesafe).
+    const want = cornerP === null ? null : rng() < cornerP;
+    let pick = null, duo = null;
+    if (waistOpen !== null && t >= 0.3 && t <= 0.75 && !entryQueue.length) {
+      shuffle(subset, rng);
+      let bestScore = Infinity;
+      for (const op of subset.slice(0, 8)) {
+        const d = pickDuo(regionSeen(op), want);
+        const score = Math.abs(openAfter(d) - waistOpen);
+        if (score < bestScore) { bestScore = score; pick = op; duo = d; }
+      }
+    } else {
+      let cand = subset;
+      if (want !== null) {
+        const filt = cand.filter((op) => hasKind(op, want));
+        if (filt.length) cand = filt;
+      }
+      if (spanBias !== null && cand.length > 1) {
+        cand = cand.slice().sort((a, b) => spanKey(a) - spanKey(b));
+        const q = Math.min(1, Math.max(0, spanBias + (rng() - 0.5) * 0.3));
+        pick = cand[Math.round(q * (cand.length - 1))];
+      } else {
+        pick = cand[Math.floor(rng() * cand.length)];
+      }
+      duo = pickDuo(regionSeen(pick), want);
+    }
+
+    grid[duo.A[0]][duo.A[1]] = false;
+    grid[duo.B[0]][duo.B[1]] = false;
+    tiles -= 2;
+    seq.push([duo.A, duo.B]);
+
+    // 3) cephe/bölge durumunu güncelle
+    lastPeel = pick.cell.slice();
+    if (frontMode === "cepheler" && fronts.length) fronts[step % fronts.length] = pick.cell.slice();
+    if (regionOf) {
+      for (const tt of [duo.A, duo.B]) {
+        const ri = regionOf[tt[0]][tt[1]];
+        if (ri >= 0) regionLeft[ri]--;
+      }
+    }
+  }
+  return seq;
+}
+
+// Tam dolu level üretimi. opts: { rows, cols, mask, seed, maxAttempts,
+//   entryN, frontMode, frontBias, waistOpen, cornerP, spanBias } — akış
+// kadranları peelBuild'e geçer (açıklaması orada); waistOpen/entryN ayrıca
+// aday skoruna hedef cezası olarak eklenir (inşa + seçim birlikte çeker).
+//
+// Maske onarımı: maske yoksa ya da boardu tamamen kaplıyorsa merkez hücre
+// oyulur (tap edilecek boş hücre şart — tek delik bile soymayı başlatır);
+// alan tek sayıysa dışa komşu bir kenar hücresi düşülür (parite, silüeti
+// en az bozan yer). Dönüş alanları generateLevel ile aynı dilde (lab kartı
+// değişmeden çalışır); roles gerçek rol değil soyma sırası TERCİLİdİR
+// (erken=entry/yeşil, orta=gate/kırmızı, geç=locked/mavi — önizlemede
+// soyulma yönünü okutur). fill tanım gereği 1.
+function generateFullLevel(opts) {
+  const rows = opts.rows, cols = opts.cols;
+  const baseSeed = typeof opts.seed === "number" ? opts.seed >>> 0 : hashSeed(String(opts.seed));
+  const maxAttempts = opts.maxAttempts || 200;
+  const knobs = {
+    entryN: opts.entryN | 0,
+    frontMode: opts.frontMode || null,
+    frontBias: typeof opts.frontBias === "number" ? opts.frontBias : null,
+    waistOpen: typeof opts.waistOpen === "number" ? opts.waistOpen : null,
+    cornerP: typeof opts.cornerP === "number" ? opts.cornerP : null,
+    spanBias: typeof opts.spanBias === "number" ? opts.spanBias : null,
+  };
+
+  const mask = opts.mask
+    ? opts.mask.map((row) => row.slice())
+    : Array.from({ length: rows }, () => Array(cols).fill(true));
+  let area = 0;
+  for (const row of mask) for (const b of row) if (b) area++;
+  if (area === rows * cols) { mask[rows >> 1][cols >> 1] = false; area--; }
+  if (area % 2 === 1) {
+    outer: for (let r = rows - 1; r >= 0; r--) {
+      for (let c = cols - 1; c >= 0; c--) {
+        if (!mask[r][c]) continue;
+        const edge = r === 0 || c === 0 || r === rows - 1 || c === cols - 1 ||
+          !mask[r - 1][c] || !mask[r + 1][c] || !mask[r][c - 1] || !mask[r][c + 1];
+        if (edge) { mask[r][c] = false; area--; break outer; }
+      }
+    }
+  }
+  if (area < 4) return null;
+
+  let best = null, bestScore = Infinity;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const rng = mulberry32((baseSeed + Math.imul(attempt, 2654435761)) >>> 0);
+    const pairCells = peelBuild(rng, mask, rows, cols, knobs);
+    if (!pairCells) continue;
+    const curve = pairsCurve(pairCells, rows, cols);
+    if (!curve) continue;
+    const flow = analyzeFlow(pairCells, rows, cols);
+    if (flow.deadlocked.length) continue;
+    const inert = inertStats(pairCells, rows, cols, flow.waves);
+    // seçim (küçük iyi): az etkisiz giriş, yüksek köşe payı, derin zincir;
+    // kadran hedefleri (bel açıklığı, giriş sayısı) yumuşak ceza olarak eklenir
+    let s = inert.inertShare * 3 - curve.cornerShare * 0.5 - flow.depth * 0.02 + curve.dip * 0.3;
+    if (knobs.waistOpen !== null) {
+      const Lc = curve.curve.length;
+      const wI = Math.round(curve.waistPos * Lc);
+      const wAbs = Math.round(curve.waist * Math.max(1, Lc - wI));
+      s += Math.abs(wAbs - knobs.waistOpen) * 0.5;
+    }
+    if (knobs.entryN) s += Math.abs(flow.entries - knobs.entryN) * 0.2;
+    if (s < bestScore) {
+      best = { pairCells, curve, flow, ...inert, attempts: attempt + 1 };
+      bestScore = s;
+    }
+    if (best && attempt >= 24) break; // aday ucuz; 25 örnek yeter
+  }
+  if (!best) return null;
+
+  const { curve, flow } = best;
+  const L = curve.curve.length;
+  const wIdx = Math.round(curve.waistPos * L);
+  const waistOpenAbs = Math.round(curve.waist * Math.max(1, L - wIdx));
+  const endSlice = curve.curve.slice(Math.floor(L * 0.8));
+  const endOpen = endSlice.reduce((a, b) => a + b, 0) / Math.max(1, endSlice.length);
+
+  const pairs = curve.order.map((i) => best.pairCells[i]);
+  const n = pairs.length;
+  const roles = pairs.map((_, i) =>
+    i < n / 3 ? "entry" : i < (2 * n) / 3 ? "gate" : "locked");
+
+  return {
+    rows, cols, pairs, roles,
+    mask, maskArea: area,
+    seed: baseSeed,
+    full: true,
+    entries: flow.entries,
+    fused: 0,
+    inertEntries: best.inertEntries,
+    inertShare: best.inertShare,
+    fill: (n * 2) / area,
+    dipOk: true, waistOk: true, fillOk: true,
+    waistOpenAbs, endOpen,
+    curve, flow,
+    gateDepths: [], lockedDepths: [],
     attempts: best.attempts,
   };
 }
@@ -726,5 +1163,6 @@ if (typeof module !== "undefined") {
   module.exports = {
     mulberry32, hashSeed, shuffle,
     buildGeometry, generateLevel, generateCandidates,
+    peelBuild, generateFullLevel,
   };
 }

@@ -4,7 +4,8 @@
 
 const { isAdjacentCollinear } = require("../js/board.js");
 const { analyzeFlow, pairsCurve } = require("../js/flow.js");
-const { generateLevel, generateCandidates } = require("../js/generator.js");
+const { generateLevel, generateCandidates, generateFullLevel } = require("../js/generator.js");
+const { TM_SHAPES } = require("../js/shapes.js");
 
 let nOk = 0, nFail = 0;
 function check(name, cond) {
@@ -74,6 +75,77 @@ for (const cfg of configs) {
   );
 }
 
+// ── Tam dolu üretim (ileri soyma, js/generator.js generateFullLevel) ──
+{
+  for (const shape of ["kalp", "halka", "ok", "cerceve", "dolu"]) {
+    const rows = 10, cols = 8;
+    const mask = TM_SHAPES.maskFor(shape, rows, cols);
+    const lv = generateFullLevel({ rows, cols, mask, seed: 4242 });
+    const tag = "tam dolu " + shape;
+    check(tag + ": üretildi", !!lv);
+    if (!lv) continue;
+    check(tag + ": %100 dolu (taş = maske alanı)", lv.pairs.length * 2 === lv.maskArea);
+    check(tag + ": bitişik hizalı çift yok", !lv.pairs.some(isAdjacentCollinear));
+    check(tag + ": çözülebilir", pairsCurve(lv.pairs, rows, cols) !== null);
+    check(tag + ": deadlock yok", analyzeFlow(lv.pairs, rows, cols).deadlocked.length === 0);
+    const lv2 = generateFullLevel({ rows, cols, mask, seed: 4242 });
+    check(tag + ": deterministik", JSON.stringify(lv2.pairs) === JSON.stringify(lv.pairs));
+  }
+  // maske yoksa merkez oyulur, yine üretilir (tam dikdörtgen tap hücresiz oynanamaz)
+  const lv = generateFullLevel({ rows: 6, cols: 6, seed: 7 });
+  check("tam dolu maskesiz: merkez oyularak üretildi",
+    !!lv && lv.maskArea === 34 && lv.pairs.length === 17);
+}
+
+// ── Soyma akış kadranları: yön tutuyorlar mı? (sabit seed → deterministik) ──
+{
+  const mask = TM_SHAPES.maskFor("kalp", 10, 8);
+  const avg = (opts, f) => {
+    let s = 0, k = 0;
+    for (let i = 0; i < 6; i++) {
+      const lv = generateFullLevel({ rows: 10, cols: 8, mask, ...opts, seed: 7000 + i });
+      if (lv) { s += f(lv); k++; }
+    }
+    return s / k;
+  };
+  const avgSpan = (lv) => lv.pairs.reduce((a, [[r1, c1], [r2, c2]]) =>
+    a + Math.abs(r1 - r2) + Math.abs(c1 - c2), 0) / lv.pairs.length;
+  const locality = (lv) => {
+    let d = 0;
+    const mid = (p) => [(p[0][0] + p[1][0]) / 2, (p[0][1] + p[1][1]) / 2];
+    for (let i = 1; i < lv.pairs.length; i++) {
+      const a = mid(lv.pairs[i - 1]), b = mid(lv.pairs[i]);
+      d += Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+    }
+    return d / (lv.pairs.length - 1);
+  };
+  check("kadran: köşeP yön tutuyor",
+    avg({ cornerP: 0.05 }, (l) => l.curve.cornerShare) <
+    avg({ cornerP: 0.95 }, (l) => l.curve.cornerShare));
+  check("kadran: mesafe eğilimi yön tutuyor",
+    avg({ spanBias: 0 }, avgSpan) < avg({ spanBias: 1 }, avgSpan));
+  check("kadran: bel hedefi çekiyor",
+    avg({ waistOpen: 6 }, (l) => l.waistOpenAbs) >
+    avg({}, (l) => l.waistOpenAbs) + 1);
+  check("kadran: yılan cephesi yerelliği düşürüyor",
+    avg({ frontMode: "yilan" }, locality) < avg({}, locality) - 0.5);
+  check("kadran: girişN dalga-0'ı sınırlıyor",
+    avg({ frontMode: "cepheler", entryN: 3 }, (l) => l.entries) <
+    avg({}, (l) => l.entries));
+  // kadranlı üretim de sözleşmeyi korur
+  const lv = generateFullLevel({
+    rows: 10, cols: 8, mask, seed: 4242,
+    frontMode: "bolge", entryN: 3, cornerP: 0.5, waistOpen: 3, spanBias: 0.5,
+  });
+  check("kadranlı: üretildi + %100 dolu", !!lv && lv.pairs.length * 2 === lv.maskArea);
+  check("kadranlı: çözülebilir", !!lv && pairsCurve(lv.pairs, 10, 8) !== null);
+  const lv2 = generateFullLevel({
+    rows: 10, cols: 8, mask, seed: 4242,
+    frontMode: "bolge", entryN: 3, cornerP: 0.5, waistOpen: 3, spanBias: 0.5,
+  });
+  check("kadranlı: deterministik", JSON.stringify(lv2.pairs) === JSON.stringify(lv.pairs));
+}
+
 // ── Funnel paketleri (levels_gen.js: boyut başına 100 level) ──
 {
   const { TM_PACKS } = require("../levels_gen.js");
@@ -125,6 +197,38 @@ for (const cfg of configs) {
     check(tag + ": veryhard trendi yükseliyor",
       (meanOf(9, "veryhard") + meanOf(10, "veryhard")) / 2 >
       (meanOf(1, "veryhard") + meanOf(2, "veryhard")) / 2);
+  }
+}
+
+// ── Tam dolu şekil paketleri (levels_shapes.js: boyut başına 50 level) ──
+{
+  const { TM_SHAPE_PACKS } = require("../levels_shapes.js");
+  const BAND_LABELS = ["easy", "easy", "medium", "hard", "veryhard"];
+  check("şekil paketleri var", Array.isArray(TM_SHAPE_PACKS) && TM_SHAPE_PACKS.length === 10);
+
+  for (const pk of TM_SHAPE_PACKS) {
+    const P = pk.levels, tag = "paket " + pk.size;
+    check(tag + ": 50 level", P.length === 50);
+    check(tag + ": idler 1..50 sıralı", P.every((l, i) => l.id === i + 1));
+    check(tag + ": boyut tutarlı", P.every((l) => l.rows === pk.rows && l.cols === pk.cols));
+    check(tag + ": etiketler banda uyuyor",
+      P.every((l, i) => l.meta.label === BAND_LABELS[Math.floor(i / 10)]));
+    check(tag + ": %100 dolu", P.every((l) => l.pairs.length * 2 === l.meta.maskArea));
+    check(tag + ": 4 şekil de var",
+      new Set(P.map((l) => l.meta.shape)).size === 4);
+
+    // çözülebilirlik: dalga analizi hepsi, FIFO örneklem
+    let solvable = true, fifoOk = true;
+    for (const l of P) {
+      if (analyzeFlow(l.pairs, l.rows, l.cols).deadlocked.length) {
+        solvable = false; console.error("  deadlock: " + pk.size + " #" + l.id);
+      }
+      if (l.id % 7 === 0 && pairsCurve(l.pairs, l.rows, l.cols) === null) {
+        fifoOk = false; console.error("  FIFO tıkalı: " + pk.size + " #" + l.id);
+      }
+    }
+    check(tag + ": deadlock yok", solvable);
+    check(tag + ": FIFO örneklemi akıyor", fifoOk);
   }
 }
 

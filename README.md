@@ -140,6 +140,65 @@ parmak/fare sürüklemesiyle pan (board sınırına clamp, bırakınca damping'l
 atalet — AG SwipeInertia). Tap ile drag, 8px eşiğiyle ayrılır (AG
 tapThreshold): eşik aşılırsa gesture'ın click'i hücreye ulaşmaz.
 
+## Şekil maskeleri (prototip)
+
+`js/shapes.js` — level silüetleri: taşlar yalnız şekil İÇİNE yerleşir
+(kalp, elmas, halka, ok, kum saati, çarpı, çerçeve; matematiksel tanım →
+her boyuta ölçeklenir). Şekil dışı hücreler üreticide baştan `reserved`
+setine girer — semantik birebir uyar: taş konamaz, görüş hattı üstünden
+geçer, tap edilebilir kalır (koridor şekil boşluğundan geçebilir; kapı dibi
+koridoru şekil dışına düşerse fitil oraya oturmaz). `fill` maske alanına
+oranlanır. Oyun sunumunda şekil dışı hücreler ayrıca işaretlenmez (soketler
+tekdüze); silüeti taş kütlesinin kendisi çizer. Maske level JSON'unda satır
+başına "0101…" dizgisiyle taşınır (`mask`), lab ▶ Oyna ve JSON kopyala
+dahil. Lab'da şekil çipleriyle seçilir; üretilmiş paketler (levels_gen.js)
+henüz maskesiz.
+
+**Tam dolu mod** (`generateFullLevel` + lab'daki "Tam dolu" anahtarı):
+şekil içi %100 taşla dolar, boşluk yalnız şekil dışıdır — level dıştan içe
+soyularak biter. Klasik yapı-önce inşa burada çalışmaz (kalıcı koridor
+rezervasyonu doluluğun tersi; tersten greedy doldurma da son hücrelerde
+kilitleniyor — denendi). Bunun yerine oyun İLERİ simüle edilir (`peelBuild`):
+tam dolu boarddan her adımda bir boş hücrenin O AN gördüğü iki taş "çift"
+ilan edilip kaldırılır — her adım tanım gereği oynanabilir, kayıt sırası
+geçerli çözümdür, monotonluk oyuncu sırasını serbest bırakır. Span-1 yasağı
+kendiliğinden sağlanır (aynı hücreden görülen taşlar ya araları açık hizalı
+ya dik yönlerden hizasızdır). Maske onarımı: maske boardu tamamen kaplıyorsa
+merkez hücre oyulur (tek delik soymayı başlatır), alan tek sayıysa kenardan
+bir hücre düşülür. Açılış doğal yönlendirmedir: t=0'da açık çift payı düşük
+(~0.03-0.4), geçerli tap noktaları şeklin köşe/girinti çevresidir.
+
+**Soyma akış kadranları** (hepsi opsiyonel; boş kadran rastgele davranışı
+korur — lab'da "Tam dolu" açıkken görünen satır):
+
+- `entryN` — açılış noktası sayısı. Şekil dışı boş bağlantılı bileşenler
+  ("havuz": halkanın iç odası, kum saatinin yan kamaları…) bulunur; girişler
+  havuzlara dağıtılır (çoksa her havuza ≥1, azsa temas/büyüklük öncelikli),
+  havuz içinde en-uzak-nokta örneklemesiyle yayılır. İlk soymalar buradan.
+- `frontMode` — soyulacak hücre disiplini: **yılan** (tek cephe, hep son
+  soyulanın yakını), **cepheler** (giriş başına cephe, dönüşümlü), **bölge**
+  (taşlar girişe yakınlığa göre dilimlenir, sırayla soyulur). `frontBias`
+  0..1 sadakat: her adım 1-bias olasılıkla serbest — yumuşak geçiş.
+- `waistOpen` — orta dilimde (t 0.30-0.75) hedef açık tap noktası sayısı:
+  aday soymaların SONRASI açıklığı ölçülüp hedefe en yakını seçilir —
+  U-eğrisinin beli filtreyle değil inşayla çizilir. Ayrıca aday skoruna
+  hedef cezası olarak eklenir (inşa + seçim birlikte çeker).
+- `cornerP` / `spanBias` — köşe(L)/koridor eşleme payı ve ışın mesafesi
+  eğilimi. İkisi de hücre seçimini DE yönlendirir (yalnız duo filtrelemek
+  etkisizdi: tür/mesafe arzı hücre konumundan gelir — ölçülüp düzeltildi).
+
+Kadran→metrik doğrulaması test altında (`tools/test_generator.js` "kadran"
+testleri): köşeP %70↔%99, span 2.4↔5.1, bel 1.3↔4.6, yılan yerelliği
+4.1→2.8 (kalp 8×10, sabit seedler).
+
+**Tam dolu şekil paketleri** (`levels_shapes.js`, `tools/gen_shape_levels.js`
+yazar): boyut başına 50 level × 10 boyut = 500 level; ana ekranda "Tam dolu
+şekiller" bölümünde listelenir. 4 şekil (kalp, çarpı, çerçeve, halka) döner;
+akış reçetesi 10'luk bantlarla sertleşir: yılan/giriş-1 → cepheler/giriş-2 →
+bölge/giriş-3+bel-3 → gevşek cepheler/uzun ışın → serbest/giriş-4+bel-2.
+Etiket şeridi banda göre easy→veryhard. İlerleme/favori anahtarları
+`tam-6x8:id` biçiminde (klasik paketlerle çakışmaz).
+
 ## Level Lab
 
 `lab.html` — üreticiyi tarayıcıda kurcalama sayfası: parametre paneli
@@ -156,9 +215,11 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 |---|---|
 | `js/board.js` | çekirdek: `visibleTilesFrom` (4 yön taraması), `resolveTap` (occupied/blank/miss/match), `availableTapCells`, `isAdjacentCollinear` |
 | `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı) |
-| `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates` |
+| `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim |
+| `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma) |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
 | `levels_gen.js` | üretilmiş paketler (`TM_PACKS`: 10 boyut × 100 level; `tools/gen_levels.js` yazar — elle düzenleme) |
+| `levels_shapes.js` | tam dolu şekil paketleri (`TM_SHAPE_PACKS`: 10 boyut × 50 level; `tools/gen_shape_levels.js` yazar — elle düzenleme) |
 | `js/game.js` + `index.html` + `style.css` | oyun sayfası: boyut seçimi → level grid → oyun; telefon çerçevesi + HUD (süre, 3 can), noktalı ızgara sunumu (mat + boş hücre noktaları) + basılı-tut görüş önizlemesi, hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı; level grid'de zorluk şeridi |
 | `js/camera.js` | board kamerası: pinch zoom + swipe pan + clamp + atalet, tap/drag ayrımı (AG'nin LeanTouch kamera modelinin web karşılığı) |
 | `lab.html` + `js/lab.js` | level lab: parametreyle üret, eğrileri gör, tek tıkla oyna |
@@ -166,6 +227,7 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `tools/test_flow.js` | ölçüm katmanı testleri (dalga, deadlock, eğri) + level raporu |
 | `tools/test_generator.js` | üretici duman testi + konfigürasyon istatistikleri |
 | `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
+| `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
 
 ## Çalıştırma
 

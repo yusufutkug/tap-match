@@ -25,6 +25,7 @@
     { k: "dipMax", label: "dip tavanı", v: 0.5, step: 0.05 },
     { k: "waistPosTarget", label: "bel hedefi (boş=kapalı)", v: "", step: 0.05 },
     { k: "waistOpenMax", label: "bel açık tavanı (boş=kapalı)", v: "" },
+    { k: "fillMin", label: "doluluk tabanı (boş=kapalı)", v: "", step: 0.05 },
     { k: "seed", label: "seed", v: 777 },
     { k: "samples", label: "aday sayısı", v: 6 },
     { k: "maxAttempts", label: "deneme tavanı", v: 600 },
@@ -63,6 +64,92 @@
     });
     presetsEl.appendChild(b);
   }
+
+  // ── şekil maskesi seçimi (js/shapes.js) ──
+  // Taşlar yalnız şekil içine yerleşir; şekil dışı hücreler kalıcı boş kalır
+  // (görüş hattı geçer, tap edilebilir). "Dolu" = maske yok, eski davranış.
+  //
+  // "Tam dolu" anahtarı üretim modunu değiştirir: şekil içi %100 taşla dolar
+  // ve level ileri-soyma ile kurulur (generateFullLevel) — yapı parametreleri
+  // (giriş/kilitli/kapı, derinlik, köşe, bel) bu modda devre dışıdır.
+
+  let shapeId = "dolu";
+  let fullFill = false;
+
+  // ── soyma akışı kadranları (yalnız tam dolu modda görünür/geçerli) ──
+  // Anlamları js/generator.js peelBuild başlığında; boş kadran = rastgele.
+  const PEEL_PARAMS = [
+    { k: "peelEntryN", label: "giriş sayısı (boş=rastgele)" },
+    { k: "peelFrontBias", label: "cephe sadakati 0-1 (boş=1)", step: 0.05 },
+    { k: "peelWaistOpen", label: "bel açık hedefi (boş=kapalı)" },
+    { k: "peelCornerP", label: "köşe payı 0-1 (boş=rastgele)", step: 0.05 },
+    { k: "peelSpanBias", label: "mesafe eğilimi 0-1 (boş=rastgele)", step: 0.05 },
+  ];
+  {
+    const wrap = $("labPeelParams");
+    // cephe modu: select (serbest = disiplin kapalı)
+    const modeLabel = document.createElement("label");
+    modeLabel.textContent = "cephe modu";
+    const sel = document.createElement("select");
+    sel.id = "in_peelFrontMode";
+    for (const [v, txt] of [["", "serbest"], ["yilan", "yılan (tek cephe)"],
+                            ["cepheler", "cepheler (giriş başına)"], ["bolge", "bölge sıralı"]]) {
+      const op = document.createElement("option");
+      op.value = v; op.textContent = txt;
+      sel.appendChild(op);
+    }
+    modeLabel.appendChild(sel);
+    wrap.appendChild(modeLabel);
+    for (const p of PEEL_PARAMS) {
+      const label = document.createElement("label");
+      label.textContent = p.label;
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = "in_" + p.k;
+      if (p.step) input.step = p.step;
+      label.appendChild(input);
+      wrap.appendChild(label);
+    }
+  }
+  function readPeelOpts() {
+    const num = (k) => {
+      const raw = $("in_" + k).value.trim();
+      return raw === "" ? undefined : Number(raw);
+    };
+    return {
+      entryN: num("peelEntryN"),
+      frontMode: $("in_peelFrontMode").value || null,
+      frontBias: num("peelFrontBias"),
+      waistOpen: num("peelWaistOpen"),
+      cornerP: num("peelCornerP"),
+      spanBias: num("peelSpanBias"),
+    };
+  }
+
+  function renderShapeRow() {
+    const row = $("labShapes");
+    row.innerHTML = "";
+    const lead = document.createElement("span");
+    lead.textContent = "şekil:";
+    lead.style.cssText = "font-size:11.5px;color:var(--muted);align-self:center";
+    row.appendChild(lead);
+    for (const id of TM_SHAPES.ORDER) {
+      const b = document.createElement("button");
+      b.className = "chip theme-chip" + (id === shapeId ? " on" : "");
+      b.textContent = TM_SHAPES.DEFS[id].name;
+      b.addEventListener("click", () => { shapeId = id; renderShapeRow(); });
+      row.appendChild(b);
+    }
+    const bf = document.createElement("button");
+    bf.className = "chip theme-chip" + (fullFill ? " on" : "");
+    bf.textContent = "Tam dolu: " + (fullFill ? "Açık" : "Kapalı");
+    bf.title = "Şekil içi %100 taş — dıştan soyarak biter; yapı parametreleri devre dışı";
+    bf.style.marginLeft = "12px";
+    bf.addEventListener("click", () => { fullFill = !fullFill; renderShapeRow(); });
+    row.appendChild(bf);
+    $("labPeelParams").hidden = !fullFill; // soyma kadranları yalnız tam doluda
+  }
+  renderShapeRow();
 
   function readOpts() {
     const num = (k) => {
@@ -135,6 +222,15 @@
     const c = makeCanvas(W + 2, H + 2);
     const ctx = c.getContext("2d");
     ctx.translate(1, 1);
+    // şekil dışı hücreler: silik dolgu → silüet önizlemede okunur
+    if (lv.mask) {
+      ctx.fillStyle = "rgba(120, 108, 90, 0.14)";
+      for (let r = 0; r < lv.rows; r++) {
+        for (let cc = 0; cc < lv.cols; cc++) {
+          if (!lv.mask[r][cc]) ctx.fillRect(cc * cell, r * cell, cell, cell);
+        }
+      }
+    }
     ctx.strokeStyle = "#eee7db"; ctx.lineWidth = 1;
     for (let r = 0; r <= lv.rows; r++) { ctx.beginPath(); ctx.moveTo(0, r * cell); ctx.lineTo(W, r * cell); ctx.stroke(); }
     for (let col = 0; col <= lv.cols; col++) { ctx.beginPath(); ctx.moveTo(col * cell, 0); ctx.lineTo(col * cell, H); ctx.stroke(); }
@@ -178,7 +274,9 @@
       '<div class="cand-title">#' + (idx + 1) +
       "<small>seed " + lv.seed + " · " + lv.attempts + " deneme</small></div>" +
       '<div class="cand-metrics">' +
-      "çift <b>" + lv.pairs.length + "</b> · dolgu <b>" + fmt(lv.fill) + "</b> · derinlik <b>" + lv.flow.depth + "</b> · giriş <b>" + lv.entries + "</b>" +
+      "çift <b>" + lv.pairs.length + "</b> · dolgu <b>" + fmt(lv.fill) + "</b>" +
+      (lv.mask ? " · şekil alanı <b>" + lv.maskArea + "/" + lv.rows * lv.cols + "</b>" : "") +
+      " · derinlik <b>" + lv.flow.depth + "</b> · giriş <b>" + lv.entries + "</b>" +
       " · fitil <b>" + lv.fused + "</b>" +
       " · etkisiz <b>" + lv.inertEntries + "</b> " + okBadge(lv.inertShare <= 0.25) + "<br>" +
       "dip <b>" + fmt(lv.curve.dip) + "</b> " + okBadge(lv.dipOk) +
@@ -193,15 +291,20 @@
     actions.className = "cand-actions";
     const bPlay = document.createElement("button");
     bPlay.className = "chip"; bPlay.textContent = "▶ Oyna";
+    const levelJson = () => {
+      const o = { rows: lv.rows, cols: lv.cols, pairs: lv.pairs, seed: lv.seed };
+      if (lv.mask) o.mask = TM_SHAPES.encode(lv.mask);
+      return o;
+    };
     bPlay.addEventListener("click", () => {
-      const payload = { name: "Lab #" + (idx + 1), rows: lv.rows, cols: lv.cols, pairs: lv.pairs, seed: lv.seed };
+      const payload = { name: "Lab #" + (idx + 1), ...levelJson() };
       localStorage.setItem("tm_lab_level", JSON.stringify(payload));
       window.open("index.html?lab=1", "_blank");
     });
     const bJson = document.createElement("button");
     bJson.className = "chip"; bJson.textContent = "JSON kopyala";
     bJson.addEventListener("click", () => {
-      navigator.clipboard.writeText(JSON.stringify({ rows: lv.rows, cols: lv.cols, pairs: lv.pairs, seed: lv.seed }));
+      navigator.clipboard.writeText(JSON.stringify(levelJson()));
       bJson.textContent = "kopyalandı ✓";
       setTimeout(() => (bJson.textContent = "JSON kopyala"), 1200);
     });
@@ -221,7 +324,8 @@
     const prevWrap = document.createElement("div");
     prevWrap.className = "prev-wrap";
     prevWrap.appendChild(drawBoard(lv));
-    prevWrap.appendChild(caption(lv.cols + "×" + lv.rows + " yerleşim"));
+    prevWrap.appendChild(caption(lv.cols + "×" + lv.rows +
+      (lv.full ? " · renk = soyma sırası (yeşil erken → mavi geç)" : " yerleşim")));
 
     div.appendChild(info);
     div.appendChild(curveWrap);
@@ -238,6 +342,8 @@
     running = true;
     $("btnGen").disabled = true;
     const opts = readOpts();
+    // seçili şekil maskesi: taşlar şekil içine, dışı kalıcı boş
+    opts.mask = TM_SHAPES.maskFor(shapeId, opts.rows, opts.cols);
     const grid = $("candGrid");
     grid.innerHTML = "";
     $("labSummary").textContent = "";
@@ -248,7 +354,13 @@
       $("labProgress").textContent = "üretiliyor… " + (i + 1) + "/" + n;
       await new Promise((r) => setTimeout(r, 15)); // UI nefes alsın
       const t0 = performance.now();
-      const lv = generateLevel({ ...opts, seed: (baseSeed + Math.imul(i + 1, 40503)) >>> 0 });
+      const seed = (baseSeed + Math.imul(i + 1, 40503)) >>> 0;
+      const lv = fullFill
+        ? generateFullLevel({
+            rows: opts.rows, cols: opts.cols, mask: opts.mask, seed,
+            maxAttempts: opts.maxAttempts, ...readPeelOpts(),
+          })
+        : generateLevel({ ...opts, seed });
       const ms = performance.now() - t0;
       if (lv) results.push({ lv, ms });
       grid.appendChild(renderCard(lv, i, opts));

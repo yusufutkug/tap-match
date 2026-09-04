@@ -179,6 +179,15 @@ button.primary:hover { filter: brightness(1.06); }
   grid-template-columns: repeat(2, 1fr);
   gap: 9px;
 }
+/* ana ekranda paket bölümü başlığı (örn. "Tam dolu şekiller") */
+.size-section {
+  margin: 16px 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
 .size-card {
   display: flex;
   flex-direction: column;
