@@ -84,22 +84,30 @@
     { k: "peelWaistOpen", label: "bel açık hedefi (boş=kapalı)" },
     { k: "peelCornerP", label: "köşe payı 0-1 (boş=rastgele)", step: 0.05 },
     { k: "peelSpanBias", label: "mesafe eğilimi 0-1 (boş=rastgele)", step: 0.05 },
+    { k: "peelKnots", label: "düğüm hedefi (boş=kapalı)" },
   ];
   {
     const wrap = $("labPeelParams");
+    const addSelect = (id, text, opts) => {
+      const label = document.createElement("label");
+      label.textContent = text;
+      const sel = document.createElement("select");
+      sel.id = id;
+      for (const [v, txt] of opts) {
+        const op = document.createElement("option");
+        op.value = v; op.textContent = txt;
+        sel.appendChild(op);
+      }
+      label.appendChild(sel);
+      wrap.appendChild(label);
+    };
     // cephe modu: select (serbest = disiplin kapalı)
-    const modeLabel = document.createElement("label");
-    modeLabel.textContent = "cephe modu";
-    const sel = document.createElement("select");
-    sel.id = "in_peelFrontMode";
-    for (const [v, txt] of [["", "serbest"], ["yilan", "yılan (tek cephe)"],
-                            ["cepheler", "cepheler (giriş başına)"], ["bolge", "bölge sıralı"]]) {
-      const op = document.createElement("option");
-      op.value = v; op.textContent = txt;
-      sel.appendChild(op);
-    }
-    modeLabel.appendChild(sel);
-    wrap.appendChild(modeLabel);
+    addSelect("in_peelFrontMode", "cephe modu",
+      [["", "serbest"], ["yilan", "yılan (tek cephe)"],
+       ["cepheler", "cepheler (giriş başına)"], ["bolge", "bölge sıralı"]]);
+    // kesme hattı: açılış hamleleri şekli görünür adalara böler
+    addSelect("in_peelCut", "kesme hattı",
+      [["", "yok"], ["dikey", "dikey (sütun)"], ["yatay", "yatay (satır)"]]);
     for (const p of PEEL_PARAMS) {
       const label = document.createElement("label");
       label.textContent = p.label;
@@ -123,6 +131,8 @@
       waistOpen: num("peelWaistOpen"),
       cornerP: num("peelCornerP"),
       spanBias: num("peelSpanBias"),
+      knots: num("peelKnots"),
+      cut: $("in_peelCut").value || null,
     };
   }
 
@@ -286,6 +296,19 @@
       " · efor zirvesi <b>" + fmt(lv.curve.effortPeak, 0) + " hücre</b>" +
       " · tarama <b>" + scanPk + " çift</b>" +
       " · son açıklık <b>" + fmt(lv.endOpen) + "</b>" +
+      // yerellik satırı (yalnız tam dolu — loc yerel-oyuncu simülasyonu):
+      // sıçrama = akış hissi (küçük iyi), düğüm = planlı arama anları,
+      // öğütme = art arda zorunlu-uzak (0-1 iyi), bölünme = parçalanma anı
+      (lv.loc
+        ? "<br>sıçrama <b>" + fmt(lv.loc.meanJump) + "</b>" +
+          " · düğüm <b>" + lv.loc.knots + "</b>" +
+          (lv.loc.knots ? " <small>@" + lv.loc.knotAt.map((t) => fmt(t)).join(", ") + "</small>" : "") +
+          " · öğütme <b>" + lv.loc.grindMax + "</b> " + okBadge(lv.loc.grindMax <= 1) +
+          " · kuyruk sıçr. <b>" + fmt(lv.loc.tailJump) + "</b> " + okBadge(lv.loc.tailFar === 0) +
+          (lv.loc.splitT !== null
+            ? " · bölünme@ <b>" + fmt(lv.loc.splitT) + "</b> (" + lv.loc.maxComps + " parça)"
+            : "")
+        : "") +
       "</div>";
     const actions = document.createElement("div");
     actions.className = "cand-actions";

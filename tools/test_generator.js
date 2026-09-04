@@ -146,6 +146,105 @@ for (const cfg of configs) {
   check("kadranlı: deterministik", JSON.stringify(lv2.pairs) === JSON.stringify(lv.pairs));
 }
 
+// ── Ada maskeleri (js/shapes.js): her boyutta ≥2 ada, hepsi üretilebilir ──
+{
+  const SIZES = [[8, 6], [9, 6], [9, 7], [10, 7], [10, 8],
+                 [12, 8], [14, 8], [12, 9], [15, 9], [18, 12]];
+  const comps = (mask, rows, cols) => {
+    const seen = mask.map((r) => r.map(() => false));
+    let n = 0, minSize = Infinity;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!mask[r][c] || seen[r][c]) continue;
+        n++;
+        let size = 0;
+        const q = [[r, c]];
+        seen[r][c] = true;
+        while (q.length) {
+          const [a, b] = q.pop();
+          size++;
+          for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const rr = a + dr, cc = b + dc;
+            if (rr >= 0 && cc >= 0 && rr < rows && cc < cols &&
+                mask[rr][cc] && !seen[rr][cc]) { seen[rr][cc] = true; q.push([rr, cc]); }
+          }
+        }
+        minSize = Math.min(minSize, size);
+      }
+    }
+    return { n, minSize };
+  };
+  const WANT = { papyon: 2, yonca: 4, takimada: 3, bantlar: 3 };
+  for (const id of Object.keys(WANT)) {
+    let adaOk = true, genOk = true;
+    for (const [rows, cols] of SIZES) {
+      const mask = TM_SHAPES.maskFor(id, rows, cols);
+      const cc = mask && comps(mask, rows, cols);
+      if (!mask || cc.n !== WANT[id] || cc.minSize < 4) adaOk = false;
+      const lv = generateFullLevel({ rows, cols, mask, seed: 1234 });
+      if (!lv || pairsCurve(lv.pairs, rows, cols) === null ||
+          analyzeFlow(lv.pairs, rows, cols).deadlocked.length) genOk = false;
+    }
+    check("ada maskesi " + id + ": her boyutta " + WANT[id] + " ada (≥4 hücre)", adaOk);
+    check("ada maskesi " + id + ": her boyutta üretilebilir + çözülebilir", genOk);
+  }
+}
+
+// ── Kesme hattı (cut) + yerellik metriği ──
+{
+  const { localityStats } = require("../js/flow.js");
+
+  // dolu board + dikey kesme: erken bölünme, çözülebilirlik, determinizm
+  const lv = generateFullLevel({ rows: 10, cols: 8, seed: 7, cut: "dikey" });
+  check("kesme: üretildi + hat var", !!lv && lv.cutCells && lv.cutCells.length >= 8);
+  check("kesme: çözülebilir", !!lv && pairsCurve(lv.pairs, 10, 8) !== null);
+  const loc = lv && localityStats(lv.pairs, 10, 8);
+  check("kesme: oyun erken bölünüyor (splitT ≤ 0.35, ≥2 parça)",
+    !!loc && loc.splitT !== null && loc.splitT <= 0.35 && loc.maxComps >= 2);
+  const lvB = generateFullLevel({ rows: 10, cols: 8, seed: 7, cut: "dikey" });
+  check("kesme: deterministik", !!lvB && JSON.stringify(lvB.pairs) === JSON.stringify(lv.pairs));
+
+  // şekilli kesme: çerçeve dikeyde bölünür; bölünemeyen yön null döner
+  const frame = TM_SHAPES.maskFor("cerceve", 10, 8);
+  const lvF = generateFullLevel({ rows: 10, cols: 8, mask: frame, seed: 42, cut: "dikey" });
+  check("kesme: çerçeve + dikey üretildi", !!lvF && pairsCurve(lvF.pairs, 10, 8) !== null);
+
+  // yerellik metriği: sözleşme + determinizm
+  const l1 = localityStats(lv.pairs, 10, 8);
+  const l2 = localityStats(lv.pairs, 10, 8);
+  check("yerellik: deterministik", JSON.stringify(l1.jumps) === JSON.stringify(l2.jumps));
+  check("yerellik: alanlar tutarlı",
+    l1.jumps.length === l1.opens.length && l1.meanJump >= 0 &&
+    l1.grindMax >= 0 && Array.isArray(l1.knotAt));
+
+  // yerellik cezası yön tutuyor: skorlamalı üretim (yeni) kuyruk saçılmasını
+  // eski adaylara göre düşürmeli — kalp maskesinde 6 seed ortalaması
+  const heart = TM_SHAPES.maskFor("kalp", 10, 8);
+  let tails = 0, k = 0;
+  for (let i = 0; i < 6; i++) {
+    const l = generateFullLevel({ rows: 10, cols: 8, mask: heart, seed: 9000 + i });
+    if (l && l.loc) { tails += l.loc.grindMax; k++; }
+  }
+  check("yerellik: seçilen adaylarda öğütme düşük (ort ≤ 1.5)", k > 0 && tails / k <= 1.5);
+
+  // tempo senaryosu: knots kadranı düğüm sayısını iki yönde de yönetiyor —
+  // hedef 0 doğal (kapalı) durumdan azaltır, hedef 4 hedef 0'dan çoğaltır
+  const knotAvg = (knots) => {
+    let s = 0, n = 0;
+    for (let i = 0; i < 5; i++) {
+      const l = generateFullLevel({
+        rows: 12, cols: 9, mask: TM_SHAPES.maskFor("kalp", 12, 9),
+        seed: 100 + i, frontMode: "bolge", knots,
+      });
+      if (l) { s += l.loc.knots; n++; }
+    }
+    return s / n;
+  };
+  const kOff = knotAvg(null), k0 = knotAvg(0), k4 = knotAvg(4);
+  check("tempo: düğüm hedefi 0 doğal düğümleri bastırıyor", k0 < kOff - 1);
+  check("tempo: düğüm hedefi 4 > hedef 0", k4 > k0 + 0.5);
+}
+
 // ── Funnel paketleri (levels_gen.js: boyut başına 100 level) ──
 {
   const { TM_PACKS } = require("../levels_gen.js");
@@ -214,8 +313,24 @@ for (const cfg of configs) {
     check(tag + ": etiketler banda uyuyor",
       P.every((l, i) => l.meta.label === BAND_LABELS[Math.floor(i / 10)]));
     check(tag + ": %100 dolu", P.every((l) => l.pairs.length * 2 === l.meta.maskArea));
-    check(tag + ": 4 şekil de var",
-      new Set(P.map((l) => l.meta.shape)).size === 4);
+    check(tag + ": şekil çeşitliliği (≥8: tek parça + ada + dolu)",
+      new Set(P.map((l) => l.meta.shape)).size >= 8);
+
+    // tempo rampası: bant düğüm ortalaması kolaydan zora yükselmeli
+    const bandAvg = (b) => {
+      const xs = P.slice(b * 10, (b + 1) * 10).map((l) => l.meta.knots);
+      return xs.reduce((a, x) => a + x, 0) / xs.length;
+    };
+    check(tag + ": düğüm rampası (bant1 + 0.5 < bant5)", bandAvg(0) + 0.5 < bandAvg(4));
+
+    // kesme: planlanan hatların çoğu tutmalı, tutanlar erken bölünmeli
+    const cuts = P.filter((l) => l.meta.cut);
+    check(tag + ": kesmeli level ≥ 12", cuts.length >= 12);
+    const earlySplit = cuts.filter((l) => l.meta.splitT !== null && l.meta.splitT <= 0.5);
+    check(tag + ": kesmelilerin ≥%60'ı erken bölünüyor", earlySplit.length >= cuts.length * 0.6);
+
+    // öğütme tavanı: art arda zorunlu-uzak hamle zinciri kontrol altında
+    check(tag + ": öğütme ≤ 4", P.every((l) => l.meta.grind <= 4));
 
     // çözülebilirlik: dalga analizi hepsi, FIFO örneklem
     let solvable = true, fifoOk = true;

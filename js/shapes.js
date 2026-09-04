@@ -54,9 +54,49 @@ var TM_SHAPES = (function () {
       // kenar bandı; ortadaki boş oda tap arenası olur
       fn: (u, v) => Math.max(Math.abs(u), Math.abs(v)) >= 0.42,
     },
+
+    // ── Ada maskeleri: şekil, boş kanallarla ayrılmış bloblardan oluşur ──
+    // Akış tasarımı için: her blob kendi içinde yerel akış verir, bloblar
+    // arası çiftler (köprüler) düğüm anlarıdır; kanallar köprü koridorları.
+    papyon: {
+      name: "Papyon",
+      // merkeze incelen iki kanat + ortada dikey boş kanal (iki ada)
+      fn: (u, v) => Math.abs(u) >= 0.24 && Math.abs(v) <= Math.abs(u) * 0.85 + 0.22,
+    },
+    yonca: {
+      name: "Yonca",
+      // 4 çeyrek blob + artı biçimli boş kanal; dış köşeler pahlı
+      fn: (u, v) => Math.abs(u) > 0.17 && Math.abs(v) > 0.13 &&
+        Math.abs(u) + Math.abs(v) <= 1.6,
+    },
+    takimada: {
+      name: "Takımada",
+      // köşegen boyunca üç blok ada. İmplicit tanım dar gridlerde adaları
+      // birleştiriyordu; hücre uzayında bant hesabı araya HER boyutta en az
+      // bir boş satır koyar (ada garantisi).
+      fn: (u, v, r, c, rows, cols) => {
+        const gap = 1;
+        const h = Math.floor((rows - 2 * gap) / 3); // bant yüksekliği
+        const extra = rows - 2 * gap - 3 * h;       // artan satırlar orta banda
+        const bands = [[0, h], [h + gap, 2 * h + gap + extra], [rows - h, rows]];
+        const w = Math.ceil(cols * 0.55);
+        for (let k = 0; k < 3; k++) {
+          if (r < bands[k][0] || r >= bands[k][1]) continue;
+          const c0 = Math.round(((cols - w) * k) / 2);
+          return c >= c0 && c < c0 + w;
+        }
+        return false;
+      },
+    },
+    bantlar: {
+      name: "Bantlar",
+      // üç yatay bant, aralarında boş şeritler — en çıplak ada düzeni
+      fn: (u, v) => Math.abs(v) <= 0.2 || Math.abs(v) >= 0.55,
+    },
   };
 
-  const ORDER = ["dolu", "kalp", "elmas", "halka", "ok", "kumsaati", "carpi", "cerceve"];
+  const ORDER = ["dolu", "kalp", "elmas", "halka", "ok", "kumsaati", "carpi", "cerceve",
+    "papyon", "yonca", "takimada", "bantlar"];
 
   // id + boyut → maske (2B bool) | null (dolu/tanımsız: maske yok).
   function maskFor(id, rows, cols) {
@@ -69,7 +109,7 @@ var TM_SHAPES = (function () {
       const v = ((r + 0.5) / rows) * 2 - 1;
       for (let c = 0; c < cols; c++) {
         const u = ((c + 0.5) / cols) * 2 - 1;
-        const on = !!def.fn(u, v);
+        const on = !!def.fn(u, v, r, c, rows, cols);
         row.push(on);
         if (on) area++;
       }

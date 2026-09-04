@@ -15,7 +15,8 @@
 
 // Node için board yardımcıları; tarayıcıda script etiketiyle global.
 if (typeof module !== "undefined" && typeof boardFromPairs === "undefined") {
-  var { boardFromPairs, visibleTilesFrom } = require("./board.js");
+  var { boardFromPairs, visibleTilesFrom, availableTapCells, resolveTap, applyMatches } =
+    require("./board.js");
 }
 
 function spanOf([[r1, c1], [r2, c2]]) {
@@ -302,6 +303,125 @@ function pairsCurve(pairs, rows, cols) {
   };
 }
 
+// ── Yerellik: yerel-oyuncu simülasyonu ──
+//
+// pairsCurve'ün FIFO oyuncusu üretim sırasını ölçer; buradaki oyuncu ise
+// akış ARAYAN insanın kaba modelidir: her adımda son tap'ine EN YAKIN açık
+// hücreyi oynar. Ölçtüğü şey açıklığın sayısı değil COĞRAFYASI:
+//   jump[t]   — son tap → seçilen tap Manhattan mesafesi. Oyuncu hep EN
+//               YAKINI oynadığından jump = "en yakın devamın uzaklığı":
+//               küçük = akış (devam elinin altında), büyük = yerel devam YOK,
+//               oyuncu aramak zorunda — açık çift sayısından bağımsız olarak
+//               gerçek bir kilitlenme anı.
+//   forced[t] — o an açık çift ≤1 (seçenek de yok; bilgi amaçlı).
+// Türetilenler:
+//   knots     — DÜĞÜM olayları: jump ≥ knotThr. İyi levelda az sayıda ve
+//               ortaya serpilmiş olmalı (knotAt konumları). Çok sayıda düğüm
+//               = büyük boardlardaki "dağınıklık" hissinin ta kendisi.
+//   grindMax  — ÖĞÜTME: art arda uzak hamle (jump ≥ 3) dizisi maksimumu.
+//               Düğüm tek vuruşluktur; 2+ uzak hamle zinciri aramanın
+//               ödülsüz tekrarı = tasarım hatası (bkz. 6x8 çerçeve lv18 kuyruğu).
+//   tailJump / tailFar — son %20'nin ort. sıçraması ve uzak hamle sayısı:
+//               final yerel kapanış kümesi olmalı, saçılmamalı.
+//   splitT    — kalan taşların İLK kez ≥2 parçaya (her parça ≥3 taş)
+//               bölündüğü an t (yoksa null); maxComps — görülen en çok parça.
+//               Adacık/kesme tasarımının "parçalanma gerçekleşti mi" ölçüsü.
+// Dönüş null = tıkalı eşleme (pairsCurve null ile aynı durum).
+function localityStats(pairs, rows, cols) {
+  const n = pairs.length;
+  if (n === 0) return null;
+  const board = boardFromPairs(rows, cols, pairs);
+  const knotThr = Math.max(3, Math.round((rows + cols) / 5));
+
+  // kalan taşların 4-komşuluk parça sayısı (küçük kırıntılar sayılmaz)
+  function tileComps() {
+    const seen = Array.from({ length: rows }, () => Array(cols).fill(false));
+    let comps = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (board[r][c] === null || seen[r][c]) continue;
+        let size = 0;
+        const q = [[r, c]];
+        seen[r][c] = true;
+        while (q.length) {
+          const [a, b] = q.pop();
+          size++;
+          for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const rr = a + dr, cc = b + dc;
+            if (rr >= 0 && cc >= 0 && rr < rows && cc < cols &&
+                board[rr][cc] !== null && !seen[rr][cc]) {
+              seen[rr][cc] = true;
+              q.push([rr, cc]);
+            }
+          }
+        }
+        if (size >= 3) comps++;
+      }
+    }
+    return comps;
+  }
+
+  const jumps = [], opens = [], spans = [], forced = [];
+  let last = null, splitStep = null, maxComps = 1, alive = n, step = 0;
+  while (alive > 0) {
+    const cells = availableTapCells(board);
+    if (!cells.length) return null; // tıkalı
+    const openPairs = new Set();
+    for (const cell of cells) for (const id of cell.pairIds) openPairs.add(id);
+    let pick = null, bestKey = Infinity;
+    for (const cell of cells) {
+      const d = last === null
+        ? 0
+        : Math.abs(cell.r - last[0]) + Math.abs(cell.c - last[1]);
+      // eşitlikte çok çift kıran, sonra satır-major (deterministik)
+      const key = d * 1e6 - cell.pairIds.length * 1e3 + cell.r * cols + cell.c;
+      if (key < bestKey) { bestKey = key; pick = cell; }
+    }
+    const jump = last === null ? 0 : Math.abs(pick.r - last[0]) + Math.abs(pick.c - last[1]);
+    const res = resolveTap(board, pick.r, pick.c);
+    jumps.push(jump);
+    opens.push(openPairs.size);
+    forced.push(openPairs.size <= 1);
+    spans.push(Math.max(...res.matches.map((m) => spanOf(m.tiles))));
+    applyMatches(board, res.matches);
+    alive -= res.matches.length;
+    last = [pick.r, pick.c];
+    const comps = tileComps();
+    if (comps > maxComps) maxComps = comps;
+    if (comps >= 2 && splitStep === null) splitStep = step;
+    step++;
+  }
+
+  const L = jumps.length;
+  const splitT = splitStep === null ? null : splitStep / L;
+  const knotAt = [];
+  let grindMax = 0, run = 0;
+  for (let i = 0; i < L; i++) {
+    if (jumps[i] >= knotThr) knotAt.push(i / L);
+    if (jumps[i] >= 3) { run++; grindMax = Math.max(grindMax, run); }
+    else run = 0;
+  }
+  const tail = Math.floor(L * 0.8);
+  let tailJump = 0, tailFar = 0;
+  for (let i = tail; i < L; i++) {
+    tailJump += jumps[i];
+    if (jumps[i] >= 3) tailFar++;
+  }
+  tailJump /= Math.max(1, L - tail);
+  const meanJump = jumps.reduce((a, b) => a + b, 0) / L;
+
+  return {
+    jumps, opens, spans, forced,
+    meanJump, maxJump: Math.max(...jumps),
+    knots: knotAt.length, knotAt, knotThr,
+    grindMax, tailJump, tailFar,
+    splitT, maxComps,
+  };
+}
+
 if (typeof module !== "undefined") {
-  module.exports = { spanOf, isCollinear, pairOptions, analyzeFlow, scanBoard, pairsCurve };
+  module.exports = {
+    spanOf, isCollinear, pairOptions, analyzeFlow, scanBoard, pairsCurve,
+    localityStats,
+  };
 }

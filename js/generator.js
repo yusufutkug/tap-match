@@ -34,7 +34,8 @@
 
 if (typeof module !== "undefined" && typeof boardFromPairs === "undefined") {
   var { boardFromPairs } = require("./board.js");
-  var { analyzeFlow, pairsCurve, pairOptions, spanOf, isCollinear } = require("./flow.js");
+  var { analyzeFlow, pairsCurve, pairOptions, spanOf, isCollinear, localityStats } =
+    require("./flow.js");
 }
 
 function mulberry32(seed) {
@@ -775,6 +776,19 @@ function generateLevel(opts) {
 //               çifti (kolay okunur), dik yönler köşe çifti (bilişsel yük).
 //   spanBias  — 0..1 ışın mesafesi eğilimi (1 = uzak taşları eşle: geç fark
 //               edilir; 0 = dibindekileri eşle).
+//   cutCells  — [[r,c],...] KESME HATTI: bu taşlar oyunun AÇILIŞINDA temizlenir
+//               (soyma ileri oyun olduğundan = önce soyulur). Hat, şekli
+//               görünür adalara böler; girişler hatta en yakın havuz
+//               hücrelerine çekilir. Hat fazında cephe disiplini askıdadır;
+//               hat bitince kadranlar normal işler.
+//   knots     — TEMPO SENARYOSU (null = kapalı): t = i/(n+1) anlarında soyma
+//               cepheden EN UZAK seçeneğe zıplar (düğüm), ARADAKİ tüm
+//               adımlarda ise seçilen alt kümeye yılan-yerelliği uygulanır
+//               (akış dilimi: en yakın seçenekler). knots=0 saf akış demektir
+//               (hiç zıplama, maksimum yerellik). Oyuncunun düğümü aynı yerde
+//               yaşaması inşayla garanti edilemez — generateFullLevel
+//               localityStats ile ölçüp hedefe yakın adayı seçer (inşa +
+//               seçim birlikte, waistOpen deseni).
 function peelBuild(rng, mask, rows, cols, o) {
   o = o || {};
   const grid = Array.from({ length: rows }, () => Array(cols).fill(false));
@@ -799,6 +813,22 @@ function peelBuild(rng, mask, rows, cols, o) {
 
   const inb = (r, c) => r >= 0 && c >= 0 && r < rows && c < cols;
   const dist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+
+  // ── kesme hattı durumu ──
+  const cutArr = (o.cutCells || []).filter(([r, c]) => grid[r][c]);
+  const cutSet = new Set(cutArr.map(([r, c]) => r + "," + c));
+  let cutLeft = cutSet.size;
+
+  // ── tempo senaryosu: planlı düğüm anları (ortaya eşit serpilir) ──
+  const knotsN = (o.knots === undefined || o.knots === null) ? null : o.knots | 0;
+  const knotTs = [];
+  for (let i = 1; i <= (knotsN || 0); i++) knotTs.push(i / (knotsN + 1));
+  let knotIdx = 0;
+  const distToCut = (cell) => {
+    let d = Infinity;
+    for (const cc of cutArr) d = Math.min(d, dist(cell, cc));
+    return d;
+  };
 
   // ── Havuzlar: şekil dışı boş bağlantılı bileşenler → giriş hücreleri ──
   const entryCells = [];
@@ -834,7 +864,16 @@ function peelBuild(rng, mask, rows, cols, o) {
     for (let p = 0; p < pools.length; p++) {
       if (!counts[p]) continue;
       const cand = pools[p].contact.length ? pools[p].contact : pools[p].cells;
-      const chosen = [cand[Math.floor(rng() * cand.length)]];
+      // kesme modunda ilk giriş hattın ağzına oturur (hat oradan yenmeye başlar)
+      let first = cand[Math.floor(rng() * cand.length)];
+      if (cutLeft) {
+        let bd = Infinity;
+        for (const cell of cand) {
+          const d = distToCut(cell);
+          if (d < bd) { bd = d; first = cell; }
+        }
+      }
+      const chosen = [first];
       // havuz içi yayılım: seçilmişlere min-mesafeyi maksimize eden hücre
       while (chosen.length < counts[p] && chosen.length < cand.length) {
         let best = null, bestD = -1;
@@ -958,7 +997,7 @@ function peelBuild(rng, mask, rows, cols, o) {
     if (!options.length) return null; // sıkıştı — üst kat farklı seedle dener
     const step = seq.length, t = step / totalPairs;
 
-    // 1) soyulacak hücre kümesi: giriş sırası > cephe disiplini > serbest
+    // 1) soyulacak hücre kümesi: giriş sırası > kesme hattı > cephe > serbest
     let subset = options;
     if (entryQueue.length) {
       // açılış: sıradaki giriş hücresi (o hücre <2 görüyorsa en yakın seçenek)
@@ -969,7 +1008,17 @@ function peelBuild(rng, mask, rows, cols, o) {
         if (d < bd) { bd = d; best = op; }
       }
       subset = [best];
-    } else if (frontMode && rng() < frontBias) {
+    } else if (!cutLeft && knotIdx < knotTs.length && t >= knotTs[knotIdx] && lastPeel) {
+      // planlı düğüm: cepheden en uzak seçeneğe zıpla (tek adım) — disiplin
+      // sonraki adımda yeni yerden sürer, git-gel iskeleti buradan doğar
+      let far = null, bd = -1;
+      for (const op of options) {
+        const d = dist(op.cell, lastPeel);
+        if (d > bd) { bd = d; far = op; }
+      }
+      subset = [far];
+      knotIdx++;
+    } else if (!cutLeft && frontMode && rng() < frontBias) {
       if (frontMode === "yilan" && lastPeel) {
         let bd = Infinity;
         for (const op of options) bd = Math.min(bd, dist(op.cell, lastPeel));
@@ -985,6 +1034,15 @@ function peelBuild(rng, mask, rows, cols, o) {
           op.seen.filter((s) => regionOf[s.t[0]][s.t[1]] === curRegion).length >= 2);
         if (inReg.length) subset = inReg; // bölgeye şu an erişilemiyorsa serbest
       }
+    }
+    // tempo senaryosu: düğüm adımı DEĞİLSE alt kümeye yılan-yerelliği —
+    // akış dilimlerinde en yakın seçenekler dışındakiler elenir (doğal uzak
+    // sıçramalar bastırılır; zıplama yalnız planlı düğüm anlarında kalır).
+    // Kesme fazında askıda: hat seçeneklerini elemesin (bölünme gecikiyordu).
+    if (knotsN !== null && !cutLeft && subset.length > 1 && lastPeel && !entryQueue.length) {
+      let bd = Infinity;
+      for (const op of subset) bd = Math.min(bd, dist(op.cell, lastPeel));
+      subset = subset.filter((op) => dist(op.cell, lastPeel) <= bd + 1);
     }
 
     // bölge modunda çift, bölge taşlarından seçilir (varsa)
@@ -1002,7 +1060,23 @@ function peelBuild(rng, mask, rows, cols, o) {
     // hedefe çekilir (öncelik: bel > tür/mesafe).
     const want = cornerP === null ? null : rng() < cornerP;
     let pick = null, duo = null;
-    if (waistOpen !== null && t >= 0.3 && t <= 0.75 && !entryQueue.length) {
+    if (cutLeft > 0) {
+      // kesme fazı: hat taşı yiyen duo aranır — önce 2 hat taşlı, sonra 1.
+      // Hat şu an hiç görünmüyorsa faz atlanır (serbest adım), hat sonra
+      // görünür olunca faz devam eder. Cephe disiplini bu fazda askıda.
+      const cand = subset.slice();
+      shuffle(cand, rng);
+      let bestC = 0;
+      for (const op of cand) {
+        for (const d of duosOf(op.seen)) {
+          const cc = (cutSet.has(d.A[0] + "," + d.A[1]) ? 1 : 0) +
+                     (cutSet.has(d.B[0] + "," + d.B[1]) ? 1 : 0);
+          if (cc > bestC) { bestC = cc; pick = op; duo = d; }
+        }
+        if (bestC === 2) break;
+      }
+    }
+    if (!pick && waistOpen !== null && t >= 0.3 && t <= 0.75 && !entryQueue.length) {
       shuffle(subset, rng);
       let bestScore = Infinity;
       for (const op of subset.slice(0, 8)) {
@@ -1010,7 +1084,7 @@ function peelBuild(rng, mask, rows, cols, o) {
         const score = Math.abs(openAfter(d) - waistOpen);
         if (score < bestScore) { bestScore = score; pick = op; duo = d; }
       }
-    } else {
+    } else if (!pick) {
       let cand = subset;
       if (want !== null) {
         const filt = cand.filter((op) => hasKind(op, want));
@@ -1030,6 +1104,11 @@ function peelBuild(rng, mask, rows, cols, o) {
     grid[duo.B[0]][duo.B[1]] = false;
     tiles -= 2;
     seq.push([duo.A, duo.B]);
+    if (cutLeft) {
+      for (const tt of [duo.A, duo.B]) {
+        if (cutSet.has(tt[0] + "," + tt[1])) cutLeft--;
+      }
+    }
 
     // 3) cephe/bölge durumunu güncelle
     lastPeel = pick.cell.slice();
@@ -1044,10 +1123,79 @@ function peelBuild(rng, mask, rows, cols, o) {
   return seq;
 }
 
+// Kesme hattı hesabı: maske merkezinden geçen dikey/yatay tam hat — hattın
+// maske hücreleri oyunun açılışında temizlenir, şekil görünür adalara bölünür.
+// Hat, maskeden düşülünce şekli GERÇEKTEN ≥2 parçaya (her biri ≥4 hücre)
+// bölen konuma oturur: merkezden başlanır, bölmüyorsa ±1, ±2… kaydırılır.
+// Hiçbir konum bölmüyorsa null (kesme bu şekle uygulanamaz).
+function computeCutLine(mask, rows, cols, orient) {
+  let sr = 0, sc = 0, area = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (mask[r][c]) { sr += r; sc += c; area++; }
+    }
+  }
+  if (!area) return null;
+  const vertical = orient !== "yatay";
+  const center = vertical ? Math.round(sc / area) : Math.round(sr / area);
+  const limit = vertical ? cols : rows;
+
+  const compsWithout = (line) => {
+    const seen = Array.from({ length: rows }, () => Array(cols).fill(false));
+    const sizes = [];
+    const onLine = (r, c) => (vertical ? c === line : r === line);
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!mask[r][c] || onLine(r, c) || seen[r][c]) continue;
+        let size = 0;
+        const q = [[r, c]];
+        seen[r][c] = true;
+        while (q.length) {
+          const [a, b] = q.pop();
+          size++;
+          for (const [dr, dc] of DIRS4) {
+            const rr = a + dr, cc = b + dc;
+            if (rr >= 0 && cc >= 0 && rr < rows && cc < cols &&
+                mask[rr][cc] && !onLine(rr, cc) && !seen[rr][cc]) {
+              seen[rr][cc] = true;
+              q.push([rr, cc]);
+            }
+          }
+        }
+        sizes.push(size);
+      }
+    }
+    return sizes.filter((s) => s >= 4).length;
+  };
+
+  for (let off = 0; off <= 3; off++) {
+    for (const line of off ? [center - off, center + off] : [center]) {
+      if (line < 1 || line >= limit - 1) continue;
+      if (compsWithout(line) < 2) continue;
+      const cells = [];
+      for (let i = 0; i < (vertical ? rows : cols); i++) {
+        const r = vertical ? i : line, c = vertical ? line : i;
+        if (mask[r][c]) cells.push([r, c]);
+      }
+      if (cells.length) return cells;
+    }
+  }
+  return null;
+}
+
 // Tam dolu level üretimi. opts: { rows, cols, mask, seed, maxAttempts,
-//   entryN, frontMode, frontBias, waistOpen, cornerP, spanBias } — akış
-// kadranları peelBuild'e geçer (açıklaması orada); waistOpen/entryN ayrıca
-// aday skoruna hedef cezası olarak eklenir (inşa + seçim birlikte çeker).
+//   entryN, frontMode, frontBias, waistOpen, cornerP, spanBias,
+//   cut, knots } — akış kadranları peelBuild'e geçer (açıklaması orada);
+// waistOpen/entryN ayrıca aday skoruna hedef cezası olarak eklenir (inşa +
+// seçim birlikte çeker).
+//
+// cut ("dikey"|"yatay"): kesme hattı — açılış hamleleri şekli görünür
+// adalara böler (computeCutLine + peelBuild cutCells). knots: hedef düğüm
+// sayısı (yerel-oyuncu simülasyonundaki forced-uzak olaylar, localityStats).
+//
+// Yerellik cezaları (tüm modlarda): öğütme (art arda zorunlu-uzak hamle) ve
+// saçılmış final (kuyrukta zorunlu-uzak / yüksek ort. sıçrama) — 6x8 çerçeve
+// lv18 analizinde teşhis edilen kuyruk hastalığını aday seçiminde eler.
 //
 // Maske onarımı: maske yoksa ya da boardu tamamen kaplıyorsa merkez hücre
 // oyulur (tap edilecek boş hücre şart — tek delik bile soymayı başlatır);
@@ -1060,6 +1208,7 @@ function generateFullLevel(opts) {
   const rows = opts.rows, cols = opts.cols;
   const baseSeed = typeof opts.seed === "number" ? opts.seed >>> 0 : hashSeed(String(opts.seed));
   const maxAttempts = opts.maxAttempts || 200;
+  const knotsTarget = typeof opts.knots === "number" ? opts.knots : null;
   const knobs = {
     entryN: opts.entryN | 0,
     frontMode: opts.frontMode || null,
@@ -1067,6 +1216,7 @@ function generateFullLevel(opts) {
     waistOpen: typeof opts.waistOpen === "number" ? opts.waistOpen : null,
     cornerP: typeof opts.cornerP === "number" ? opts.cornerP : null,
     spanBias: typeof opts.spanBias === "number" ? opts.spanBias : null,
+    knots: knotsTarget, // null = tempo senaryosu kapalı
   };
 
   const mask = opts.mask
@@ -1087,6 +1237,12 @@ function generateFullLevel(opts) {
   }
   if (area < 4) return null;
 
+  // kesme hattı: maske onarımından SONRA hesaplanır (nihai maskeyi böler)
+  if (opts.cut) {
+    knobs.cutCells = computeCutLine(mask, rows, cols, opts.cut);
+    if (!knobs.cutCells) return null; // bu şekil bu yönde bölünemiyor
+  }
+
   let best = null, bestScore = Infinity;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const rng = mulberry32((baseSeed + Math.imul(attempt, 2654435761)) >>> 0);
@@ -1096,6 +1252,8 @@ function generateFullLevel(opts) {
     if (!curve) continue;
     const flow = analyzeFlow(pairCells, rows, cols);
     if (flow.deadlocked.length) continue;
+    const loc = localityStats(pairCells, rows, cols);
+    if (!loc) continue;
     const inert = inertStats(pairCells, rows, cols, flow.waves);
     // seçim (küçük iyi): az etkisiz giriş, yüksek köşe payı, derin zincir;
     // kadran hedefleri (bel açıklığı, giriş sayısı) yumuşak ceza olarak eklenir
@@ -1107,8 +1265,16 @@ function generateFullLevel(opts) {
       s += Math.abs(wAbs - knobs.waistOpen) * 0.5;
     }
     if (knobs.entryN) s += Math.abs(flow.entries - knobs.entryN) * 0.2;
+    // yerellik: öğütme ve saçılmış final her modda cezalı; düğüm sayısı
+    // hedefliyse sapması, kesme modunda geç/yok parçalanma cezalı
+    if (loc.grindMax >= 2) s += (loc.grindMax - 1) * 0.6;
+    s += loc.tailFar * 0.5 + Math.max(0, loc.tailJump - 2.5) * 0.3;
+    if (knotsTarget !== null) s += Math.abs(loc.knots - knotsTarget) * 0.4;
+    if (knobs.cutCells) {
+      s += loc.splitT === null ? 2 : Math.max(0, loc.splitT - 0.35) * 3;
+    }
     if (s < bestScore) {
-      best = { pairCells, curve, flow, ...inert, attempts: attempt + 1 };
+      best = { pairCells, curve, flow, loc, ...inert, attempts: attempt + 1 };
       bestScore = s;
     }
     if (best && attempt >= 24) break; // aday ucuz; 25 örnek yeter
@@ -1140,6 +1306,8 @@ function generateFullLevel(opts) {
     dipOk: true, waistOk: true, fillOk: true,
     waistOpenAbs, endOpen,
     curve, flow,
+    loc: best.loc, // yerellik: jumps/knots/grind/splitT (lab gösterimi)
+    cutCells: knobs.cutCells || null,
     gateDepths: [], lockedDepths: [],
     attempts: best.attempts,
   };
@@ -1163,6 +1331,6 @@ if (typeof module !== "undefined") {
   module.exports = {
     mulberry32, hashSeed, shuffle,
     buildGeometry, generateLevel, generateCandidates,
-    peelBuild, generateFullLevel,
+    peelBuild, generateFullLevel, computeCutLine,
   };
 }

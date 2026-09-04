@@ -186,16 +186,44 @@ korur — lab'da "Tam dolu" açıkken görünen satır):
 - `cornerP` / `spanBias` — köşe(L)/koridor eşleme payı ve ışın mesafesi
   eğilimi. İkisi de hücre seçimini DE yönlendirir (yalnız duo filtrelemek
   etkisizdi: tür/mesafe arzı hücre konumundan gelir — ölçülüp düzeltildi).
+- `knots` — **tempo senaryosu** (boş = kapalı): düğümler arası her adım
+  yılan-yerelliğiyle akar, t = i/(n+1) anlarında cepheden en uzak seçeneğe
+  zıplanır. 0 = saf akış (doğal uzak sıçramalar da bastırılır). Yerel-oyuncu
+  simülasyonuyla ölçülüp hedefe yakın aday seçilir.
+- `cut` — **kesme hattı** ("dikey"/"yatay"): maske merkezinden geçen tam hat
+  taşları oyunun AÇILIŞINDA temizlenir → şekil gözle görülür adalara bölünür
+  (bölünme anı `splitT` ile ölçülür, geç/yok bölünme cezalı). Bölmeyen hat
+  ±3 kaydırılarak aranır; hiçbiri bölmüyorsa üretim null.
+
+**Yerellik ölçümü** (`js/flow.js` `localityStats`): FIFO yerine "son tap'ine
+en yakın açık hücreyi oynayan" yerel-oyuncu simüle edilir. `jump` = en yakın
+devamın uzaklığı (akış hissi), **düğüm** = jump ≥ eşik (yerel devam yok,
+arama şart), **öğütme** = art arda uzak hamle dizisi (ödülsüz arama tekrarı),
+kuyruk metrikleri = son %20 saçılmamalı (final yerel kapanış kümesi olmalı).
+`generateFullLevel` her adayda bunları ölçer: öğütme ve saçılmış kuyruk her
+modda cezalı — 6×8 çerçeve lv18 analizinde teşhis edilen "sona yığılan
+zorunlu uzak çaprazlar" hastalığını aday seçiminde eler.
+
+**Ada maskeleri** (`js/shapes.js`): papyon (2 ada), yonca (4), takımada (3,
+hücre-uzayı bant tanımı — implicit tanım dar gridlerde birleşiyordu),
+bantlar (3). Her boyutta ≥2 ada garantili (test altında). Ada içi akış +
+adalar arası köprü çiftleri = akış/düğüm iskeletinin maske-doğal hali;
+tek parça şekillerde aynı etki `cut` ile oyun içinde yaratılır.
 
 Kadran→metrik doğrulaması test altında (`tools/test_generator.js` "kadran"
 testleri): köşeP %70↔%99, span 2.4↔5.1, bel 1.3↔4.6, yılan yerelliği
-4.1→2.8 (kalp 8×10, sabit seedler).
+4.1→2.8 (kalp 8×10, sabit seedler); tempo: düğüm kapalı→5.2, hedef0→1.6,
+hedef4→3.4 (kalp 12×9).
 
 **Tam dolu şekil paketleri** (`levels_shapes.js`, `tools/gen_shape_levels.js`
 yazar): boyut başına 50 level × 10 boyut = 500 level; ana ekranda "Tam dolu
-şekiller" bölümünde listelenir. 4 şekil (kalp, çarpı, çerçeve, halka) döner;
-akış reçetesi 10'luk bantlarla sertleşir: yılan/giriş-1 → cepheler/giriş-2 →
-bölge/giriş-3+bel-3 → gevşek cepheler/uzun ışın → serbest/giriş-4+bel-2.
+şekiller" bölümünde listelenir. Şekil havuzu 9 çeşit: 4 tek parça (kalp,
+çarpı, çerçeve, halka) + 4 ada maskesi (papyon, yonca, takımada, bantlar) +
+dolu; tek parça şekiller yer yer kesme hattıyla gelir. Reçete 10'luk
+bantlarla sertleşir: saf akış (yılan, düğüm 0) → parçalanma tanışması (ilk
+kesmeler, düğüm 1) → adalar (bölge, düğüm 2, bel 3) → git-gel (ada+kesme,
+düğüm 3) → en zor (giriş 4, dar bel, düğüm 4). Üretimde bant düğüm rampası
+1.0→4.0 monoton çıkar; kesmelerin ~%90'ı t≤0.5'te bölünür (test altında).
 Etiket şeridi banda göre easy→veryhard. İlerleme/favori anahtarları
 `tam-6x8:id` biçiminde (klasik paketlerle çakışmaz).
 
@@ -214,9 +242,9 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | Dosya | Rol |
 |---|---|
 | `js/board.js` | çekirdek: `visibleTilesFrom` (4 yön taraması), `resolveTap` (occupied/blank/miss/match), `availableTapCells`, `isAdjacentCollinear` |
-| `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı) |
+| `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme) |
 | `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim |
-| `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma) |
+| `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar) |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
 | `levels_gen.js` | üretilmiş paketler (`TM_PACKS`: 10 boyut × 100 level; `tools/gen_levels.js` yazar — elle düzenleme) |
 | `levels_shapes.js` | tam dolu şekil paketleri (`TM_SHAPE_PACKS`: 10 boyut × 50 level; `tools/gen_shape_levels.js` yazar — elle düzenleme) |
