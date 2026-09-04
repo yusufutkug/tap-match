@@ -289,6 +289,19 @@ for (const cfg of configs) {
   check("bitmap kalıp: dolu bitmap dolu maske verir", area === 80);
 }
 
+// ── Satranç deseni (hücre uzayı — bitmap'ten ölçeklenemez, formülle gelir) ──
+{
+  let ok = true;
+  for (const [rows, cols] of [[8, 6], [10, 8], [12, 9], [18, 12]]) {
+    const m = TM_SHAPES.maskFor("satranc", rows, cols);
+    const patternOk = m && m.every((row, r) => row.every((b, c) => b === ((r + c) % 2 === 0)));
+    const lv = generateFullLevel({ rows, cols, mask: m, seed: 777 });
+    if (!patternOk || !lv || pairsCurve(lv.pairs, rows, cols) === null ||
+        analyzeFlow(lv.pairs, rows, cols).deadlocked.length) ok = false;
+  }
+  check("satranç: desen her boyutta doğru + üretilebilir + çözülebilir", ok);
+}
+
 // ── Funnel paketleri (levels_gen.js: boyut başına 100 level) ──
 {
   const { TM_PACKS } = require("../levels_gen.js");

@@ -93,10 +93,21 @@ var TM_SHAPES = (function () {
       // üç yatay bant, aralarında boş şeritler — en çıplak ada düzeni
       fn: (u, v) => Math.abs(v) <= 0.2 || Math.abs(v) >= 0.55,
     },
+    satranc: {
+      name: "Satranç",
+      // bir dolu bir boş — HÜCRE DESENİ, şekil değil: ölçekleme yok, her
+      // boyutta hücre başına tanımlı. Bitmap/tuval örneklemesi bu deseni
+      // taşıyamaz (dama düzeni hedef gridin çözünürlük sınırında — çoğunluk
+      // örneklemesi onu siler ya da moiréye çevirir); bu yüzden formül şart.
+      // pattern işareti: kalıp editörü şablon listesine almaz (tuvale basıp
+      // yeniden örneklemek deseni bozar).
+      pattern: true,
+      fn: (u, v, r, c) => (r + c) % 2 === 0,
+    },
   };
 
   const ORDER = ["dolu", "kalp", "elmas", "halka", "ok", "kumsaati", "carpi", "cerceve",
-    "papyon", "yonca", "takimada", "bantlar"];
+    "papyon", "yonca", "takimada", "bantlar", "satranc"];
 
   // ── Özel kalıplar (kalip.html editörü yazar) ──
   // localStorage "tm_custom_shapes": { id: { name, bmp: ["0101…", …] } }.

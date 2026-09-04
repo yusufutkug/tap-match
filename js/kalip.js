@@ -97,11 +97,13 @@
     redraw();
   });
 
-  // şablon: hazır DEFS şekli tuvale bas (üstünde oynanır)
+  // şablon: hazır DEFS şekli tuvale bas (üstünde oynanır).
+  // dolu (maske yok) ve hücre desenleri (pattern: satranç gibi) atlanır —
+  // desen tuvale basılıp yeniden örneklenince bozulur, doğrudan lab'da seçilir.
   {
     const sel = $("keTemplate");
     for (const id of TM_SHAPES.ORDER) {
-      if (id === "dolu") continue;
+      if (id === "dolu" || TM_SHAPES.DEFS[id].pattern) continue;
       const op = document.createElement("option");
       op.value = id; op.textContent = TM_SHAPES.DEFS[id].name;
       sel.appendChild(op);
