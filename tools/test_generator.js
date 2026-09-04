@@ -245,6 +245,50 @@ for (const cfg of configs) {
   check("tempo: düğüm hedefi 4 > hedef 0", k4 > k0 + 0.5);
 }
 
+// ── Bitmap kalıplar (kalip.html editörünün ürettiği biçim) ──
+{
+  // iki blok + orta kanal: her boyutta 2 ada kalmalı ve üretilebilmeli
+  const bmp = [];
+  for (let r = 0; r < 24; r++) {
+    let s = "";
+    for (let c = 0; c < 16; c++) {
+      s += (c <= 5 || c >= 10) && r >= 2 && r < 22 ? "1" : "0";
+    }
+    bmp.push(s);
+  }
+  let ok = true;
+  for (const [rows, cols] of [[8, 6], [10, 8], [12, 9], [18, 12]]) {
+    const { m, area } = TM_SHAPES.sampleBitmap(bmp, rows, cols);
+    if (area < 8) { ok = false; continue; }
+    let comps = 0;
+    const seen = m.map((row) => row.map(() => false));
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (!m[r][c] || seen[r][c]) continue;
+        comps++;
+        const q = [[r, c]];
+        seen[r][c] = true;
+        while (q.length) {
+          const [a, b] = q.pop();
+          for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const rr = a + dr, cc = b + dc;
+            if (rr >= 0 && cc >= 0 && rr < rows && cc < cols &&
+                m[rr][cc] && !seen[rr][cc]) { seen[rr][cc] = true; q.push([rr, cc]); }
+          }
+        }
+      }
+    }
+    const lv = generateFullLevel({ rows, cols, mask: m, seed: 777 });
+    if (comps !== 2 || !lv || pairsCurve(lv.pairs, rows, cols) === null) ok = false;
+  }
+  check("bitmap kalıp: çoğunluk örneklemesi adaları koruyor + üretilebilir", ok);
+
+  // tam dolu bitmap → tam maske (örnekleme kimliği)
+  const full = Array.from({ length: 24 }, () => "1".repeat(16));
+  const { area } = TM_SHAPES.sampleBitmap(full, 10, 8);
+  check("bitmap kalıp: dolu bitmap dolu maske verir", area === 80);
+}
+
 // ── Funnel paketleri (levels_gen.js: boyut başına 100 level) ──
 {
   const { TM_PACKS } = require("../levels_gen.js");

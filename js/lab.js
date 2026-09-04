@@ -141,12 +141,16 @@
     row.innerHTML = "";
     const lead = document.createElement("span");
     lead.textContent = "şekil:";
+    // özel kalıplar (kalip.html editörü localStorage'a yazar) listeye eklenir
+    const allIds = TM_SHAPES.ORDER.concat(TM_SHAPES.customIds());
+    if (!allIds.includes(shapeId)) shapeId = "dolu"; // silinen özel kalıp
     lead.style.cssText = "font-size:11.5px;color:var(--muted);align-self:center";
     row.appendChild(lead);
-    for (const id of TM_SHAPES.ORDER) {
+    for (const id of allIds) {
       const b = document.createElement("button");
       b.className = "chip theme-chip" + (id === shapeId ? " on" : "");
-      b.textContent = TM_SHAPES.DEFS[id].name;
+      b.textContent = TM_SHAPES.nameOf(id);
+      if (!TM_SHAPES.DEFS[id]) b.title = "özel kalıp (kalıp editöründen)";
       b.addEventListener("click", () => { shapeId = id; renderShapeRow(); });
       row.appendChild(b);
     }
@@ -157,9 +161,20 @@
     bf.style.marginLeft = "12px";
     bf.addEventListener("click", () => { fullFill = !fullFill; renderShapeRow(); });
     row.appendChild(bf);
+    const edit = document.createElement("a");
+    edit.className = "chip theme-chip";
+    edit.textContent = "✎ kalıp editörü";
+    edit.href = "kalip.html";
+    edit.style.cssText = "text-decoration:none;margin-left:8px";
+    row.appendChild(edit);
     $("labPeelParams").hidden = !fullFill; // soyma kadranları yalnız tam doluda
   }
   renderShapeRow();
+  // editörde kaydedilen kalıplar sekmeye dönünce görünsün
+  window.addEventListener("focus", () => {
+    TM_SHAPES.reloadCustom();
+    renderShapeRow();
+  });
 
   function readOpts() {
     const num = (k) => {

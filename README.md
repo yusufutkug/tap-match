@@ -244,7 +244,8 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `js/board.js` | çekirdek: `visibleTilesFrom` (4 yön taraması), `resolveTap` (occupied/blank/miss/match), `availableTapCells`, `isAdjacentCollinear` |
 | `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme) |
 | `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim |
-| `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar) |
+| `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar); bitmap kalıplar (`sampleBitmap` çoğunluk örneklemesi) + özel kalıp kaydı (localStorage) |
+| `kalip.html` + `js/kalip.js` | kalıp editörü: formülsüz şekil tasarımı — 24×16 tuvalde boya (simetri kilitleri, PNG içe aktarma, hazır şablonlar), 10 boyutta canlı önizleme (ada/alan/kesme tanıları), test üretimi + oynama, localStorage'a kayıt (lab şekil satırı okur), DEFS kodu dışa aktarma |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
 | `levels_gen.js` | üretilmiş paketler (`TM_PACKS`: 10 boyut × 100 level; `tools/gen_levels.js` yazar — elle düzenleme) |
 | `levels_shapes.js` | tam dolu şekil paketleri (`TM_SHAPE_PACKS`: 10 boyut × 50 level; `tools/gen_shape_levels.js` yazar — elle düzenleme) |

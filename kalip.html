@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap Match — Kalıp Editörü</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .ke-layout { padding: 4px 24px 40px; max-width: 1180px; margin: 0 auto; }
+  .ke-panel { margin-bottom: 16px; }
+  .ke-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .ke-row label { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--muted); cursor: pointer; }
+  .ke-row input[type="text"], .ke-row select {
+    font: inherit; font-size: 14px; padding: 6px 8px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fbfaf7; color: var(--ink);
+  }
+  .ke-main { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+
+  /* boyama gridi */
+  #keGrid {
+    display: grid; gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+    touch-action: none; user-select: none; cursor: crosshair;
+  }
+  #keGrid .kc { width: 22px; height: 22px; background: #fffdf9; }
+  #keGrid .kc.on { background: var(--accent); }
+  #keGrid .kc.ghost { background: #f3ede2; } /* simetri ekseni kılavuzu */
+  #keGrid .kc.on.ghost { background: var(--accent); opacity: 0.85; }
+
+  /* önizleme şeridi */
+  .ke-previews { display: flex; flex-wrap: wrap; gap: 14px; flex: 1 1 380px; }
+  .ke-prev { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--muted); }
+  .ke-prev canvas { border: 1px solid var(--line); border-radius: 6px; background: #fffdf9; }
+  .ke-prev .ok { color: var(--good); font-weight: 700; }
+  .ke-prev .bad { color: var(--accent); font-weight: 700; }
+
+  #keTestOut { font-size: 12.5px; line-height: 1.9; }
+  #keTestOut b { font-variant-numeric: tabular-nums; }
+  .ke-custom { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .ke-custom .chip small { margin-left: 6px; opacity: 0.7; cursor: pointer; }
+  .ke-hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Tap Match — Kalıp Editörü <span>çiz · ölçekle · oyna</span></h1>
+  </div>
+
+  <div class="ke-layout">
+    <div class="card ke-panel">
+      <div class="ke-row">
+        <label><input type="checkbox" id="keMirV" checked> dikey ayna (sol↔sağ)</label>
+        <label><input type="checkbox" id="keMirH"> yatay ayna (üst↔alt)</label>
+        <button class="chip" id="keClear">Temizle</button>
+        <button class="chip" id="keFill">Doldur</button>
+        <button class="chip" id="keInvert">Ters çevir</button>
+        <select id="keTemplate" title="Hazır şekli tuvale yükle, üstünde oyna"></select>
+        <button class="chip" id="keLoadTpl">Şablonu yükle</button>
+        <label class="chip" style="cursor:pointer">PNG içe aktar<input type="file" id="kePng" accept="image/*" hidden></label>
+      </div>
+
+      <div class="ke-main">
+        <div>
+          <div id="keGrid"></div>
+          <div class="ke-hint">
+            Sürükleyerek boya. Turuncu = taş bölgesi, açık = boş.<br>
+            Kalıp her board boyutuna otomatik ölçeklenir — sağdaki şeritte
+            ada sayısı ve kesme uyumu boyut boyut görünür.
+          </div>
+        </div>
+        <div class="ke-previews" id="kePreviews"></div>
+      </div>
+    </div>
+
+    <div class="card ke-panel">
+      <div class="ke-row">
+        <input type="text" id="keName" placeholder="kalıp adı (örn. Yıldız)" style="width:180px">
+        <button class="chip" id="keSave">Kaydet</button>
+        <button class="chip" id="keCode">DEFS kodu kopyala</button>
+        <select id="keTestSize"></select>
+        <button class="chip" id="keTest">Test üret</button>
+        <button class="chip" id="kePlay" hidden>▶ Oyna</button>
+      </div>
+      <div id="keTestOut"></div>
+      <div class="ke-hint">Kaydedilen kalıplar <a href="lab.html">Level Lab</a>'ın şekil satırında belirir
+        (tarayıcıya kaydedilir). Oyuna kalıcı eklemek için "DEFS kodu kopyala" ile js/shapes.js'e yapıştır.</div>
+      <div class="ke-custom" id="keCustomList" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <script src="js/board.js"></script>
+  <script src="js/flow.js"></script>
+  <script src="js/shapes.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/kalip.js"></script>
+</body>
+</html>

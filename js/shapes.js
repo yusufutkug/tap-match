@@ -98,10 +98,69 @@ var TM_SHAPES = (function () {
   const ORDER = ["dolu", "kalp", "elmas", "halka", "ok", "kumsaati", "carpi", "cerceve",
     "papyon", "yonca", "takimada", "bantlar"];
 
-  // id + boyut → maske (2B bool) | null (dolu/tanımsız: maske yok).
+  // ── Özel kalıplar (kalip.html editörü yazar) ──
+  // localStorage "tm_custom_shapes": { id: { name, bmp: ["0101…", …] } }.
+  // bmp, referans gridde elle çizilmiş bitmap'tir; maskFor bunu hedef boyuta
+  // ÇOĞUNLUK örneklemesiyle ölçekler (formülle aynı sözleşme: her boyuta
+  // kayıpsız uyum). Node'da localStorage yok → CUSTOM boş kalır.
+  let CUSTOM = {};
+  function reloadCustom() {
+    CUSTOM = {};
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        const raw = window.localStorage.getItem("tm_custom_shapes");
+        if (raw) CUSTOM = JSON.parse(raw) || {};
+      }
+    } catch (e) { /* bozuk kayıt: boş devam */ }
+  }
+  reloadCustom();
+
+  function customIds() { return Object.keys(CUSTOM); }
+  function saveCustom(id, name, bmp) {
+    CUSTOM[id] = { name, bmp };
+    localStorage.setItem("tm_custom_shapes", JSON.stringify(CUSTOM));
+  }
+  function deleteCustom(id) {
+    delete CUSTOM[id];
+    localStorage.setItem("tm_custom_shapes", JSON.stringify(CUSTOM));
+  }
+  function defOf(id) { return DEFS[id] || CUSTOM[id] || null; }
+  function nameOf(id) { const d = defOf(id); return d ? d.name : id; }
+  function customBmp(id) { return CUSTOM[id] ? CUSTOM[id].bmp : null; }
+
+  // bitmap → hedef boyut: her hedef hücre, bitmap'te kapladığı dikdörtgenin
+  // çoğunluğunu alır (en-yakın örneklemeden pürüzsüz küçülür)
+  function sampleBitmap(bmp, rows, cols) {
+    const B = bmp.length, W = bmp[0].length;
+    const m = [];
+    let area = 0;
+    for (let r = 0; r < rows; r++) {
+      const row = [];
+      const r0 = Math.floor((r * B) / rows), r1 = Math.max(r0 + 1, Math.floor(((r + 1) * B) / rows));
+      for (let c = 0; c < cols; c++) {
+        const c0 = Math.floor((c * W) / cols), c1 = Math.max(c0 + 1, Math.floor(((c + 1) * W) / cols));
+        let on = 0, tot = 0;
+        for (let br = r0; br < r1; br++) {
+          for (let bc = c0; bc < c1; bc++) { tot++; if (bmp[br][bc] === "1") on++; }
+        }
+        const b = on * 2 >= tot && on > 0;
+        row.push(b);
+        if (b) area++;
+      }
+      m.push(row);
+    }
+    return { m, area };
+  }
+
+  // id + boyut → maske (2B bool) | null (dolu/tanımsız/dejenere: maske yok).
   function maskFor(id, rows, cols) {
-    const def = DEFS[id];
-    if (!def || !def.fn) return null;
+    const def = defOf(id);
+    if (!def) return null;
+    if (def.bmp) {
+      const { m, area } = sampleBitmap(def.bmp, rows, cols);
+      return area >= 8 ? m : null;
+    }
+    if (!def.fn) return null;
     const m = [];
     let area = 0;
     for (let r = 0; r < rows; r++) {
@@ -133,7 +192,11 @@ var TM_SHAPES = (function () {
     return n;
   }
 
-  return { DEFS, ORDER, maskFor, encode, decode, areaOf };
+  return {
+    DEFS, ORDER, maskFor, encode, decode, areaOf,
+    customIds, saveCustom, deleteCustom, reloadCustom, nameOf, sampleBitmap,
+    customBmp,
+  };
 })();
 
 if (typeof module !== "undefined") module.exports = { TM_SHAPES };
