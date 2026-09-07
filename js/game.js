@@ -42,6 +42,14 @@
     }
     return arr;
   }
+  function hashSeed(str) { // FNV-1a (tools/gen_shape_levels.js ile aynı)
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
 
   // Paketler: boyut başına 100 levellik funnel (levels_gen.js TM_PACKS).
   // Oyuncu önce boyutu, sonra leveli seçer. El yapımı öğretici levellar
@@ -55,6 +63,17 @@
   // bölümde listelenir; ilerleme/favori anahtarları "tam-6x8:id" biçiminde.
   const SHAPE_PACKS = (typeof TM_SHAPE_PACKS !== "undefined") ? TM_SHAPE_PACKS : [];
   const ALL_PACKS = PACKS.concat(SHAPE_PACKS);
+
+  // Level json'ları küçük tutulur (levels/<size>/NNN.json — README "Level
+  // JSON formatı"): level yalnızca id + diff + pairs taşır. rows/cols
+  // paketten, emoji karışım tohumu "size:id"den burada bir kez tamamlanır.
+  // El yapımı levellar (levels.js) alanlarını zaten taşır, dokunulmaz.
+  for (const p of ALL_PACKS) {
+    for (const lv of p.levels) {
+      if (lv.rows == null) { lv.rows = p.rows; lv.cols = p.cols; }
+      if (lv.seed == null) lv.seed = hashSeed(p.size + ":" + lv.id);
+    }
+  }
 
   // Lab entegrasyonu: lab.html "Oyna" ile level'ı localStorage'a yazar ve
   // bu sayfayı ?lab=1 ile açar — level paket dışı oynanır ve otomatik başlar.
@@ -127,6 +146,55 @@
     scanOn = !scanOn;
     try { localStorage.setItem(SCAN_KEY, scanOn ? "1" : "0"); } catch (e) {}
     applyScanBtn();
+  });
+
+  // ── Taş görünümü (tile assets/*.png karşılaştırma toggle'ı) ──
+  // İki PNG asseti farklı kamera açısına sahip: Asset 1 alttan bakış (yalnız
+  // altta et kalınlığı), Asset 2 üstten bakış (4 yanda eşit et). Hissiyat
+  // karşılaştırması için body'ye skin-<id> sınıfı basılır (görünüm tamamen
+  // CSS'te, style.css "Taş asset skin'leri"); oyun ortasında bile anında
+  // değişir. Ana ekranda çip seçici, oyun içinde playbar'daki "Taş" butonu
+  // sırayla döndürür. Seçim localStorage'da kalıcıdır.
+
+  const SKIN_KEY = "tm_skin";
+  const SKINS = [
+    { id: "flat", name: "Klasik" },
+    { id: "a1", name: "Asset 1 · alttan" },
+    { id: "a2", name: "Asset 2 · üstten" },
+  ];
+  let skinId = (() => {
+    try {
+      const s = localStorage.getItem(SKIN_KEY);
+      if (SKINS.some((k) => k.id === s)) return s;
+    } catch (e) {}
+    return "a1"; // yeni assetler denensin diye varsayılan Asset 1
+  })();
+  function applySkin() {
+    for (const s of SKINS)
+      document.body.classList.toggle("skin-" + s.id, s.id === skinId);
+    const cur = SKINS.find((s) => s.id === skinId);
+    $("btnSkin").textContent = "Taş: " + cur.name.split(" ·")[0];
+  }
+  function setSkin(id) {
+    skinId = id;
+    try { localStorage.setItem(SKIN_KEY, id); } catch (e) {}
+    applySkin();
+  }
+  function renderSkinRow() {
+    const row = $("skinRow");
+    row.innerHTML = "";
+    for (const s of SKINS) {
+      const b = document.createElement("button");
+      b.className = "chip theme-chip" + (s.id === skinId ? " on" : "");
+      b.textContent = s.name;
+      b.addEventListener("click", () => { setSkin(s.id); renderSkinRow(); });
+      row.appendChild(b);
+    }
+  }
+  applySkin();
+  $("btnSkin").addEventListener("click", () => {
+    const i = SKINS.findIndex((s) => s.id === skinId);
+    setSkin(SKINS[(i + 1) % SKINS.length].id);
   });
 
   // ── Sticker teması ──
@@ -224,6 +292,7 @@
     const favN = favSet().size;
     $("favLibMeta").textContent = favN ? favN + " level" : "henüz boş — oyunda ♡ ile ekle";
     renderThemeRow();
+    renderSkinRow();
   }
 
   function showSizes() {
@@ -239,7 +308,7 @@
   // ── Level seçim ekranı (seçili boyut ya da favori kütüphanesi) ──
 
   function levelCard(p, lv, done, showSize) {
-    const label = lv.meta && lv.meta.label;
+    const label = lv.diff;
     const key = p.size + ":" + lv.id;
     const card = document.createElement("button");
     card.className = "level-card" +
@@ -247,7 +316,7 @@
       (done.has(key) ? " done" : "");
     card.innerHTML =
       '<span class="lv-id">' + (showSize ? p.cols + "×" + p.rows + " · " : "") +
-        lv.id + " · " + lv.name + "</span>" +
+        lv.id + (lv.name ? " · " + lv.name : "") + "</span>" +
       '<span class="lv-meta">' + lv.pairs.length + " çift</span>" +
       (done.has(key) ? '<span class="lv-check">✓</span>' : "");
     card.addEventListener("click", () => { pack = p; startLevel(lv); });
@@ -371,7 +440,8 @@
     $("winOverlay").hidden = true;
     $("failOverlay").hidden = true;
     $("hudLevel").innerHTML =
-      "Level " + lv.id + "<small>" + lv.cols + "×" + lv.rows + " · " + lv.name + "</small>";
+      "Level " + lv.id + "<small>" + lv.cols + "×" + lv.rows +
+      (lv.name ? " · " + lv.name : "") + "</small>";
     renderLives();
     updateFavButtons();
     startTimer();

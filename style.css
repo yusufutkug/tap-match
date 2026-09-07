@@ -737,6 +737,33 @@ body.dark .theme-sample .mj-red { color: #e8a29b; }
   border-radius: 8px;
 }
 
+/* ── Taş asset skin'leri (tile assets/*.png — js/game.js tm_skin) ──
+   Karşılaştırma toggle'ı: body.skin-a1 / body.skin-a2 sınıfı taş yüzünü
+   CSS zemin yerine PNG ile çizer. skin-flat (Klasik) hiçbir şey ezmez.
+   Asset 1: alttan bakış — et kalınlığı yalnız altta, yüz görsel olarak
+   yukarıda → glif padding-bottom ile hafif yukarı alınır.
+   Asset 2: üstten bakış — 4 yanda eşit et, glif tam merkezde kalır. */
+body.skin-a1 .board .tile .face,
+body.skin-a2 .board .tile .face {
+  background: url("tile assets/tile_asset_1.png") center / 100% 100% no-repeat;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 2px 2px rgba(60, 50, 30, 0.16));
+  font-size: 0.86em; /* glif, görselin et payı içinde kalsın */
+}
+body.skin-a2 .board .tile .face {
+  background-image: url("tile assets/tile_asset_2.png");
+}
+/* alttan bakışta yüzün görsel merkezi geometrik merkezden yukarıdadır */
+body.skin-a1 .board .tile .face { padding-bottom: 9%; }
+
+/* hatalı taş: zemin/kutu gölgesi yerine kırmızımsı parıltıyla işaretle
+   (varsayılan .tile.bad .face kuralı bu seçicilerin altında kalır) */
+body.skin-a1 .board .tile.bad .face,
+body.skin-a2 .board .tile.bad .face {
+  filter: drop-shadow(0 0 4px var(--accent)) saturate(1.4) brightness(1.02);
+}
+
 /* ── Kazanma / kaybetme overlay'i ── */
 .win {
   position: absolute;
