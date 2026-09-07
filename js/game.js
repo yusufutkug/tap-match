@@ -175,10 +175,34 @@
     const cur = SKINS.find((s) => s.id === skinId);
     $("btnSkin").textContent = "Taş: " + cur.name.split(" ·")[0];
   }
+  // Asset 1'e özel hücre ölçüsü: görselin beyaz yüzü 260×230 px — genişliği
+  // boyundan ~%13 fazla. Kare hücrede dikey esnetilince taş "dikdörtgensi"
+  // (uzun) görünüyordu. Bu skin'de hücre yüksekliği yüz oranına sadıktır:
+  // 64 × 230/260 ≈ 56.6px; alt et bandı yine alttaki hücreye sarkar (CSS).
+  // Konumlar %-tabanlı olduğundan yalnız board piksel boyutu değişir.
+  function cellW() { return BASE_CELL; }
+  function cellH() { return skinId === "a1" ? BASE_CELL * 230 / 260 : BASE_CELL; }
+
+  // Skin değişince board'un piksel boyutunu yeni hücre oranına göre güncelle
+  // (oyun ortası toggle: hücre/taş boyutları % olduğu için kendiliğinden
+  // yeniden ölçeklenir, yalnız board ve kamera içerik boyutu düzeltilir).
+  function relayoutBoard() {
+    if (!game) return;
+    const bw = game.lv.cols * cellW(), bh = game.lv.rows * cellH();
+    game.bw = bw;
+    game.bh = bh;
+    const boardEl = $("board");
+    boardEl.style.width = bw + "px";
+    boardEl.style.height = bh + "px";
+    camera.setContentSize(bw, bh);
+    camera.fit();
+  }
+
   function setSkin(id) {
     skinId = id;
     try { localStorage.setItem(SKIN_KEY, id); } catch (e) {}
     applySkin();
+    relayoutBoard();
   }
   function renderSkinRow() {
     const row = $("skinRow");
@@ -450,7 +474,8 @@
     boardEl.innerHTML = "";
     boardEl.className = "board " + theme.boardClass;
     // taban piksel boyutu; ekrana sığdırma ve zoom kameranın işi
-    const bw = lv.cols * BASE_CELL, bh = lv.rows * BASE_CELL;
+    // (hücre oranı skin'e bağlı: Asset 1'de yüz oranına sadık, bkz. cellH)
+    const bw = lv.cols * cellW(), bh = lv.rows * cellH();
     game.bw = bw;
     game.bh = bh;
     boardEl.style.width = bw + "px";
@@ -517,8 +542,8 @@
   // NOT: board henüz mutate edilmeden (applyMatches öncesi) çağrılmalı.
   function playScan(r, c, res) {
     if (!scanOn) return; // efekt kapalı: ışın çizilmez (scanDelay de 0'dır)
-    const cs = BASE_CELL;
-    const cx = (c + 0.5) * cs, cy = (r + 0.5) * cs;
+    const cw = cellW(), ch = cellH();
+    const cx = (c + 0.5) * cw, cy = (r + 0.5) * ch;
     const matched = new Set();
     for (const m of res.matches)
       for (const [tr, tc] of m.tiles) matched.add(tr + "," + tc);
@@ -526,18 +551,18 @@
     let html = "";
     for (const [dr, dc] of DIRS) {
       const ray = castRay(game.board, r, c, dr, dc);
-      const x1 = cx + dc * cs * 0.2, y1 = cy + dr * cs * 0.2;
+      const x1 = cx + dc * cw * 0.2, y1 = cy + dr * ch * 0.2;
       let x2, y2;
       if (ray.hit) {
         // ışın taşın kenarında biter (merkezinde değil)
-        x2 = (ray.hit[1] + 0.5) * cs - dc * cs * 0.46;
-        y2 = (ray.hit[0] + 0.5) * cs - dr * cs * 0.46;
+        x2 = (ray.hit[1] + 0.5) * cw - dc * cw * 0.46;
+        y2 = (ray.hit[0] + 0.5) * ch - dr * ch * 0.46;
       } else {
-        x2 = (ray.endC + 0.5) * cs + dc * cs * 0.5;
-        y2 = (ray.endR + 0.5) * cs + dr * cs * 0.5;
+        x2 = (ray.endC + 0.5) * cw + dc * cw * 0.5;
+        y2 = (ray.endR + 0.5) * ch + dr * ch * 0.5;
       }
       const len = Math.hypot(x2 - x1, y2 - y1);
-      if (len < cs * 0.15) continue; // kenar dibi: çizme
+      if (len < Math.min(cw, ch) * 0.15) continue; // kenar dibi: çizme
       const rot = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
       const isMatch = ray.hit && matched.has(ray.hit[0] + "," + ray.hit[1]);
       if (matched.size > 0 && !isMatch) continue; // match'te yalnız pair ışınları
@@ -560,16 +585,16 @@
 
   // Çarpışma parçacıkları: hücre merkezinden dışa saçılan küçük benekler.
   function spawnBurst(r, c, strong) {
-    const cs = BASE_CELL;
+    const cw = cellW(), ch = cellH();
     const el = document.createElement("div");
     el.className = "burst" + (strong ? " big" : "");
-    el.style.left = (c + 0.5) * cs + "px";
-    el.style.top = (r + 0.5) * cs + "px";
+    el.style.left = (c + 0.5) * cw + "px";
+    el.style.top = (r + 0.5) * ch + "px";
     const n = strong ? 11 : 6;
     for (let i = 0; i < n; i++) {
       const p = document.createElement("span");
       const a = (i / n) * Math.PI * 2 + Math.random() * 0.7;
-      const d = cs * (strong ? 0.72 : 0.48) * (0.7 + Math.random() * 0.5);
+      const d = cw * (strong ? 0.72 : 0.48) * (0.7 + Math.random() * 0.5);
       p.style.setProperty("--dx", (Math.cos(a) * d).toFixed(1) + "px");
       p.style.setProperty("--dy", (Math.sin(a) * d).toFixed(1) + "px");
       el.appendChild(p);
@@ -580,12 +605,11 @@
 
   // Combo yazısı: hücreden yükselip solar.
   function showFloatText(r, c, txt) {
-    const cs = BASE_CELL;
     const el = document.createElement("div");
     el.className = "floattext";
     el.textContent = txt;
-    el.style.left = (c + 0.5) * cs + "px";
-    el.style.top = (r + 0.5) * cs + "px";
+    el.style.left = (c + 0.5) * cellW() + "px";
+    el.style.top = (r + 0.5) * cellH() + "px";
     $("board").appendChild(el);
     setTimeout(() => el.remove(), 750);
   }
@@ -737,19 +761,19 @@
     if (!sight || !game || game.over) return;
     const { r, c } = sight;
     if (game.board[r][c] !== null) return; // bu arada taş gelmiş olabilir
-    const cs = BASE_CELL;
-    const cx = (c + 0.5) * cs, cy = (r + 0.5) * cs;
+    const cw = cellW(), ch = cellH();
+    const cx = (c + 0.5) * cw, cy = (r + 0.5) * ch;
     let lines = "";
 
     for (const [dr, dc] of DIRS) {
       const ray = castRay(game.board, r, c, dr, dc);
       const hit = ray.hit;
-      const x1 = cx + dc * cs * 0.34, y1 = cy + dr * cs * 0.34;
+      const x1 = cx + dc * cw * 0.34, y1 = cy + dr * ch * 0.34;
       let x2, y2;
       if (hit) {
         // ışın taşın kenarında biter (merkezinde değil)
-        x2 = (hit[1] + 0.5) * cs - dc * cs * 0.46;
-        y2 = (hit[0] + 0.5) * cs - dr * cs * 0.46;
+        x2 = (hit[1] + 0.5) * cw - dc * cw * 0.46;
+        y2 = (hit[0] + 0.5) * ch - dr * ch * 0.46;
         const key = hit[0] + "," + hit[1];
         const tEl = game.tiles.get(key);
         if (tEl) {
@@ -770,7 +794,7 @@
 
     const el = document.createElement("div");
     el.className = "sight";
-    const fd = cs * 0.64;
+    const fd = Math.min(cw, ch) * 0.64;
     el.innerHTML =
       '<svg class="rays" width="' + game.bw + '" height="' + game.bh +
       '" viewBox="0 0 ' + game.bw + " " + game.bh + '">' + lines + "</svg>" +
