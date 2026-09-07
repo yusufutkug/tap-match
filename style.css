@@ -745,6 +745,7 @@ body.dark .theme-sample .mj-red { color: #e8a29b; }
    Asset 2: üstten bakış — 4 yanda eşit et, glif tam merkezde kalır. */
 body.skin-a1 .board .tile .face,
 body.skin-a2 .board .tile .face {
+  inset: 0; /* hücreyi tam doldur: komşu taşlar birbirine temas eder */
   background: url("tile assets/tile_asset_1.png") center / 100% 100% no-repeat;
   border-radius: 0;
   box-shadow: none;
