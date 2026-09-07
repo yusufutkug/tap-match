@@ -16,9 +16,8 @@
 // çözülür). Köşe oranı önceki pakete göre bilinçli düşük tutulur
 // (cornerP 0.30-0.65 bandı): girişler/dipler zaten hizalı taban koyar.
 
-const fs = require("fs");
-const path = require("path");
 const { generateLevel } = require("../js/generator.js");
+const { writePacks } = require("./pack_io.js");
 
 const ALL_SIZES = ["6x8", "6x9", "7x9", "7x10", "8x10", "8x12", "8x14", "9x12", "9x15", "12x18"];
 // hızlı deneme: TM_SIZES=6x8,12x18 node tools/gen_levels.js (dosya yazmaz)
@@ -274,14 +273,13 @@ for (let si = 0; si < SIZES.length; si++) {
 if (DRY) {
   console.log("\n(kuru koşu: TM_SIZES filtresi aktif, dosya yazılmadı)");
 } else {
-  const out =
-    '"use strict";\n\n' +
-    "// ÜRETİLMİŞ paketler — elle düzenleme; kaynak: tools/gen_levels.js\n" +
-    "// Boyut başına 100 levellik funnel (E-E-M-M-H-E-E-M-VH-E × 10 dekat).\n\n" +
-    "var TM_PACKS = " + JSON.stringify(packs) + ";\n\n" +
-    'if (typeof module !== "undefined") module.exports = { TM_PACKS };\n';
-
-  fs.writeFileSync(path.join(__dirname, "..", "levels_gen.js"), out);
-  const kb = Math.round(out.length / 1024);
-  console.log("\nlevels_gen.js yazıldı (" + packs.length + " paket × 100 level, " + kb + " KB)");
+  const r = writePacks({
+    packs, base: "levels_gen", globalName: "TM_PACKS",
+    header:
+      "// ÜRETİLMİŞ paketler — elle düzenleme; kanonik veri: levels/<boyut>/\n" +
+      '// (şema: README "Level JSON formatı"), yazan: tools/gen_levels.js.\n' +
+      "// Boyut başına 100 levellik funnel (E-E-M-M-H-E-E-M-VH-E × 10 dekat).\n\n",
+  });
+  console.log("\nyazıldı: levels/<boyut>/*.json + levels_gen.js (" +
+    packs.length + " paket × 100 level, sarmalayıcı " + r.jsKb + " KB)");
 }

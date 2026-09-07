@@ -247,30 +247,62 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar); bitmap kalıplar (`sampleBitmap` çoğunluk örneklemesi) + özel kalıp kaydı (localStorage) |
 | `kalip.html` + `js/kalip.js` | kalıp editörü: formülsüz şekil tasarımı — 24×16 tuvalde boya (simetri kilitleri, PNG içe aktarma, hazır şablonlar), 10 boyutta canlı önizleme (ada/alan/kesme tanıları), test üretimi + oynama, localStorage'a kayıt (lab şekil satırı okur), DEFS kodu dışa aktarma |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
-| `levels_gen.js` | üretilmiş paketler (`TM_PACKS`: 10 boyut × 100 level; `tools/gen_levels.js` yazar — elle düzenleme) |
-| `levels_shapes.js` | tam dolu şekil paketleri (`TM_SHAPE_PACKS`: 10 boyut × 50 level; `tools/gen_shape_levels.js` yazar — elle düzenleme) |
+| `levels/<boyut>/` | kanonik level verisi: her level AYRI json (`001.json`...) + paket künyesi `pack.json` (şema: aşağıda "Level JSON formatı"). Funnel paketleri `levels/6x8/`..., tam dolu şekil paketleri `levels/tam-6x8/`... — üreticiler yazar, elle düzenleme |
+| `levels_gen.js` + `levels_shapes.js` | aynı verinin toplu script-tag sarmalayıcıları (`TM_PACKS`, `TM_SHAPE_PACKS`) — oyun `file://` ile açıldığında fetch çalışmadığı için `index.html` bunları yükler; içerik `levels/` ile birebir (`test_generator.js` doğrular) |
 | `js/game.js` + `index.html` + `style.css` | oyun sayfası: boyut seçimi → level grid → oyun; telefon çerçevesi + HUD (süre, 3 can), noktalı ızgara sunumu (mat + boş hücre noktaları) + basılı-tut görüş önizlemesi, hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı; level grid'de zorluk şeridi |
 | `js/camera.js` | board kamerası: pinch zoom + swipe pan + clamp + atalet, tap/drag ayrımı (AG'nin LeanTouch kamera modelinin web karşılığı) |
 | `lab.html` + `js/lab.js` | level lab: parametreyle üret, eğrileri gör, tek tıkla oyna |
 | `tools/test_board.js` | çekirdek duman testleri + level doğrulama |
 | `tools/test_flow.js` | ölçüm katmanı testleri (dalga, deadlock, eğri) + level raporu |
 | `tools/test_generator.js` | üretici duman testi + konfigürasyon istatistikleri |
-| `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
-| `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
+| `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels/<boyut>/` + `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
+| `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
+| `tools/pack_io.js` | paket yazıcı/okuyucu: üretici çıktısını level başına json dosyalarına + `.js` sarmalayıcıya böler (`writePacks`), testler için geri okur (`readPack`) |
 
 ## Çalıştırma
 
 - Oyun: `index.html`'i tarayıcıda aç (build gerekmez, `file://` çalışır).
 - Lab: `lab.html`'i aç — üret, incele, oyna.
 - Test: `node tools/test_board.js` · `node tools/test_flow.js` · `node tools/test_generator.js`
-- Paket yenile: `node tools/gen_levels.js`
+- Paket yenile: `node tools/gen_levels.js` · `node tools/gen_shape_levels.js` (ikisi de `levels/` altına level başına json + toplu `.js` sarmalayıcı yazar)
 
-## Level formatı
+## Level JSON formatı
+
+Kanonik veri `levels/` altında, paket başına bir klasör ve her level AYRI
+dosya (şema `tapmatch-pack@1`):
+
+```
+levels/6x8/pack.json       {"format":"tapmatch-pack@1","size":"6x8","cols":6,"rows":8,"count":100}
+levels/6x8/001.json        {"id":1,"diff":"easy","pairs":[[[3,5],[1,5]],[[2,2],[0,2]]]}
+levels/6x8/002.json        ...
+levels/tam-6x8/pack.json   {"format":"tapmatch-pack@1","size":"tam-6x8","cols":6,"rows":8,"full":true,"count":50}
+levels/tam-6x8/001.json    ...
+```
+
+Level yalnızca oynanış için gerekeni taşır — üç alan:
+
+- `id`: 1..count (dosya adı = 3 haneli id); ilerleme/favori anahtarı
+  `"size:id"` bundan kurulur.
+- `diff`: `easy | medium | hard | veryhard` — level kartındaki zorluk
+  rengi (level adı gösterilmez).
+- `pairs`: FIFO kanonik oynanış sırasında `[[r,c],[r,c]]` çiftleri;
+  geçmeyen hücreler boş.
+
+Levelda OLMAYAN her şey türetilir: `rows`/`cols` `pack.json`'dan gelir,
+emoji karışım tohumu `"size:id"`den hash'lenir (kozmetik; `js/game.js`
+açılışta hydrate eder), şekil silüeti %100 dolu paketlerde `pairs`'ten
+çıkar. Üretim metrikleri (score, fill, knots...) hiç saklanmaz — kalite
+kontrolleri üretim anında yapılır (`gen_levels.js` onarım geçitleri,
+`gen_shape_levels.js` sözleşme kontrolleri).
+
+`levels_gen.js` / `levels_shapes.js` aynı verinin toplu script-tag
+sarmalayıcılarıdır (`TM_PACKS`, `TM_SHAPE_PACKS`) — oyun `file://` ile
+açıldığında `fetch` çalışmadığı için `index.html` bunları yükler; içerik
+`levels/` ağacıyla birebir aynıdır ve `test_generator.js` bunu doğrular.
+
+Elle yazılmış öğretici levellar (`levels.js`) eski geniş biçimi korur
+(`name`, `rows`, `cols`, `seed` level üstünde):
 
 ```json
 { "id": 1, "name": "Koridor", "rows": 4, "cols": 4, "pairs": [[[0,0],[0,3]]], "seed": 11 }
 ```
-
-`pairs` FIFO kanonik oynanış sırasındadır; geçmeyen hücreler boş. Sticker
-ataması kozmetik (çift indeksi → emoji, seed'e bağlı). Üretilmiş levellarda
-`meta` alanı ölçümleri taşır (depth, dip, fill, cornerShare).

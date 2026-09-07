@@ -18,9 +18,8 @@
 //
 // Hızlı deneme: TM_SIZES=6x8 node tools/gen_shape_levels.js (dosya yazmaz)
 
-const fs = require("fs");
-const path = require("path");
 const { TM_SHAPES } = require("../js/shapes.js");
+const { writePacks } = require("./pack_io.js");
 const { generateFullLevel } = require("../js/generator.js");
 const { pairsCurve, analyzeFlow, localityStats } = require("../js/flow.js");
 
@@ -153,13 +152,15 @@ for (const s of SIZES) {
 if (DRY) {
   console.log("(kuru koşu — dosya yazılmadı)");
 } else {
-  const out =
-    '"use strict";\n\n' +
-    "// Üretilmiş tam dolu şekil paketleri — ELLE DÜZENLEME.\n" +
-    "// tools/gen_shape_levels.js yazar; reçeteler orada.\n\n" +
-    "var TM_SHAPE_PACKS = " + JSON.stringify(packs) + ";\n\n" +
-    'if (typeof module !== "undefined") module.exports = { TM_SHAPE_PACKS };\n';
-  fs.writeFileSync(path.join(__dirname, "..", "levels_shapes.js"), out);
-  console.log("yazıldı: levels_shapes.js (" + packs.length + " paket, " +
-    packs.reduce((a, p) => a + p.levels.length, 0) + " level)");
+  const r = writePacks({
+    packs, base: "levels_shapes", globalName: "TM_SHAPE_PACKS",
+    header:
+      "// Üretilmiş tam dolu şekil paketleri — ELLE DÜZENLEME; kanonik veri:\n" +
+      '// levels/tam-<boyut>/ (şema: README "Level JSON formatı"),\n' +
+      "// yazan: tools/gen_shape_levels.js; reçeteler orada.\n\n",
+  });
+  console.log("yazıldı: levels/tam-<boyut>/*.json + levels_shapes.js (" +
+    packs.length + " paket, " +
+    packs.reduce((a, p) => a + p.levels.length, 0) + " level, sarmalayıcı " +
+    r.jsKb + " KB)");
 }

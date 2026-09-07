@@ -302,27 +302,30 @@ for (const cfg of configs) {
   check("satranç: desen her boyutta doğru + üretilebilir + çözülebilir", ok);
 }
 
-// ── Funnel paketleri (levels_gen.js: boyut başına 100 level) ──
+// ── Funnel paketleri (levels/<boyut>/ + levels_gen.js sarmalayıcısı) ──
+// Not: üretim metrikleri (score, fill...) artık saklanmıyor — kalite
+// kontrolleri üretim anında yapılır (gen_levels.js onarım geçitleri);
+// burada yalnızca yayınlanan veri sözleşmesi ve çözülebilirlik test edilir.
 {
   const { TM_PACKS } = require("../levels_gen.js");
+  const { readPack } = require("./pack_io.js");
   const CYCLE = ["easy", "easy", "medium", "medium", "hard",
                  "easy", "easy", "medium", "veryhard", "easy"];
   check("paketler var", Array.isArray(TM_PACKS) && TM_PACKS.length >= 5);
+  check("sarmalayıcı js == levels/ ağacı",
+    TM_PACKS.every((pk) => JSON.stringify(pk) === JSON.stringify(readPack(pk.size))));
+
+  // rows/cols'u paketten hydrate et (oyunun js/game.js açılışıyla aynı)
+  TM_PACKS.forEach((pk) => pk.levels.forEach((l) => {
+    l.rows = pk.rows; l.cols = pk.cols;
+  }));
 
   for (const pk of TM_PACKS) {
     const P = pk.levels, tag = "paket " + pk.size;
     check(tag + ": 100 level", P.length === 100);
     check(tag + ": idler 1..100 sıralı", P.every((l, i) => l.id === i + 1));
-    check(tag + ": etiketler döngüye uyuyor",
-      P.every((l, i) => l.meta.label === CYCLE[i % 10]));
-    check(tag + ": boyut tutarlı",
-      P.every((l) => l.rows === pk.rows && l.cols === pk.cols));
-
-    // doluluk sözleşmesi: taban 0.44 (gevşetme dahil), ortalama ≥ 0.50
-    const fills = P.map((l) => l.meta.fill);
-    check(tag + ": doluluk tabanı", Math.min(...fills) >= 0.44);
-    check(tag + ": ort. doluluk >= 0.50",
-      fills.reduce((a, b) => a + b, 0) / fills.length >= 0.5);
+    check(tag + ": zorluklar döngüye uyuyor",
+      P.every((l, i) => l.diff === CYCLE[i % 10]));
 
     // çözülebilirlik: dalga analizi hepsi; FIFO simülasyonu örneklem
     // (deadlock yoksa monotonluk çözülebilirliği garantiler)
@@ -336,58 +339,29 @@ for (const cfg of configs) {
     }
     check(tag + ": deadlock yok", solvable);
     check(tag + ": FIFO örneklemi akıyor", fifoOk);
-
-    // zorluk korelasyonu
-    const meanOf = (d, lab) => {
-      const xs = P.slice((d - 1) * 10, d * 10)
-        .filter((l) => l.meta.label === lab).map((l) => l.meta.score);
-      return xs.reduce((a, b) => a + b, 0) / xs.length;
-    };
-    let ordered = true;
-    for (let d = 1; d <= 10; d++) {
-      if (!(meanOf(d, "easy") < meanOf(d, "medium") &&
-            meanOf(d, "medium") < meanOf(d, "hard") &&
-            meanOf(d, "hard") <= meanOf(d, "veryhard") + 1e-9)) ordered = false;
-    }
-    check(tag + ": her dekatta easy < medium < hard <= veryhard", ordered);
-    check(tag + ": veryhard trendi yükseliyor",
-      (meanOf(9, "veryhard") + meanOf(10, "veryhard")) / 2 >
-      (meanOf(1, "veryhard") + meanOf(2, "veryhard")) / 2);
   }
 }
 
-// ── Tam dolu şekil paketleri (levels_shapes.js: boyut başına 50 level) ──
+// ── Tam dolu şekil paketleri (levels/tam-<boyut>/ + levels_shapes.js) ──
 {
   const { TM_SHAPE_PACKS } = require("../levels_shapes.js");
+  const { readPack } = require("./pack_io.js");
   const BAND_LABELS = ["easy", "easy", "medium", "hard", "veryhard"];
   check("şekil paketleri var", Array.isArray(TM_SHAPE_PACKS) && TM_SHAPE_PACKS.length === 10);
+  check("şekil sarmalayıcı js == levels/ ağacı",
+    TM_SHAPE_PACKS.every((pk) => JSON.stringify(pk) === JSON.stringify(readPack(pk.size))));
+
+  TM_SHAPE_PACKS.forEach((pk) => pk.levels.forEach((l) => {
+    l.rows = pk.rows; l.cols = pk.cols;
+  }));
 
   for (const pk of TM_SHAPE_PACKS) {
     const P = pk.levels, tag = "paket " + pk.size;
     check(tag + ": 50 level", P.length === 50);
     check(tag + ": idler 1..50 sıralı", P.every((l, i) => l.id === i + 1));
-    check(tag + ": boyut tutarlı", P.every((l) => l.rows === pk.rows && l.cols === pk.cols));
-    check(tag + ": etiketler banda uyuyor",
-      P.every((l, i) => l.meta.label === BAND_LABELS[Math.floor(i / 10)]));
-    check(tag + ": %100 dolu", P.every((l) => l.pairs.length * 2 === l.meta.maskArea));
-    check(tag + ": şekil çeşitliliği (≥8: tek parça + ada + dolu)",
-      new Set(P.map((l) => l.meta.shape)).size >= 8);
-
-    // tempo rampası: bant düğüm ortalaması kolaydan zora yükselmeli
-    const bandAvg = (b) => {
-      const xs = P.slice(b * 10, (b + 1) * 10).map((l) => l.meta.knots);
-      return xs.reduce((a, x) => a + x, 0) / xs.length;
-    };
-    check(tag + ": düğüm rampası (bant1 + 0.5 < bant5)", bandAvg(0) + 0.5 < bandAvg(4));
-
-    // kesme: planlanan hatların çoğu tutmalı, tutanlar erken bölünmeli
-    const cuts = P.filter((l) => l.meta.cut);
-    check(tag + ": kesmeli level ≥ 12", cuts.length >= 12);
-    const earlySplit = cuts.filter((l) => l.meta.splitT !== null && l.meta.splitT <= 0.5);
-    check(tag + ": kesmelilerin ≥%60'ı erken bölünüyor", earlySplit.length >= cuts.length * 0.6);
-
-    // öğütme tavanı: art arda zorunlu-uzak hamle zinciri kontrol altında
-    check(tag + ": öğütme ≤ 4", P.every((l) => l.meta.grind <= 4));
+    check(tag + ": tam dolu paket bayrağı", pk.full === true);
+    check(tag + ": zorluklar banda uyuyor",
+      P.every((l, i) => l.diff === BAND_LABELS[Math.floor(i / 10)]));
 
     // çözülebilirlik: dalga analizi hepsi, FIFO örneklem
     let solvable = true, fifoOk = true;
