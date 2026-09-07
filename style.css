@@ -757,8 +757,17 @@ body.skin-a2 .board .tile .face {
 body.skin-a2 .board .tile .face {
   background-image: url("tile assets/tile_asset_2.png");
 }
-/* alttan bakışta yüzün görsel merkezi geometrik merkezden yukarıdadır */
-body.skin-a1 .board .tile .face { padding-bottom: 9%; }
+/* Alttan bakış (a1): görseldeki alt et bandı (29px / 259px yüksekliğin
+   ~%11'i) hücrenin DIŞINA, alttaki hücreye sarkıtılır → beyaz yüz hücreyi
+   tam doldurur. Taşlar DOM'a satır sırasıyla eklendiği için (js/game.js
+   startLevel) alttaki taş üsttekinin et bandını örter: et kalınlığı yalnız
+   altında taş olmayan taşlarda görünür (2.5D istif görünümü).
+   Oran: et/yüz = 29/230 ≈ %12.6 (bottom sarkma da padding da hücre
+   boyutuna göre yüzdedir; hücre kare olduğundan ikisi eş ölçülür). */
+body.skin-a1 .board .tile .face {
+  bottom: -12.6%;
+  padding-bottom: 12.6%; /* glif görünür beyaz yüzün merkezinde kalsın */
+}
 /* SVG yüzler (şekiller/mücevher) de taşı maksimum doldursun */
 body.skin-a1 .board .tile .face .shape,
 body.skin-a2 .board .tile .face .shape {
