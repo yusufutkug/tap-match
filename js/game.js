@@ -148,7 +148,64 @@
     applyScanBtn();
   });
 
-  // ── Taş görünümü (tile assets/*.png karşılaştırma toggle'ı) ──
+  // ── Canlı efor göstergesi (efor modelini boardda test etme aracı) ──
+  // Açıkken match veren HER boş hücrede o hamlenin eforu rozet olarak durur
+  // (js/flow.js boardEfforts — botla birebir aynı hesap); her tap sonrası
+  // son tap konumuna (dist terimi) ve boardun yeni durumuna göre yeniden
+  // hesaplanır. Botun seçeceği en ucuz hücre mor halkayla işaretlenir;
+  // rozetin title tooltip'i bileşen dökümünü verir. Renk kademeleri:
+  // yeşil < EFFORT_HI_THR−1 ≤ sarı < EFFORT_HI_THR ≤ kırmızı ("zor adım").
+  // NOT: bot yalnız match hücrelerinden oynar; burada dist, oyuncunun SON
+  // tap'inden ölçülür (miss/blank dahil) — göz/el gerçekte oraya gitti.
+
+  const EFFORT_KEY = "tm_effort";
+  let effortOn = (() => {
+    try { return localStorage.getItem(EFFORT_KEY) === "1"; } catch (e) { return false; }
+  })();
+  function applyEffortBtn() {
+    const b = $("btnEffort");
+    b.classList.toggle("on", effortOn);
+    b.classList.toggle("theme-chip", effortOn);
+  }
+  applyEffortBtn();
+  $("btnEffort").addEventListener("click", () => {
+    effortOn = !effortOn;
+    try { localStorage.setItem(EFFORT_KEY, effortOn ? "1" : "0"); } catch (e) {}
+    applyEffortBtn();
+    renderEffort();
+  });
+
+  function renderEffort() {
+    if (!game || !game.effortEl) return;
+    game.effortEl.innerHTML = "";
+    if (!effortOn || game.over || game.alive.size === 0) return;
+    const ef = boardEfforts(game.board, game.lv.pairs, game.lastTap);
+    if (!ef) return;
+    let best = ef.cells[0];
+    for (const cell of ef.cells) if (cell.effort < best.effort) best = cell;
+    const f2 = (x) => x.toFixed(2);
+    let html = "";
+    for (const cell of ef.cells) {
+      const tier = cell.effort >= EFFORT_HI_THR ? "hi"
+        : cell.effort >= EFFORT_HI_THR - 1 ? "mid" : "lo";
+      const p = cell.parts;
+      html += '<div class="effort-badge ' + tier + (cell === best ? " best" : "") +
+        '" style="left:' + (cell.c + 0.5) * cellW() + "px;top:" + (cell.r + 0.5) * cellH() +
+        'px" title="efor ' + f2(cell.effort) +
+        " = köşe " + f2(p.kind) + " + span " + f2(p.span) + " + kıtlık " + f2(p.corner) +
+        " + uzaklık " + f2(p.dist) + " + arama " + f2(p.search) + " + yem " + f2(p.noise) +
+        '">' + cell.effort.toFixed(1) + "</div>";
+    }
+    game.effortEl.innerHTML = html;
+  }
+
+  // Tap animasyonları bitince yeniden çiz (gecikmeli; level değiştiyse iptal)
+  function scheduleEffort(ms) {
+    const g = game;
+    setTimeout(() => { if (game === g) renderEffort(); }, ms);
+  }
+
+  // ── Taş görünümü (assets/*.png karşılaştırma toggle'ı) ──
   // İki PNG asseti farklı kamera açısına sahip: Asset 1 alttan bakış (yalnız
   // altta et kalınlığı), Asset 2 üstten bakış (4 yanda eşit et). Hissiyat
   // karşılaştırması için body'ye skin-<id> sınıfı basılır (görünüm tamamen
@@ -161,13 +218,14 @@
     { id: "flat", name: "Klasik" },
     { id: "a1", name: "Asset 1 · alttan" },
     { id: "a2", name: "Asset 2 · üstten" },
+    { id: "a3", name: "Yeni · krem" },
   ];
   let skinId = (() => {
     try {
       const s = localStorage.getItem(SKIN_KEY);
       if (SKINS.some((k) => k.id === s)) return s;
     } catch (e) {}
-    return "a1"; // yeni assetler denensin diye varsayılan Asset 1
+    return "a3"; // gameplay referansındaki krem taş varsayılan
   })();
   function applySkin() {
     for (const s of SKINS)
@@ -196,6 +254,7 @@
     boardEl.style.height = bh + "px";
     camera.setContentSize(bw, bh);
     camera.fit();
+    renderEffort(); // rozetler px konumlu — yeni hücre oranına göre yeniden
   }
 
   function setSkin(id) {
@@ -456,6 +515,8 @@
       lives: LIVES,
       over: false,
       startT: Date.now(),
+      lastTap: null,      // efor göstergesi: dist terimi son tap'ten ölçülür
+      effortEl: null,     // canlı efor rozetleri katmanı
     };
 
     $("sizeScreen").hidden = true;
@@ -511,9 +572,15 @@
         }
       }
     }
+    // efor rozetleri en üst katman (tap'leri engellemez, taşların üstünde)
+    game.effortEl = document.createElement("div");
+    game.effortEl.className = "effort-layer";
+    boardEl.appendChild(game.effortEl);
+
     camera.setContentSize(bw, bh);
     camera.fit();
     refresh();
+    renderEffort();
   }
 
   function flashCell(key, cls, ms) {
@@ -635,10 +702,12 @@
     // Her boş-hücre tap'i aynı dille başlar: soket aktifleşir + 4 yönlü scan.
     // Sonuç (uçuş/hata) scan bittikten sonra oynar — oyuncu önce kontrolü görür.
     const g = game; // gecikmeli callback'ler level değişince çalışmasın
+    game.lastTap = [r, c]; // efor modeli: göz/el artık burada (dist terimi)
 
     if (res.kind === "blank") {
       playScan(r, c, res);
       flashCell(key, "active pulse", 320);
+      scheduleEffort(0); // board değişmedi ama dist referansı değişti
       return;
     }
 
@@ -654,6 +723,7 @@
       }, scanDelay());
       loseLife();
       refresh();
+      scheduleEffort(scanDelay() + FLY_MS * 2); // taşlar geri döndükten sonra
       return;
     }
 
@@ -678,6 +748,7 @@
     }, scanDelay() + FLY_MS);
     flashCell(key, isCombo ? "boom big" : "boom", scanDelay() + FLY_MS + 550);
     refresh();
+    scheduleEffort(scanDelay() + FLY_MS); // taşlar patlayınca yeni eforlar
 
     if (game.alive.size === 0) {
       markDone(game.lv);

@@ -304,11 +304,10 @@ button.primary:hover { filter: brightness(1.06); }
   overflow: hidden;
   touch-action: none;
   cursor: grab;
-  /* grid'siz sunum: board bir "masa yüzeyi", hücre kutusu yok */
-  background:
-    radial-gradient(120% 90% at 30% 8%, var(--table-hi) 0%, transparent 55%),
-    radial-gradient(110% 85% at 72% 95%, var(--table-sh) 0%, transparent 60%),
-    var(--table);
+  /* masa yüzeyi: koyu ahşap görsel (assets/background.png — gameplay
+     referansındaki zemin). Her iki temada da aynı; görsel yüklenene dek
+     altta koyu ahşap tonu durur. */
+  background: #4a2f22 url("assets/background.png") center / cover no-repeat;
 }
 .viewport.dragging { cursor: grabbing; }
 .camera {
@@ -346,15 +345,33 @@ button.primary:hover { filter: brightness(1.06); }
 .board {
   position: relative;
 }
+/* Board zemini: açık ahşap görsel (assets/board_floor.png). Görselin köşe
+   yuvarlaması ve üst gölgesi baked; board boyutu levele göre değiştiğinden
+   100%/100% esnetilir (köşe bozulması bu radius'ta gözle seçilmez).
+   Zemin taş ızgarasıyla bitişiktir; çerçevenin 13px bandının altına dek
+   (-10px) uzanır ki kenar/köşede koyu arka plan sızmasın. Görselin baked
+   transparan köşeleri altındaki düz ahşap tonu da aynı amaçla durur. */
 .board::before {
   content: "";
   position: absolute;
+  inset: -10px;
+  border-radius: 10px;
+  background: #efa95c url("assets/board_floor.png") center / 100% 100% no-repeat;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+/* Board çerçevesi: turuncu kenarlık (assets/board_frame.png) 9-slice ile —
+   köşeler sabit kalır, kenarlar board boyutuna esner. Görselde kenar eti
+   ~48px; ekranda 13px çizilir. Çerçeve taşları sıkıştırır: iç kenarı board
+   sınırının 1px içine biner (inset -12 + border 13), kenar taşlarıyla
+   bitişiktir. Orta bölge çizilmez (fill yok), zemin görünür. */
+.board::after {
+  content: "";
+  position: absolute;
   inset: -12px;
-  border-radius: 26px;
-  background: var(--board-mat);
-  box-shadow:
-    0 3px 18px rgba(60, 50, 30, 0.07),
-    inset 0 0 0 1px rgba(60, 50, 30, 0.045);
+  border: 13px solid transparent;
+  border-image: url("assets/board_frame.png") 48 / 13px stretch;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
   pointer-events: none;
 }
 
@@ -368,38 +385,30 @@ button.primary:hover { filter: brightness(1.06); }
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
-/* soket: hücre merkezinde hafif içe gömülü daire (taş üstünü kapatır).
-   Nokta değil dokunulabilir "yuva" hissi: silik zemin + ince halka + iç gölge.
-   Idle'da geri planda kalır; tap'te .active ile kısaca büyüyüp parlar. */
+/* soket: hücre merkezindeki tap noktası (assets/dot.png — referanstaki
+   silik ahşap benek). Idle'da geri planda kalır; hover/active parlaklık ve
+   ölçekle verilir. Sonuç durumları (good/miss) background'ı ezip renkli
+   daireye döner — feedback rengi görselden önemlidir. */
 .cell::before {
   content: "";
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 32%;
-  height: 32%;
+  width: 26%;
+  height: 26%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: var(--socket-bg);
-  box-shadow:
-    inset 0 1px 2px var(--socket-depth),
-    inset 0 0 0 1px var(--socket-ring);
-  transition: transform 0.13s ease, background 0.13s, box-shadow 0.13s;
+  background: url("assets/dot.png") center / 100% 100% no-repeat;
+  transition: transform 0.13s ease, background 0.13s, box-shadow 0.13s, filter 0.13s;
   pointer-events: none;
 }
 .cell:hover::before {
-  background: var(--socket-bg-hi);
-  box-shadow:
-    inset 0 1px 2px var(--socket-depth),
-    inset 0 0 0 1px var(--socket-ring-hi);
+  filter: brightness(1.08);
 }
 /* tap anı: soket kısa süreliğine aktifleşir (js/game.js flashCell "active") */
 .cell.active::before {
   transform: translate(-50%, -50%) scale(1.22);
-  background: var(--socket-bg-hi);
-  box-shadow:
-    inset 0 1px 2px var(--socket-depth),
-    inset 0 0 0 1px var(--socket-ring-hi);
+  filter: brightness(1.12);
 }
 /* sonuç: doğru hücre — scan bitince soket yumuşak yeşil yanar (miss'in
    kırmızı karşılığı; tap ÖNCESİ ipucu değil, tap SONRASI sonuç feedback'i) */
@@ -501,6 +510,32 @@ button.primary:hover { filter: brightness(1.06); }
 @keyframes hintPulse {
   50% { transform: scale(1.16); }
 }
+
+/* ── Canlı efor göstergesi (js/game.js renderEffort — debug/test aracı) ──
+   Match veren her boş hücrede hamlenin eforu; renk kademesi flow.js
+   EFFORT_HI_THR'a bağlı (yeşil kolay / sarı orta / kırmızı "zor adım"),
+   mor halka = botun seçeceği en ucuz hamle. Katman tap'leri engellemez. */
+.effort-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6; /* taşların (2) ve efektlerin üstünde */
+}
+.effort-badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+}
+.effort-badge.lo { background: #d9f4e4; color: #166f45; }
+.effort-badge.mid { background: #fdeec7; color: #8a5d00; }
+.effort-badge.hi { background: #fcd9d2; color: #a3312a; }
+.effort-badge.best { box-shadow: 0 0 0 2.5px #8b5cf6, 0 1px 4px rgba(0, 0, 0, 0.28); }
 
 /* Taş = düzgün hizalı sticker: hücre merkezinde, kutu/çizgi olmadan. */
 .tile {
@@ -737,16 +772,19 @@ body.dark .theme-sample .mj-red { color: #e8a29b; }
   border-radius: 8px;
 }
 
-/* ── Taş asset skin'leri (tile assets/*.png — js/game.js tm_skin) ──
-   Karşılaştırma toggle'ı: body.skin-a1 / body.skin-a2 sınıfı taş yüzünü
+/* ── Taş asset skin'leri (assets/*.png — js/game.js tm_skin) ──
+   Karşılaştırma toggle'ı: body.skin-a1 / a2 / a3 sınıfı taş yüzünü
    CSS zemin yerine PNG ile çizer. skin-flat (Klasik) hiçbir şey ezmez.
    Asset 1: alttan bakış — et kalınlığı yalnız altta, yüz görsel olarak
    yukarıda → glif padding-bottom ile hafif yukarı alınır.
-   Asset 2: üstten bakış — 4 yanda eşit et, glif tam merkezde kalır. */
+   Asset 2: üstten bakış — 4 yanda eşit et, glif tam merkezde kalır.
+   Asset 3 (yeni/krem, varsayılan): üstten bakış; gameplay referansındaki
+   gibi taşlar arasında ince boşluk bırakılır (inset > 0). */
 body.skin-a1 .board .tile .face,
-body.skin-a2 .board .tile .face {
+body.skin-a2 .board .tile .face,
+body.skin-a3 .board .tile .face {
   inset: 0; /* hücreyi tam doldur: komşu taşlar birbirine temas eder */
-  background: url("tile assets/tile_asset_1.png") center / 100% 100% no-repeat;
+  background: url("assets/tile_asset_1.png") center / 100% 100% no-repeat;
   border-radius: 0;
   box-shadow: none;
   filter: drop-shadow(0 2px 2px rgba(60, 50, 30, 0.16));
@@ -755,7 +793,12 @@ body.skin-a2 .board .tile .face {
   font-size: 46px;
 }
 body.skin-a2 .board .tile .face {
-  background-image: url("tile assets/tile_asset_2.png");
+  background-image: url("assets/tile_asset_2.png");
+}
+body.skin-a3 .board .tile .face {
+  background-image: url("assets/new_tiles.png");
+  inset: 2%; /* komşu taşlar arasında referanstaki ince aralık */
+  font-size: 44px;
 }
 /* Alttan bakış (a1): assetin ölçülerine sadık yerleşim. Hücre bu skin'de
    dikdörtgendir (js/game.js cellH: 64 × 230/260 ≈ 56.6px) — beyaz yüz
@@ -772,7 +815,8 @@ body.skin-a1 .board .tile .face {
 }
 /* SVG yüzler (şekiller/mücevher) de taşı maksimum doldursun */
 body.skin-a1 .board .tile .face .shape,
-body.skin-a2 .board .tile .face .shape {
+body.skin-a2 .board .tile .face .shape,
+body.skin-a3 .board .tile .face .shape {
   width: 80%;
   height: 80%;
 }
@@ -780,7 +824,8 @@ body.skin-a2 .board .tile .face .shape {
 /* hatalı taş: zemin/kutu gölgesi yerine kırmızımsı parıltıyla işaretle
    (varsayılan .tile.bad .face kuralı bu seçicilerin altında kalır) */
 body.skin-a1 .board .tile.bad .face,
-body.skin-a2 .board .tile.bad .face {
+body.skin-a2 .board .tile.bad .face,
+body.skin-a3 .board .tile.bad .face {
   filter: drop-shadow(0 0 4px var(--accent)) saturate(1.4) brightness(1.02);
 }
 

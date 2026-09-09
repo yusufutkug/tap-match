@@ -197,7 +197,7 @@
     return c;
   }
 
-  function drawCurve(lv, waistPosTarget) {
+  function drawCurve(lv, waistPosTarget, bot) {
     const W = 320, H = 96, pad = 6;
     const c = makeCanvas(W, H);
     const ctx = c.getContext("2d");
@@ -218,6 +218,22 @@
     ctx.beginPath();
     effort.forEach((v, i) => (i ? ctx.lineTo(X(i, L), Y(v / ePk)) : ctx.moveTo(X(0, L), Y(v / ePk))));
     ctx.stroke();
+
+    // bot eforu (min-efor açgözlü bot, js/flow.js effortCurve; kendi
+    // zirvesine normalize, mor) + eşik çizgisi (EFFORT_HI_THR — zorluk
+    // sinyali eğrinin bu çizgi üstünde geçirdiği paydır)
+    if (bot) {
+      const bL = bot.effort.length, bPk = bot.effortMax;
+      ctx.strokeStyle = "#8b5cf6"; ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      bot.effort.forEach((v, i) => (i ? ctx.lineTo(X(i, bL), Y(v / bPk)) : ctx.moveTo(X(0, bL), Y(v / bPk))));
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(139,92,246,0.45)"; ctx.lineWidth = 1; ctx.setLineDash([2, 3]);
+      ctx.beginPath();
+      ctx.moveTo(X(0, 2), Y(EFFORT_HI_THR / bPk));
+      ctx.lineTo(X(1, 2), Y(EFFORT_HI_THR / bPk));
+      ctx.stroke(); ctx.setLineDash([]);
+    }
 
     // açık-oran eğrisi (dolgu + çizgi)
     ctx.beginPath();
@@ -293,6 +309,8 @@
       return div;
     }
     const scanPk = (1 / Math.max(1e-9, lv.curve.waist)).toFixed(1);
+    // min-efor bot profili: zorluk sinyali ort + eşik-üstü pay (maks doyar)
+    const bot = effortCurve(lv.pairs, lv.rows, lv.cols);
     const info = document.createElement("div");
     info.className = "cand-info";
     info.innerHTML =
@@ -311,6 +329,11 @@
       " · efor zirvesi <b>" + fmt(lv.curve.effortPeak, 0) + " hücre</b>" +
       " · tarama <b>" + scanPk + " çift</b>" +
       " · son açıklık <b>" + fmt(lv.endOpen) + "</b>" +
+      (bot
+        ? "<br>bot ort <b>" + fmt(bot.effortMean) + "</b>" +
+          " · eşik+ <b>%" + Math.round(bot.effortHiShare * 100) + "</b>" +
+          " · maks <b>" + fmt(bot.effortMax) + "</b> <small>@" + fmt(bot.effortMaxPos) + "</small>"
+        : "") +
       // yerellik satırı (yalnız tam dolu — loc yerel-oyuncu simülasyonu):
       // sıçrama = akış hissi (küçük iyi), düğüm = planlı arama anları,
       // öğütme = art arda zorunlu-uzak (0-1 iyi), bölünme = parçalanma anı
@@ -356,7 +379,7 @@
     };
     const curveWrap = document.createElement("div");
     curveWrap.className = "curve-wrap";
-    curveWrap.appendChild(drawCurve(lv, opts.waistPosTarget));
+    curveWrap.appendChild(drawCurve(lv, opts.waistPosTarget, bot));
     curveWrap.appendChild(caption("eğri: açık/kalan (t=0→1)"));
 
     const prevWrap = document.createElement("div");

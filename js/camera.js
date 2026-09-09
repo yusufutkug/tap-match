@@ -58,13 +58,19 @@ function createCamera(viewport, content) {
 
   function setContentSize(w, h) { bw = w; bh = h; }
 
+  // İçerik (board) kenarlarından dışarı taşan süs katmanı payı (content px):
+  // style.css .board::after çerçevesi board'dan 12px taşar — fit bu payı da
+  // sığdırır ki çerçeve viewport'ta kırpılmasın. Çerçeve simetrik olduğu
+  // için ortalama/clamp yine çıplak board boyutundan hesaplanır.
+  const DECOR = 16;
+
   // Boardu sığdır ve ortala; açılış ölçeği = fit, ama fit'in biraz altına
   // (ZOOM_OUT) da uzaklaşılabilir — board ekranda küçülüp nefes alanı kazanır
   function fit() {
     stopInertia();
     const r = rect();
     const pad = 14;
-    fitS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
+    fitS = Math.min((r.width - pad) / (bw + DECOR * 2), (r.height - pad) / (bh + DECOR * 2));
     minS = fitS * ZOOM_OUT;
     maxS = fitS * ZOOM_RANGE;
     scale = fitS;
@@ -79,7 +85,7 @@ function createCamera(viewport, content) {
     const ratio = fitS > 0 ? scale / fitS : 1;
     const r = rect();
     const pad = 14;
-    fitS = Math.min((r.width - pad) / bw, (r.height - pad) / bh);
+    fitS = Math.min((r.width - pad) / (bw + DECOR * 2), (r.height - pad) / (bh + DECOR * 2));
     minS = fitS * ZOOM_OUT;
     maxS = fitS * ZOOM_RANGE;
     scale = Math.min(maxS, Math.max(minS, fitS * ratio));

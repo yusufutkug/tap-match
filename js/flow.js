@@ -419,9 +419,145 @@ function localityStats(pairs, rows, cols) {
   };
 }
 
+// ── Efor botu: min-efor açgözlü oyuncu (level zorluk profili) ──
+//
+// pairsCurve'ün eforu alan oranıdır ve FIFO (üretim) sırasını ölçer;
+// localityStats yalnız mesafeye bakar. Buradaki bot hamle-başına bir EFOR
+// fonksiyonu kurar ve her adımda EN UCUZ hamleyi oynar. Monotonluk sayesinde
+// açgözlü bot asla kilitlenmez (çözülebilir level her sırayla biter) → eğri
+// hep tamamlanır ve zirvesi "oyuncunun kaçınamayacağı en pahalı an"ın alt
+// sınırıdır: levelın maks eforu. (Açgözlülük global-optimal sıra değildir;
+// gerçek oyuncu da açgözlü olduğu için bu model kusuru değil özelliğidir.)
+//
+// Hamle = match veren boş hücre. Bileşenler (hepsi ~0..1; ağırlıklar
+// EFFORT_WEIGHTS, kalibrasyon tools/report_effort.js raporuyla):
+//   kind    köşe (L) eşleşmesi 1, koridor 0 — L iki cross'un kesişimini
+//           kurmayı ister, bilişsel yük (README "köşe payı" ile aynı ayrım)
+//   span    çiftin taşları arası Manhattan / (rows+cols) — uzak çift geç görülür
+//   corner  hizasızda çözüm hücresi kıtlığı: iki köşe de açık 0.5, tek köşe 1
+//           (koridorda 0 — kısa koridorun tek hücresi zaten aşikârdır)
+//   dist    son tap'ten hücreye Manhattan / (rows+cols) — yerellik (göz oradaydı)
+// Adım-seviyesi terimler (o an TÜM hamlelere ortak; seçimi değil eğrinin
+// yüksekliğini etkiler — "herhangi bir match'i bulmak ne kadar zor"):
+//   search  1 − match hücre / boş hücre — taranacak alanda iğne oranı
+//   noise   miss / (match+miss) — taş gören ama çift vermeyen "yem" hücreler
+// Combo: hücre 2 çifti birden kırıyorsa çift-başı terimler ortalanır
+// (tek tap iki çift götürür; hız avantajı eğri kısalığında görünür).
+
+var EFFORT_WEIGHTS = {
+  kind: 1.0, span: 1.0, corner: 0.5, dist: 1.0, search: 1.0, noise: 0.5,
+};
+
+// Kalibrasyon bulgusu (tools/report_effort.js, 1500 etiketli level): zirve
+// (effortMax) etiketleri AYIRMAZ — her levelda tavana yakın en az bir an
+// var (sınırsız arama terimi denendi, o da ayırmadı: "1 match hücresi /
+// çok boş alan" anı easy levelda da olur). Ayıran metrikler yükün SÜRESİ:
+//   effortMean    eğri alanı — easy 2.35 < medium 2.53 < hard 2.65 < vh 2.80
+//   effortHiShare efor ≥ EFFORT_HI_THR adımların payı — 0.40/0.49/0.57/0.64
+// Yani zorluk tek zirveden değil, yüksek eforun ne kadar taşındığından gelir.
+var EFFORT_HI_THR = 3.0; // varsayılan ağırlıklara göre "zor adım" eşiği
+
+// Anlık board eforları — efor modelinin TEK ADIMI. Bot (effortCurve) ve
+// oyun içi canlı efor göstergesi (js/game.js) aynı hesabı buradan kullanır.
+// board mevcut durum (mutate edilmez), last = oyuncunun son tap'i ([r,c]
+// ya da null). Dönüş null = match veren hücre yok; aksi halde:
+//   cells[]  { r, c, pairIds, move, effort, parts }
+//            move   = yalnız hamle terimleri (botun seçim anahtarı)
+//            effort = move + adım terimleri (eğriye yazılan değer)
+//            parts  = bileşen dökümü { kind, span, corner, dist, search, noise }
+//   stepTerm o an tüm hamlelere ortak arama+yem yükü
+function boardEfforts(board, pairs, last, weights) {
+  const W = Object.assign({}, EFFORT_WEIGHTS, weights || {});
+  const rows = board.length, cols = board[0].length;
+  const scale = rows + cols; // mesafe normalizasyonu — boyutlar arası karşılaştırılabilir
+  const scan = scanBoard(board);
+  // openOf (çift → hücreler) ters çevrilir: hücre → kırdığı çiftler
+  const cellMap = new Map();
+  for (const [pid, cells] of scan.openOf) {
+    for (const [r, c] of cells) {
+      const k = r * cols + c;
+      if (!cellMap.has(k)) cellMap.set(k, { r, c, pairIds: [] });
+      cellMap.get(k).pairIds.push(pid);
+    }
+  }
+  if (!cellMap.size) return null; // match hücresi yok
+  const searchT = W.search * (1 - scan.matchCells / scan.emptyCells);
+  const noiseT = W.noise * (scan.missCells / Math.max(1, scan.matchCells + scan.missCells));
+  const stepTerm = searchT + noiseT;
+  const cells = [];
+  for (const cell of cellMap.values()) {
+    let kindT = 0, spanT = 0, cornerT = 0;
+    for (const pid of cell.pairIds) {
+      const corner = !isCollinear(pairs[pid]);
+      kindT += W.kind * (corner ? 1 : 0);
+      spanT += (W.span * spanOf(pairs[pid])) / scale;
+      if (corner) cornerT += W.corner / scan.openOf.get(pid).length;
+    }
+    // combo: çift-başı ortalama (tek tap iki çift götürür)
+    kindT /= cell.pairIds.length;
+    spanT /= cell.pairIds.length;
+    cornerT /= cell.pairIds.length;
+    const distT = last
+      ? (W.dist * (Math.abs(cell.r - last[0]) + Math.abs(cell.c - last[1]))) / scale
+      : 0;
+    const move = kindT + spanT + cornerT + distT;
+    cells.push({
+      r: cell.r, c: cell.c, pairIds: cell.pairIds,
+      move, effort: move + stepTerm,
+      parts: { kind: kindT, span: spanT, corner: cornerT, dist: distT, search: searchT, noise: noiseT },
+    });
+  }
+  return { cells, stepTerm };
+}
+
+// Dönüş null = tıkalı (deadlock). Aksi halde:
+//   effort[t]  adım eforu (min hamle + adım terimleri)
+//   moves[t]   { r, c, pairIds } — botun oynadığı hücre
+//   order      kırılan çiftlerin sırası (combo'da ikisi de girer)
+//   effortMax / effortMaxPos / effortMean / effortHiShare — zorluk özetleri
+function effortCurve(pairs, rows, cols, weights) {
+  const n = pairs.length;
+  if (n === 0) return null;
+  const board = boardFromPairs(rows, cols, pairs);
+  const effort = [], moves = [], order = [];
+  let last = null, alive = n;
+  while (alive > 0) {
+    const ef = boardEfforts(board, pairs, last, weights);
+    if (!ef) return null; // tıkalı — yapısal deadlock
+    let pick = null, pickKey = Infinity;
+    for (const cell of ef.cells) {
+      const key = cell.r * cols + cell.c; // eşitlikte satır-major (deterministik)
+      if (!pick || cell.move < pick.move - 1e-9 ||
+          (Math.abs(cell.move - pick.move) <= 1e-9 && key < pickKey)) {
+        pick = cell; pickKey = key;
+      }
+    }
+    effort.push(pick.effort);
+    moves.push({ r: pick.r, c: pick.c, pairIds: pick.pairIds.slice() });
+    for (const pid of pick.pairIds) {
+      const [[r1, c1], [r2, c2]] = pairs[pid];
+      board[r1][c1] = null;
+      board[r2][c2] = null;
+      order.push(pid);
+    }
+    alive -= pick.pairIds.length;
+    last = [pick.r, pick.c];
+  }
+  const L = effort.length;
+  let maxI = 0;
+  for (let i = 1; i < L; i++) if (effort[i] > effort[maxI]) maxI = i;
+  return {
+    effort, moves, order,
+    effortMax: effort[maxI],
+    effortMaxPos: L > 1 ? maxI / (L - 1) : 0,
+    effortMean: effort.reduce((a, b) => a + b, 0) / L,
+    effortHiShare: effort.filter((x) => x >= EFFORT_HI_THR).length / L,
+  };
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     spanOf, isCollinear, pairOptions, analyzeFlow, scanBoard, pairsCurve,
-    localityStats,
+    localityStats, boardEfforts, effortCurve, EFFORT_WEIGHTS, EFFORT_HI_THR,
   };
 }

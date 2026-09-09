@@ -43,6 +43,14 @@ temizlenmesini. `js/flow.js` bunun üstüne iki ölçüm kurar:
   doğru hücreyi bulma maliyeti; effortPeak belde zirve yapmalı) + oynanan
   hamlenin türü (koridor = kolay görülür, köşe = iki cross'un kesişimi,
   bilişsel yük; cornerShare belde köşe payı).
+- `effortCurve` — **min-efor bot**: hamle-başına efor fonksiyonu (köşe/koridor,
+  span, köşe kıtlığı, son tap'e uzaklık + adım-seviyesi arama/yem terimleri)
+  ve her adımda en ucuz hamleyi oynayan açgözlü oyuncu (monotonluk sayesinde
+  asla kilitlenmez). Kalibrasyon bulgusu (1500 etiketli level,
+  `tools/report_effort.js`): zirve DOYAR ve etiketleri ayırmaz — ayıran,
+  yükün süresidir: **effortMean** (eğri alanı; easy→vh 2.35→2.80) ve
+  **effortHiShare** (efor ≥ eşik adım payı; 0.40→0.64). Lab grafiğinde mor
+  eğri + eşik çizgisi olarak görünür.
 
 `js/generator.js` yapı-önce tersten inşa (ttm generateChunkLevel uyarlaması):
 
@@ -132,6 +140,13 @@ beklerse hücrenin 4 yön görüşü çizilir — taşa çarpan ışın koyu nok
 boşa giden silik; gören taşlar noktaya doğru eğilir. Önizleme yeni bilgi
 vermez (taşlar zaten açık), yalnız okumayı hızlandırır; parmak tap eşiğini
 aşarsa (drag/pinch) ya da kalkarsa kapanır.
+
+Playbar'daki **Efor** çipi canlı efor göstergesini açar (tasarım/test aracı):
+match veren her boş hücrede o hamlenin eforu rozet olarak durur (hesap botla
+birebir aynı — `js/flow.js` `boardEfforts`), her tap sonrası son tap konumuna
+ve boardun yeni durumuna göre yeniden hesaplanır. Mor halka botun seçeceği
+en ucuz hamledir; rozetin tooltip'i bileşen dökümünü verir (köşe/span/
+kıtlık/uzaklık/arama/yem), renk kademesi `EFFORT_HI_THR` eşiğine bağlıdır.
 
 Board, Amaze GO'nun kamera modeliyle gezilir (`js/camera.js`): açılışta
 board viewporta sığdırılır (fit = minZoom, AG FullBoardView), pinch/tekerlek
@@ -242,19 +257,20 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | Dosya | Rol |
 |---|---|
 | `js/board.js` | çekirdek: `visibleTilesFrom` (4 yön taraması), `resolveTap` (occupied/blank/miss/match), `availableTapCells`, `isAdjacentCollinear` |
-| `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme) |
+| `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme), `boardEfforts` (anlık hamle eforları — oyun içi gösterge ile botun ortak hesabı), `effortCurve` (min-efor bot: hamle-başına efor modeli + zorluk profili) |
 | `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim |
 | `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar); bitmap kalıplar (`sampleBitmap` çoğunluk örneklemesi) + özel kalıp kaydı (localStorage) |
 | `kalip.html` + `js/kalip.js` | kalıp editörü: formülsüz şekil tasarımı — 24×16 tuvalde boya (simetri kilitleri, PNG içe aktarma, hazır şablonlar), 10 boyutta canlı önizleme (ada/alan/kesme tanıları), test üretimi + oynama, localStorage'a kayıt (lab şekil satırı okur), DEFS kodu dışa aktarma |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
 | `levels/<boyut>/` | kanonik level verisi: her level AYRI json (`001.json`...) + paket künyesi `pack.json` (şema: aşağıda "Level JSON formatı"). Funnel paketleri `levels/6x8/`..., tam dolu şekil paketleri `levels/tam-6x8/`... — üreticiler yazar, elle düzenleme |
 | `levels_gen.js` + `levels_shapes.js` | aynı verinin toplu script-tag sarmalayıcıları (`TM_PACKS`, `TM_SHAPE_PACKS`) — oyun `file://` ile açıldığında fetch çalışmadığı için `index.html` bunları yükler; içerik `levels/` ile birebir (`test_generator.js` doğrular) |
-| `js/game.js` + `index.html` + `style.css` | oyun sayfası: boyut seçimi → level grid → oyun; telefon çerçevesi + HUD (süre, 3 can), noktalı ızgara sunumu (mat + boş hücre noktaları) + basılı-tut görüş önizlemesi, hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı; level grid'de zorluk şeridi |
+| `js/game.js` + `index.html` + `style.css` | oyun sayfası: boyut seçimi → level grid → oyun; telefon çerçevesi + HUD (süre, 3 can), noktalı ızgara sunumu (mat + boş hücre noktaları) + basılı-tut görüş önizlemesi, hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı, canlı efor göstergesi (playbar "Efor" çipi); level grid'de zorluk şeridi |
 | `js/camera.js` | board kamerası: pinch zoom + swipe pan + clamp + atalet, tap/drag ayrımı (AG'nin LeanTouch kamera modelinin web karşılığı) |
 | `lab.html` + `js/lab.js` | level lab: parametreyle üret, eğrileri gör, tek tıkla oyna |
 | `tools/test_board.js` | çekirdek duman testleri + level doğrulama |
 | `tools/test_flow.js` | ölçüm katmanı testleri (dalga, deadlock, eğri) + level raporu |
 | `tools/test_generator.js` | üretici duman testi + konfigürasyon istatistikleri |
+| `tools/report_effort.js` | efor botu kalibrasyon raporu: tüm paketlerde `effortCurve`, diff etiketi × ort efor / eşik-üstü pay tabloları (`--levels <boyut>` tek paketin level dökümü) |
 | `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels/<boyut>/` + `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
 | `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
 | `tools/pack_io.js` | paket yazıcı/okuyucu: üretici çıktısını level başına json dosyalarına + `.js` sarmalayıcıya böler (`writePacks`), testler için geri okur (`readPack`) |

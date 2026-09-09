@@ -4,7 +4,7 @@
 // Çalıştırma: node tools/test_flow.js
 
 const { boardFromPairs } = require("../js/board.js");
-const { pairOptions, analyzeFlow, pairsCurve } = require("../js/flow.js");
+const { pairOptions, analyzeFlow, pairsCurve, effortCurve, boardEfforts } = require("../js/flow.js");
 const { TM_LEVELS } = require("../levels.js");
 
 let nOk = 0, nFail = 0;
@@ -101,6 +101,50 @@ for (const lv of TM_LEVELS) {
   check("level " + lv.id + ": depth <= n", flow.depth <= lv.pairs.length);
 }
 
+// ── effortCurve: min-efor açgözlü bot ──
+
+// İkisi de açıkken bot ucuz hamleyi (kısa koridor) pahalıdan (uzak köşe) önce oynar.
+{
+  const pairs = [[[0, 0], [0, 2]], [[2, 2], [4, 4]]];
+  const ec = effortCurve(pairs, 6, 6);
+  check("bot: koridor köşeden önce", ec !== null && ec.order[0] === 0);
+  check("bot: köşe adımı daha pahalı", ec.effort[1] > ec.effort[0]);
+}
+
+// boardEfforts (canlı gösterge, oyun içi) ile effortCurve aynı hesap:
+// adım-0'da eğrinin ilk değeri = en ucuz hücrenin eforu; parts dökümü tam.
+{
+  const lv = TM_LEVELS[5]; // Kavşak
+  const board = boardFromPairs(lv.rows, lv.cols, lv.pairs);
+  const ef = boardEfforts(board, lv.pairs, null);
+  const ec = effortCurve(lv.pairs, lv.rows, lv.cols);
+  const min = Math.min(...ef.cells.map((c) => c.effort));
+  check("boardEfforts: adım-0 = eğri[0]", Math.abs(min - ec.effort[0]) < 1e-9);
+  check("boardEfforts: parts toplamı = efor", ef.cells.every((c) => {
+    const p = c.parts;
+    return Math.abs(p.kind + p.span + p.corner + p.dist + p.search + p.noise - c.effort) < 1e-9;
+  }));
+}
+
+// Çapraz kilit deadlock → null (pairsCurve ile aynı sözleşme).
+{
+  const pairs = [[[2, 2], [4, 4]], [[2, 4], [4, 2]]];
+  check("bot: deadlock null", effortCurve(pairs, 6, 6) === null);
+}
+
+// Tüm leveller: bot çözer, efor sonlu ve deterministik.
+for (const lv of TM_LEVELS) {
+  const ec = effortCurve(lv.pairs, lv.rows, lv.cols);
+  check("level " + lv.id + ": bot çözer",
+    ec !== null && ec.order.length === lv.pairs.length &&
+    new Set(ec.order).size === lv.pairs.length);
+  check("level " + lv.id + ": bot eforu sonlu",
+    ec.effort.every((x) => Number.isFinite(x) && x >= 0));
+  const ec2 = effortCurve(lv.pairs, lv.rows, lv.cols);
+  check("level " + lv.id + ": bot deterministik",
+    JSON.stringify(ec2.moves) === JSON.stringify(ec.moves));
+}
+
 // Level 4 (Kilit): P0, P1'e bağımlı → depth >= 2 ve P0 dalga >= 1.
 {
   const lv = TM_LEVELS.find((l) => l.id === 4);
@@ -109,10 +153,11 @@ for (const lv of TM_LEVELS) {
 }
 
 // ── Rapor: level başına özet (görsel doğrulama için) ──
-console.log("\nlevel  çift  giriş  depth  dalga        dip   waistPos  effortPeak  köşe%");
+console.log("\nlevel  çift  giriş  depth  dalga        dip   waistPos  effortPeak  köşe%  botMaks  bot@t");
 for (const lv of TM_LEVELS) {
   const flow = analyzeFlow(lv.pairs, lv.rows, lv.cols);
   const cv = pairsCurve(lv.pairs, lv.rows, lv.cols);
+  const ec = effortCurve(lv.pairs, lv.rows, lv.cols);
   console.log(
     String(lv.id).padEnd(7) +
     String(flow.pairs).padEnd(6) +
@@ -122,7 +167,9 @@ for (const lv of TM_LEVELS) {
     cv.dip.toFixed(2).padEnd(6) +
     cv.waistPos.toFixed(2).padEnd(10) +
     cv.effortPeak.toFixed(1).padEnd(12) +
-    (cv.cornerShare * 100).toFixed(0) + "%"
+    ((cv.cornerShare * 100).toFixed(0) + "%").padEnd(7) +
+    ec.effortMax.toFixed(2).padEnd(9) +
+    ec.effortMaxPos.toFixed(2)
   );
 }
 
