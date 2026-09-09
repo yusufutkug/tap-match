@@ -370,7 +370,7 @@ button.primary:hover { filter: brightness(1.06); }
   position: absolute;
   inset: -12px;
   border: 13px solid transparent;
-  border-image: url("assets/board_frame.png") 48 / 13px stretch;
+  border-image: url("assets/board_frame.png") 48 / 15px stretch;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
   pointer-events: none;
 }
@@ -405,6 +405,10 @@ button.primary:hover { filter: brightness(1.06); }
 .cell:hover::before {
   filter: brightness(1.08);
 }
+/* opsiyonel tap noktası assetleri (js/game.js tm_dot — ana ekrandan seçilir);
+   varsayılan d1 = dot.png yukarıdaki kuraldan gelir */
+body.dot-d2 .cell::before { background-image: url("assets/dot2.png"); }
+body.dot-d3 .cell::before { background-image: url("assets/dot3.png"); }
 /* tap anı: soket kısa süreliğine aktifleşir (js/game.js flashCell "active") */
 .cell.active::before {
   transform: translate(-50%, -50%) scale(1.22);
@@ -735,6 +739,17 @@ button.primary:hover { filter: brightness(1.06); }
   font-weight: 700;
 }
 .theme-sample { display: inline-flex; align-items: center; font-size: 15px; line-height: 1; }
+/* tap noktası seçici çipleri: assetin küçük önizlemesi */
+.dot-sample {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+  vertical-align: -2px;
+  background: url("assets/dot.png") center / contain no-repeat;
+}
+.dot-sample-d2 { background-image: url("assets/dot2.png"); }
+.dot-sample-d3 { background-image: url("assets/dot3.png"); }
 .theme-sample .shape { width: 14px; height: 14px; }
 .theme-sample .mj { font-size: 17px; }
 /* koyu çip zemininde koyu mürekkep kaybolur; taş yüzü fildişi kaldığı için

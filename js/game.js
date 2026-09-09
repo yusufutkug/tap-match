@@ -280,6 +280,46 @@
     setSkin(SKINS[(i + 1) % SKINS.length].id);
   });
 
+  // ── Tap noktası görünümü (assets/dot*.png karşılaştırma seçici) ──
+  // Boş hücrelerdeki tap beneği 3 asset arasından seçilir; görünüm tamamen
+  // CSS'te (style.css body.dot-* kuralları), oyun ortasında bile anında
+  // değişir. Seçim localStorage'da kalıcıdır; varsayılan d1 (ilk asset).
+
+  const DOT_KEY = "tm_dot";
+  const DOTS = [
+    { id: "d1", name: "Benek" },
+    { id: "d2", name: "Halka" },
+    { id: "d3", name: "Buton" },
+  ];
+  let dotId = (() => {
+    try {
+      const s = localStorage.getItem(DOT_KEY);
+      if (DOTS.some((d) => d.id === s)) return s;
+    } catch (e) {}
+    return "d1";
+  })();
+  function applyDot() {
+    for (const d of DOTS)
+      document.body.classList.toggle("dot-" + d.id, d.id === dotId);
+  }
+  function setDot(id) {
+    dotId = id;
+    try { localStorage.setItem(DOT_KEY, id); } catch (e) {}
+    applyDot();
+  }
+  function renderDotRow() {
+    const row = $("dotRow");
+    row.innerHTML = "";
+    for (const d of DOTS) {
+      const b = document.createElement("button");
+      b.className = "chip theme-chip" + (d.id === dotId ? " on" : "");
+      b.innerHTML = '<span class="dot-sample dot-sample-' + d.id + '"></span>' + d.name;
+      b.addEventListener("click", () => { setDot(d.id); renderDotRow(); });
+      row.appendChild(b);
+    }
+  }
+  applyDot();
+
   // ── Sticker teması ──
 
   function currentThemeId() {
@@ -376,6 +416,7 @@
     $("favLibMeta").textContent = favN ? favN + " level" : "henüz boş — oyunda ♡ ile ekle";
     renderThemeRow();
     renderSkinRow();
+    renderDotRow();
   }
 
   function showSizes() {
