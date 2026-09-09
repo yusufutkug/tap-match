@@ -409,6 +409,7 @@ button.primary:hover { filter: brightness(1.06); }
    varsayılan d1 = dot.png yukarıdaki kuraldan gelir */
 body.dot-d2 .cell::before { background-image: url("assets/dot2.png"); }
 body.dot-d3 .cell::before { background-image: url("assets/dot3.png"); }
+body.dot-d4 .cell::before { background-image: url("assets/dot4.png"); }
 /* tap anı: soket kısa süreliğine aktifleşir (js/game.js flashCell "active") */
 .cell.active::before {
   transform: translate(-50%, -50%) scale(1.22);
@@ -750,6 +751,7 @@ body.dot-d3 .cell::before { background-image: url("assets/dot3.png"); }
 }
 .dot-sample-d2 { background-image: url("assets/dot2.png"); }
 .dot-sample-d3 { background-image: url("assets/dot3.png"); }
+.dot-sample-d4 { background-image: url("assets/dot4.png"); }
 .theme-sample .shape { width: 14px; height: 14px; }
 .theme-sample .mj { font-size: 17px; }
 /* koyu çip zemininde koyu mürekkep kaybolur; taş yüzü fildişi kaldığı için
