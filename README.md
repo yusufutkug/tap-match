@@ -51,6 +51,41 @@ temizlenmesini. `js/flow.js` bunun üstüne iki ölçüm kurar:
   yükün süresidir: **effortMean** (eğri alanı; easy→vh 2.35→2.80) ve
   **effortHiShare** (efor ≥ eşik adım payı; 0.40→0.64). Lab grafiğinde mor
   eğri + eşik çizgisi olarak görünür.
+- `boardSalience` — **görünürlük (salience) modeli**, karma modelin
+  parametresiz alternatifi: search point (taş ışınının kesişime kadarki
+  hücre-incidence'ları; koridor 2'şer, L'de köşe 2 + bacaklar 1'er — L'nin
+  tarama yolu maliyete yapısal girer) ve match point (çifti kıran hücreler)
+  sayılır; efor = toplam search / hamlenin match'i = beklenen deneme sayısı
+  (sınırsız). Bulgular: ölçek board alanıyla büyür (6×8 ~38 ↔ 12×18 ~205,
+  eşikler level-göreli tutulur), ham haliyle etiket ayrışması karma modelden
+  zayıf; en zor hamleler hep tek-match-noktalı (efor = tüm havuz).
+  `effortCurve(pairs, rows, cols, null, "salience")` ile bot bu modelde koşar.
+- `boardSweep` — **tarama (sweep) modeli**, salience'ın yörüngeli hali: göz
+  son tap'ten (ilkinde board merkezinden) halka halka süpürür (artan
+  Manhattan, eşitlikte satır-major); hücre maliyeti = nitelikli incidence
+  sayısı (salience ile aynı sayım — yem bölge yavaşlatır, görüşsüz hücre
+  bedava). Match hücresinin eforu = varışa dek geçilen search point; bot
+  İLK bulduğunu oynar (satisficing). Yerellik parametresiz geri gelir,
+  ölçek alanla şişmez. Bulgu: klasik funnel'da ayrışma zayıf ama TAM DOLU
+  paketlerde üç modelin en iyisi (örn. tam-12x18 easy→vh 10.1→17.0 monoton)
+  — coğrafya/tarama zorluğunu ölçtüğü için. `effortCurve(..., "sweep")`;
+  `tools/report_hard_moves.js` boyut başına en zor 10 hamleyi, önceki
+  hamlenin boardu + tarama başlangıcıyla `hard_moves.html`'e yazar.
+- **Bot ailesi** (`SEARCH_BOTS`, `botEfforts`) — aynı efor tanımı (geçilen
+  search point), altı arama psikolojisi: **yerel** (sweep; son tap'ten halka),
+  **merkezci** (her adım board merkezinden — yerellik kontrol botu),
+  **okuyucu** (sol üstten satır satır — sistematik taban çizgisi; konum
+  önyargısını açığa çıkarır), **ışın** (en yakın taşın ışınlarını takip eden
+  taş-güdümlü oyuncu), **hafızalı** (süpürdüğünü `MEMORY_DECAY`=6 hamle
+  hatırlar; taş kalkınca yalnız satır/sütunu bayatlar — görüş 4 yönlü
+  olduğundan bu geçersizleme tamdır; öğütmeyi ölçer), **karışım** (önce
+  yerel halka `max(2,(rows+cols)/6)`, sonra satır tarama). Hepsi
+  deterministik, `effortCurve(..., <botId>)` ile koşar. Bulgu
+  (`tools/report_bot_curves.js` özeti): KLASİK paketlerde yalnız okuyucu
+  monoton ayrışır (39.7→48.0 — zorluk sistematik taramada görünür, yerellik
+  maskeler); TAM DOLU paketlerde okuyucu hariç tüm yerel aile monoton
+  (yerel 8.5→12.1, ışın 5.9→8.1) — iki paket türü iki farklı zorluk türü
+  taşıyor.
 
 `js/generator.js` yapı-önce tersten inşa (ttm generateChunkLevel uyarlaması):
 
@@ -141,12 +176,14 @@ boşa giden silik; gören taşlar noktaya doğru eğilir. Önizleme yeni bilgi
 vermez (taşlar zaten açık), yalnız okumayı hızlandırır; parmak tap eşiğini
 aşarsa (drag/pinch) ya da kalkarsa kapanır.
 
-Playbar'daki **Efor** çipi canlı efor göstergesini açar (tasarım/test aracı):
-match veren her boş hücrede o hamlenin eforu rozet olarak durur (hesap botla
-birebir aynı — `js/flow.js` `boardEfforts`), her tap sonrası son tap konumuna
-ve boardun yeni durumuna göre yeniden hesaplanır. Mor halka botun seçeceği
-en ucuz hamledir; rozetin tooltip'i bileşen dökümünü verir (köşe/span/
-kıtlık/uzaklık/arama/yem), renk kademesi `EFFORT_HI_THR` eşiğine bağlıdır.
+Playbar'daki **Efor** çipi canlı efor göstergesini döndürür (tasarım/test
+aracı; kapalı → Karma → Görünürlük → Tarama): match veren her boş hücrede o hamlenin
+eforu rozet olarak durur (hesap botla birebir aynı — `js/flow.js`
+`boardEfforts` / `boardSalience`), her tap sonrası son tap konumuna ve
+boardun yeni durumuna göre yeniden hesaplanır. Mor halka botun seçeceği en
+ucuz hamledir; rozetin tooltip'i hesabın dökümünü verir. Renk kademesi karma
+modelde `EFFORT_HI_THR` eşiğine, salience'ta (ölçek boyuta bağlı olduğundan)
+adımın en ucuz hamlesine görelidir (≥2× sarı, ≥4× kırmızı).
 
 Board, Amaze GO'nun kamera modeliyle gezilir (`js/camera.js`): açılışta
 board viewporta sığdırılır (fit = minZoom, AG FullBoardView), pinch/tekerlek
@@ -242,6 +279,31 @@ düğüm 3) → en zor (giriş 4, dar bel, düğüm 4). Üretimde bant düğüm 
 Etiket şeridi banda göre easy→veryhard. İlerleme/favori anahtarları
 `tam-6x8:id` biçiminde (klasik paketlerle çakışmaz).
 
+**Efor hedefli paketler** (`levels_efor.js`, `tools/gen_effort_levels.js`
+yazar): boyut başına 20 tam dolu level × 10 boyut = 200 level; ana ekranda
+"Efor hedefli" bölümü. Üretim iki katmanlıdır: iç katman (`generateFullLevel`)
+yapısal kaliteyi, dış katman EFOR EĞRİSİNİN ŞEKLİNİ seçer — level başına 60
+aday üretilir, her adayı yerel + ışın botları oynar, eğrilerinin hedef
+şablona RMSE ortalaması aday skorudur (hafızalı + karışım tutarlılık bandı:
+0.35'ten fazla kaçan aday, bant içi aday varken seçilmez — büyük boardlarda
+hiç bant içi aday çıkmayabilir, o zaman en az kaçan son çaredir). Aşama B
+en iyi adayı REHBERLİ MUTASYONLA şablona iter (büyük boardlarda rastgele
+aday havuzu şablonu tutturamıyor): mutasyon = iki çiftin 4 hücresini yeniden
+eşleme (repairing — tam doluluk yapıdan korunur, hizalı+bitişik yasak
+yerleşim ucuz elenir, çözülebilirlik bot koşusunda elenir); %50 olasılıkla
+ilk çift, sweep eğrisinin şablondan en çok saptığı adım çevresinde kırılan
+çiftlerden seçilir (sapmayı yapan bölgeye nişan). Kabul = öncü skor
+iyileşir VE bant kötüleşmez; bütçe board alanıyla ölçeklenir (8×alan,
+150-2000). Kalibrasyon: 12x18'de mutasyon 0.366→0.279 getirdi (432 eval),
+bant dışı level 10→3. Şablonlar `js/flow.js CURVE_TEMPLATES`:
+1-10 **bel** (ortada zirve, sonda rahatlama — tek parça şekil + düğüm/dar
+bel reçetesi), 11-20 **dalga** (iki tepe — kesme hatlı şekil: iki ada = iki
+keşif fazı). Referans: düz çizginin bel şablonuna RMSE'si ≈ 0.45; mutasyon
+sonrası seçilen leveller ~0.13 (6x9) – 0.23 (12x18) bandında, medyan 0.17,
+tutarlılık bandı dışında level yok. `report_bot_curves.js` efor
+paketlerinde hedef şablonu grafiğe kesikli çizgiyle koyar — uyum gözle
+denetlenir.
+
 ## Level Lab
 
 `lab.html` — üreticiyi tarayıcıda kurcalama sayfası: parametre paneli
@@ -257,22 +319,25 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | Dosya | Rol |
 |---|---|
 | `js/board.js` | çekirdek: `visibleTilesFrom` (4 yön taraması), `resolveTap` (occupied/blank/miss/match), `availableTapCells`, `isAdjacentCollinear` |
-| `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme), `boardEfforts` (anlık hamle eforları — oyun içi gösterge ile botun ortak hesabı), `effortCurve` (min-efor bot: hamle-başına efor modeli + zorluk profili) |
+| `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme), `boardEfforts` (anlık hamle eforları — oyun içi gösterge ile botun ortak hesabı), `effortCurve` (min-efor bot: hamle-başına efor modeli + zorluk profili), `CURVE_TEMPLATES`/`shapeScore` (efor eğrisi hedef şablonları + RMSE uyum skoru — efor hedefli üretimin ölçü tarafı) |
 | `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim |
 | `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar); bitmap kalıplar (`sampleBitmap` çoğunluk örneklemesi) + özel kalıp kaydı (localStorage) |
 | `kalip.html` + `js/kalip.js` | kalıp editörü: formülsüz şekil tasarımı — 24×16 tuvalde boya (simetri kilitleri, PNG içe aktarma, hazır şablonlar), 10 boyutta canlı önizleme (ada/alan/kesme tanıları), test üretimi + oynama, localStorage'a kayıt (lab şekil satırı okur), DEFS kodu dışa aktarma |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
 | `levels/<boyut>/` | kanonik level verisi: her level AYRI json (`001.json`...) + paket künyesi `pack.json` (şema: aşağıda "Level JSON formatı"). Funnel paketleri `levels/6x8/`..., tam dolu şekil paketleri `levels/tam-6x8/`... — üreticiler yazar, elle düzenleme |
-| `levels_gen.js` + `levels_shapes.js` | aynı verinin toplu script-tag sarmalayıcıları (`TM_PACKS`, `TM_SHAPE_PACKS`) — oyun `file://` ile açıldığında fetch çalışmadığı için `index.html` bunları yükler; içerik `levels/` ile birebir (`test_generator.js` doğrular) |
+| `levels_gen.js` + `levels_shapes.js` + `levels_efor.js` | aynı verinin toplu script-tag sarmalayıcıları (`TM_PACKS`, `TM_SHAPE_PACKS`, `TM_EFOR_PACKS`) — oyun `file://` ile açıldığında fetch çalışmadığı için `index.html` bunları yükler; içerik `levels/` ile birebir (`test_generator.js` doğrular) |
 | `js/game.js` + `index.html` + `style.css` | oyun sayfası: boyut seçimi → level grid → oyun; telefon çerçevesi + HUD (süre, 3 can), noktalı ızgara sunumu (mat + boş hücre noktaları) + basılı-tut görüş önizlemesi, hücreye tap, uçuş/çarpışma/geri dönme animasyonları, ipucu, combo sayacı, canlı efor göstergesi (playbar "Efor" çipi); level grid'de zorluk şeridi |
 | `js/camera.js` | board kamerası: pinch zoom + swipe pan + clamp + atalet, tap/drag ayrımı (AG'nin LeanTouch kamera modelinin web karşılığı) |
 | `lab.html` + `js/lab.js` | level lab: parametreyle üret, eğrileri gör, tek tıkla oyna |
 | `tools/test_board.js` | çekirdek duman testleri + level doğrulama |
 | `tools/test_flow.js` | ölçüm katmanı testleri (dalga, deadlock, eğri) + level raporu |
 | `tools/test_generator.js` | üretici duman testi + konfigürasyon istatistikleri |
-| `tools/report_effort.js` | efor botu kalibrasyon raporu: tüm paketlerde `effortCurve`, diff etiketi × ort efor / eşik-üstü pay tabloları (`--levels <boyut>` tek paketin level dökümü) |
+| `tools/report_effort.js` | efor botu kalibrasyon raporu: tüm paketlerde `effortCurve`, diff etiketi × ort efor / eşik-üstü pay tabloları (`--salience` / `--sweep` alternatif modeller; `--levels <boyut>` tek paketin level dökümü) |
+| `tools/report_hard_moves.js` | sweep botla (`--salience` ile oran modeli) boyut başına en zor 10 hamle (level başına ≤2), zor hamlenin boardu + önceki hamlenin boardu yan yana → `hard_moves.html` (üretilir, gitignore'da) |
+| `tools/report_bot_curves.js` | bot ailesi grafikleri: paket başına her diff'ten ortadaki level, 6 botun normalize efor eğrisi tek grafikte (`--level 9x12:37` hedefli) → `bot_curves.html` + konsola bot × diff ayrışma özeti |
 | `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels/<boyut>/` + `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
 | `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
+| `tools/gen_effort_levels.js` | efor-hedefli paket üretimi: aday başına yerel+ışın botu oynar, efor eğrisi hedef şablona (bel/dalga) RMSE ile seçilir; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8` ile kuru koşu |
 | `tools/pack_io.js` | paket yazıcı/okuyucu: üretici çıktısını level başına json dosyalarına + `.js` sarmalayıcıya böler (`writePacks`), testler için geri okur (`readPack`) |
 
 ## Çalıştırma
@@ -280,7 +345,7 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 - Oyun: `index.html`'i tarayıcıda aç (build gerekmez, `file://` çalışır).
 - Lab: `lab.html`'i aç — üret, incele, oyna.
 - Test: `node tools/test_board.js` · `node tools/test_flow.js` · `node tools/test_generator.js`
-- Paket yenile: `node tools/gen_levels.js` · `node tools/gen_shape_levels.js` (ikisi de `levels/` altına level başına json + toplu `.js` sarmalayıcı yazar)
+- Paket yenile: `node tools/gen_levels.js` · `node tools/gen_shape_levels.js` · `node tools/gen_effort_levels.js` (hepsi `levels/` altına level başına json + toplu `.js` sarmalayıcı yazar)
 
 ## Level JSON formatı
 

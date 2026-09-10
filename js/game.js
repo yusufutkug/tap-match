@@ -62,7 +62,10 @@
   // şekil silüeti %100 taş, dıştan soyularak biter. Ana ekranda ayrı
   // bölümde listelenir; ilerleme/favori anahtarları "tam-6x8:id" biçiminde.
   const SHAPE_PACKS = (typeof TM_SHAPE_PACKS !== "undefined") ? TM_SHAPE_PACKS : [];
-  const ALL_PACKS = PACKS.concat(SHAPE_PACKS);
+  // Efor hedefli paketler (levels_efor.js): boyut başına 20 tam dolu level;
+  // efor eğrisi hedef şablona (1-10 bel, 11-20 dalga) uydurulmuş.
+  const EFOR_PACKS = (typeof TM_EFOR_PACKS !== "undefined") ? TM_EFOR_PACKS : [];
+  const ALL_PACKS = PACKS.concat(SHAPE_PACKS, EFOR_PACKS);
 
   // Level json'ları küçük tutulur (levels/<size>/NNN.json — README "Level
   // JSON formatı"): level yalnızca id + diff + pairs taşır. rows/cols
@@ -148,29 +151,40 @@
     applyScanBtn();
   });
 
-  // ── Canlı efor göstergesi (efor modelini boardda test etme aracı) ──
-  // Açıkken match veren HER boş hücrede o hamlenin eforu rozet olarak durur
-  // (js/flow.js boardEfforts — botla birebir aynı hesap); her tap sonrası
-  // son tap konumuna (dist terimi) ve boardun yeni durumuna göre yeniden
-  // hesaplanır. Botun seçeceği en ucuz hücre mor halkayla işaretlenir;
-  // rozetin title tooltip'i bileşen dökümünü verir. Renk kademeleri:
-  // yeşil < EFFORT_HI_THR−1 ≤ sarı < EFFORT_HI_THR ≤ kırmızı ("zor adım").
-  // NOT: bot yalnız match hücrelerinden oynar; burada dist, oyuncunun SON
-  // tap'inden ölçülür (miss/blank dahil) — göz/el gerçekte oraya gitti.
+  // ── Canlı efor göstergesi (efor modellerini boardda test etme aracı) ──
+  // Açıkken match veren HER boş hücrede o hamlenin eforu rozet olarak durur;
+  // her tap sonrası boardun yeni durumuna göre yeniden hesaplanır. Çip üç
+  // durum döndürür (js/flow.js'teki iki modelle birebir aynı hesap):
+  //   Karma      boardEfforts — ağırlıklı bileşenler (köşe/span/kıtlık/
+  //              uzaklık/arama/yem); dist oyuncunun SON tap'inden ölçülür
+  //              (miss/blank dahil — göz/el gerçekte oraya gitti).
+  //   Görünürlük boardSalience — parametresiz search/match point modeli;
+  //              efor = beklenen deneme sayısı (sınırsız).
+  //   Tarama     boardSweep — son tap'ten halka halka süpürme; rozet = o
+  //              hücreye VARANA dek geçilen search point (ilk bulunan = bot).
+  // Botun seçeceği en ucuz hücre mor halkayla işaretlenir; rozetin title
+  // tooltip'i hesabın dökümünü verir. Renk kademeleri: karma modelde mutlak
+  // eşik (EFFORT_HI_THR), salience'ta ölçek boyuta bağlı olduğundan adımın
+  // en ucuz hamlesine göreli (≥2× sarı, ≥4× kırmızı).
 
   const EFFORT_KEY = "tm_effort";
-  let effortOn = (() => {
-    try { return localStorage.getItem(EFFORT_KEY) === "1"; } catch (e) { return false; }
+  const EFFORT_MODES = ["Efor", "Efor: Karma", "Efor: Görünürlük", "Efor: Tarama"];
+  let effortMode = (() => {
+    try {
+      const v = parseInt(localStorage.getItem(EFFORT_KEY), 10);
+      return v >= 0 && v < EFFORT_MODES.length ? v : 0;
+    } catch (e) { return 0; }
   })();
   function applyEffortBtn() {
     const b = $("btnEffort");
-    b.classList.toggle("on", effortOn);
-    b.classList.toggle("theme-chip", effortOn);
+    b.textContent = EFFORT_MODES[effortMode];
+    b.classList.toggle("on", effortMode > 0);
+    b.classList.toggle("theme-chip", effortMode > 0);
   }
   applyEffortBtn();
   $("btnEffort").addEventListener("click", () => {
-    effortOn = !effortOn;
-    try { localStorage.setItem(EFFORT_KEY, effortOn ? "1" : "0"); } catch (e) {}
+    effortMode = (effortMode + 1) % EFFORT_MODES.length;
+    try { localStorage.setItem(EFFORT_KEY, String(effortMode)); } catch (e) {}
     applyEffortBtn();
     renderEffort();
   });
@@ -178,23 +192,42 @@
   function renderEffort() {
     if (!game || !game.effortEl) return;
     game.effortEl.innerHTML = "";
-    if (!effortOn || game.over || game.alive.size === 0) return;
-    const ef = boardEfforts(game.board, game.lv.pairs, game.lastTap);
+    if (!effortMode || game.over || game.alive.size === 0) return;
+    const karma = effortMode === 1;
+    const ef = effortMode === 2 ? boardSalience(game.board, game.lv.pairs)
+      : effortMode === 3 ? boardSweep(game.board, game.lv.pairs, game.lastTap)
+      : boardEfforts(game.board, game.lv.pairs, game.lastTap);
     if (!ef) return;
     let best = ef.cells[0];
     for (const cell of ef.cells) if (cell.effort < best.effort) best = cell;
     const f2 = (x) => x.toFixed(2);
     let html = "";
     for (const cell of ef.cells) {
-      const tier = cell.effort >= EFFORT_HI_THR ? "hi"
-        : cell.effort >= EFFORT_HI_THR - 1 ? "mid" : "lo";
-      const p = cell.parts;
+      // renk kademesi: karma modelde mutlak eşik (EFFORT_HI_THR); salience/
+      // tarama ölçeği boyuta bağlı → adımın en ucuzuna göreli (≥2×, ≥4×)
+      const tier = !karma
+        ? (cell.effort >= best.effort * 4 ? "hi" : cell.effort >= best.effort * 2 ? "mid" : "lo")
+        : (cell.effort >= EFFORT_HI_THR ? "hi" : cell.effort >= EFFORT_HI_THR - 1 ? "mid" : "lo");
+      let tip, label;
+      if (effortMode === 3) {
+        label = String(Math.round(cell.effort));
+        tip = "efor " + Math.round(cell.effort) +
+          " = buraya varana dek süpürülen search point (başlangıç: son tap" +
+          (game.lastTap ? "" : " yok — board merkezi") + ")";
+      } else if (effortMode === 2) {
+        label = cell.effort >= 10 ? String(Math.round(cell.effort)) : cell.effort.toFixed(1);
+        tip = "efor " + cell.effort.toFixed(1) + " = " + ef.searchPts +
+          " search point / " + cell.matchPts + " match point (beklenen deneme)";
+      } else {
+        const p = cell.parts;
+        label = cell.effort.toFixed(1);
+        tip = "efor " + f2(cell.effort) +
+          " = köşe " + f2(p.kind) + " + span " + f2(p.span) + " + kıtlık " + f2(p.corner) +
+          " + uzaklık " + f2(p.dist) + " + arama " + f2(p.search) + " + yem " + f2(p.noise);
+      }
       html += '<div class="effort-badge ' + tier + (cell === best ? " best" : "") +
         '" style="left:' + (cell.c + 0.5) * cellW() + "px;top:" + (cell.r + 0.5) * cellH() +
-        'px" title="efor ' + f2(cell.effort) +
-        " = köşe " + f2(p.kind) + " + span " + f2(p.span) + " + kıtlık " + f2(p.corner) +
-        " + uzaklık " + f2(p.dist) + " + arama " + f2(p.search) + " + yem " + f2(p.noise) +
-        '">' + cell.effort.toFixed(1) + "</div>";
+        'px" title="' + tip + '">' + label + "</div>";
     }
     game.effortEl.innerHTML = html;
   }
@@ -413,6 +446,11 @@
     sg.innerHTML = "";
     for (const p of SHAPE_PACKS) sg.appendChild(sizeCard(p, done));
     $("shapeSection").hidden = !SHAPE_PACKS.length;
+    // efor hedefli paketler: ayrı bölüm (paket yoksa başlık gizlenir)
+    const eg = $("eforGrid");
+    eg.innerHTML = "";
+    for (const p of EFOR_PACKS) eg.appendChild(sizeCard(p, done));
+    $("eforSection").hidden = !EFOR_PACKS.length;
     const favN = favSet().size;
     $("favLibMeta").textContent = favN ? favN + " level" : "henüz boş — oyunda ♡ ile ekle";
     renderThemeRow();

@@ -4,7 +4,9 @@
 // Çalıştırma: node tools/test_flow.js
 
 const { boardFromPairs } = require("../js/board.js");
-const { pairOptions, analyzeFlow, pairsCurve, effortCurve, boardEfforts } = require("../js/flow.js");
+const { pairOptions, analyzeFlow, pairsCurve, effortCurve, boardEfforts, boardSalience,
+  boardSweep, botEfforts, SEARCH_BOTS, CURVE_TEMPLATES, templateAt,
+  shapeScore } = require("../js/flow.js");
 const { TM_LEVELS } = require("../levels.js");
 
 let nOk = 0, nFail = 0;
@@ -130,6 +132,144 @@ for (const lv of TM_LEVELS) {
 {
   const pairs = [[[2, 2], [4, 4]], [[2, 4], [4, 2]]];
   check("bot: deadlock null", effortCurve(pairs, 6, 6) === null);
+  check("salience: deadlock null", effortCurve(pairs, 6, 6, null, "salience") === null);
+}
+
+// ── boardSalience: search/match point modeli ──
+
+// Tek hizalı çift (span 4, 6×6): koridor 3 hücre, hepsi match point.
+// Search: iki taşın karşılıklı ışınları koridoru 2'şer sayar = 6; dik
+// ışınlar kesişimsiz (0). Efor = 6/3 = 2 her koridor hücresinde.
+{
+  const pairs = [[[2, 0], [2, 4]]];
+  const board = boardFromPairs(6, 6, pairs);
+  const sal = boardSalience(board, pairs);
+  check("salience: koridor search=6", sal.searchPts === 6);
+  check("salience: koridor 3 match hücresi",
+    sal.cells.length === 3 && sal.cells.every((c) => c.matchPts === 3));
+  check("salience: koridor eforu 2", sal.cells.every((c) => Math.abs(c.effort - 2) < 1e-9));
+}
+
+// Koridor + köşe aynı boardda: koridor hücresi (çok match point) köşe
+// hücresinden (1-2 match point) ucuz — bot koridoru önce oynar.
+{
+  const pairs = [[[0, 0], [0, 4]], [[2, 2], [5, 5]]];
+  const board = boardFromPairs(6, 6, pairs);
+  const sal = boardSalience(board, pairs);
+  const corridor = sal.cells.find((c) => c.r === 0 && c.c === 2);
+  const corner = sal.cells.find((c) => c.pairIds.includes(1));
+  check("salience: koridor < köşe", corridor && corner && corridor.effort < corner.effort);
+  const ec = effortCurve(pairs, 6, 6, null, "salience");
+  check("salience: bot koridoru önce oynar", ec.order[0] === 0);
+}
+
+// Tüm leveller: salience botu da çözer, efor sonlu ve pozitif.
+for (const lv of TM_LEVELS) {
+  const ec = effortCurve(lv.pairs, lv.rows, lv.cols, null, "salience");
+  check("level " + lv.id + ": salience bot çözer",
+    ec !== null && ec.order.length === lv.pairs.length);
+  check("level " + lv.id + ": salience eforu sonlu",
+    ec.effort.every((x) => Number.isFinite(x) && x > 0));
+}
+
+// ── boardSweep: tarama (halka süpürme) modeli ──
+
+// Tek hizalı çift (2,0)-(2,4), 6×6, merkezden tarama: ilk bulunan koridor
+// hücresi (2,2) (d=1, satır-major), eforu kendi 2 incidence'ı; sonraki
+// koridor hücrelerine varış kümülatif büyür. Havuz = 6 (salience ile aynı).
+{
+  const pairs = [[[2, 0], [2, 4]]];
+  const board = boardFromPairs(6, 6, pairs);
+  const sw = boardSweep(board, pairs, null);
+  check("sweep: havuz 6", sw.searchPts === 6);
+  const at = (r, c) => sw.cells.find((x) => x.r === r && x.c === c);
+  check("sweep: ilk bulunan (2,2) efor 2", at(2, 2) && at(2, 2).effort === 2);
+  check("sweep: varış kümülatif artar",
+    at(2, 3).effort === 4 && at(2, 1).effort === 6);
+  // başlangıç sola kayınca ilk bulunan (2,1) olur ve efor 2'ye düşer
+  const sw2 = boardSweep(board, pairs, [2, 0]);
+  const first = sw2.cells.reduce((a, b) => (a.effort <= b.effort ? a : b));
+  check("sweep: başlangıç yerelliği", first.r === 2 && first.c === 1 && first.effort === 2);
+}
+
+// Tüm leveller: sweep botu çözer, efor sonlu, deterministik; deadlock null.
+{
+  const pairs = [[[2, 2], [4, 4]], [[2, 4], [4, 2]]];
+  check("sweep: deadlock null", effortCurve(pairs, 6, 6, null, "sweep") === null);
+}
+for (const lv of TM_LEVELS) {
+  const ec = effortCurve(lv.pairs, lv.rows, lv.cols, null, "sweep");
+  check("level " + lv.id + ": sweep bot çözer",
+    ec !== null && ec.order.length === lv.pairs.length);
+  check("level " + lv.id + ": sweep eforu sonlu",
+    ec.effort.every((x) => Number.isFinite(x) && x >= 0));
+  const ec2 = effortCurve(lv.pairs, lv.rows, lv.cols, null, "sweep");
+  check("level " + lv.id + ": sweep deterministik",
+    JSON.stringify(ec2.moves) === JSON.stringify(ec.moves));
+}
+
+// ── Bot ailesi: sweep/center/raster/ray/memory/mix ──
+
+// Okuyucu bot satır-major ilk match'i oynar (deterministik konum önyargısı).
+{
+  const pairs = [[[0, 1], [0, 3]], [[5, 1], [5, 3]]]; // iki özdeş koridor
+  const ecR = effortCurve(pairs, 6, 6, null, "raster");
+  check("raster: üstteki koridor önce", ecR.moves[0].r === 0);
+}
+
+// Işın takipçisi: tek koridor çiftinde en yakın taşın ışını ilk hücrede
+// match bulur → efor 1 (hücre-süpürücüden farklı en ucuz keşif).
+{
+  const pairs = [[[2, 0], [2, 4]]];
+  const board = boardFromPairs(6, 6, pairs);
+  const ef = botEfforts(board, pairs, "ray", { last: null, step: 0, mem: new Map() });
+  const first = ef.cells.reduce((a, b) => (a.effort <= b.effort ? a : b));
+  check("ray: ilk keşif eforu 1", first.effort === 1);
+}
+
+// Hafızalı bot: aynı gezinti, hatırlanan hücreler bedava → adım eforu
+// hafızasız süpürücüyü aşamaz (yörünge aynı kaldığı sürece).
+{
+  const lv = TM_LEVELS[5]; // Kavşak
+  const sw = effortCurve(lv.pairs, lv.rows, lv.cols, null, "sweep");
+  const me = effortCurve(lv.pairs, lv.rows, lv.cols, null, "memory");
+  const swTot = sw.effort.reduce((a, b) => a + b, 0);
+  const meTot = me.effort.reduce((a, b) => a + b, 0);
+  check("memory: toplam efor ≤ sweep", meTot <= swTot + 1e-9);
+}
+
+// ── Efor eğrisi şekil hedefleri (CURVE_TEMPLATES / shapeScore) ──
+{
+  const tpl = CURVE_TEMPLATES.bel;
+  check("templateAt: uçlar ve zirve",
+    templateAt(tpl, 0) === 0.3 && templateAt(tpl, 0.5) === 1 && templateAt(tpl, 1) === 0.3);
+  check("templateAt: ara değer doğrusal", Math.abs(templateAt(tpl, 0.25) - 0.65) < 1e-9);
+  // şablonun kendisi (keyfi ölçekle) ≈ 0 skor; düz eğri belden uzak
+  const L = 41;
+  const eff = Array.from({ length: L }, (_, i) => 7 * templateAt(tpl, i / (L - 1)));
+  const own = shapeScore(eff, tpl);
+  check("shapeScore: şablonun kendisi ≈ 0", own < 0.05);
+  check("shapeScore: düz eğri belden uzak", shapeScore(Array(L).fill(5), tpl) > own + 0.1);
+  // dalga şablonu kendi şablonuna, bel şablonundan daha yakın
+  const wv = CURVE_TEMPLATES.dalga;
+  const effW = Array.from({ length: L }, (_, i) => 3 * templateAt(wv, i / (L - 1)));
+  check("shapeScore: dalga kendi şablonuna daha yakın",
+    shapeScore(effW, wv) < shapeScore(effW, tpl));
+}
+
+// Tüm botlar tüm öğretici levelleri çözer, sonlu ve deterministik.
+for (const bot of SEARCH_BOTS) {
+  for (const lv of TM_LEVELS) {
+    const ec = effortCurve(lv.pairs, lv.rows, lv.cols, null, bot);
+    check("level " + lv.id + " " + bot + ": çözer",
+      ec !== null && ec.order.length === lv.pairs.length &&
+      new Set(ec.order).size === lv.pairs.length);
+    check("level " + lv.id + " " + bot + ": sonlu",
+      ec.effort.every((x) => Number.isFinite(x) && x >= 0));
+    const ec2 = effortCurve(lv.pairs, lv.rows, lv.cols, null, bot);
+    check("level " + lv.id + " " + bot + ": deterministik",
+      JSON.stringify(ec2.moves) === JSON.stringify(ec.moves));
+  }
 }
 
 // Tüm leveller: bot çözer, efor sonlu ve deterministik.

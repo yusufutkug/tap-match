@@ -378,6 +378,40 @@ for (const cfg of configs) {
   }
 }
 
+// ── Efor hedefli paketler (levels/efor-<boyut>/ + levels_efor.js) ──
+// Şekil uyum kalitesi üretim anında skorla seçilir (gen_effort_levels.js);
+// burada yayınlanan veri sözleşmesi + çözülebilirlik test edilir.
+{
+  const { TM_EFOR_PACKS } = require("../levels_efor.js");
+  const { readPack } = require("./pack_io.js");
+  const LABELS = ["easy", "easy", "easy", "medium", "medium",
+                  "medium", "hard", "hard", "veryhard", "veryhard"];
+  check("efor paketleri var", Array.isArray(TM_EFOR_PACKS) && TM_EFOR_PACKS.length === 10);
+  check("efor sarmalayıcı js == levels/ ağacı",
+    TM_EFOR_PACKS.every((pk) => JSON.stringify(pk) === JSON.stringify(readPack(pk.size))));
+
+  TM_EFOR_PACKS.forEach((pk) => pk.levels.forEach((l) => {
+    l.rows = pk.rows; l.cols = pk.cols;
+  }));
+
+  for (const pk of TM_EFOR_PACKS) {
+    const P = pk.levels, tag = "paket " + pk.size;
+    check(tag + ": 20 level", P.length === 20);
+    check(tag + ": idler 1..20 sıralı", P.every((l, i) => l.id === i + 1));
+    check(tag + ": tam dolu paket bayrağı", pk.full === true);
+    check(tag + ": etiket şeridi (onluk başına 3-3-2-2)",
+      P.every((l, i) => l.diff === LABELS[i % 10]));
+
+    let solvable = true;
+    for (const l of P) {
+      if (analyzeFlow(l.pairs, l.rows, l.cols).deadlocked.length) {
+        solvable = false; console.error("  deadlock: " + pk.size + " #" + l.id);
+      }
+    }
+    check(tag + ": deadlock yok", solvable);
+  }
+}
+
 console.log(nFail === 0
   ? "\nOK — " + nOk + " test geçti"
   : "\n" + nFail + " test KIRIK (" + nOk + " geçti)");

@@ -10,7 +10,9 @@
 // EFFORT_HI_THR yorumu) — tablolar bu ikisini gösterir, maks bilgi satırıdır.
 //
 // Çalıştırma:
-//   node tools/report_effort.js                # tüm paketler
+//   node tools/report_effort.js                # tüm paketler (karma model)
+//   node tools/report_effort.js --salience     # görünürlük modeli (boardSalience)
+//   node tools/report_effort.js --sweep        # tarama modeli (boardSweep)
 //   TM_SIZES=6x8,tam-6x8 node tools/report_effort.js   # seçili paketler
 //   node tools/report_effort.js --levels 9x12  # tek paketin level dökümü
 
@@ -21,9 +23,17 @@ const { effortCurve } = require("../js/flow.js");
 
 const LEVELS_DIR = path.join(__dirname, "..", "levels");
 const DIFFS = ["easy", "medium", "hard", "veryhard"];
+const MODEL = process.argv.includes("--salience") ? "salience"
+  : process.argv.includes("--sweep") ? "sweep" : undefined;
+const HI_LABEL = MODEL
+  ? "2×level medyanı — zirve payı"
+  : "≥ " + require("../js/flow.js").EFFORT_HI_THR;
 
+// efor-hedefli paketler kalibrasyona girmez: etiketleri reçete şeridi,
+// eğrileri şablona uydurulmuş — doğal ayrışma sinyalini kirletir
+// (TM_SIZES=efor-6x8 ile yine hedeflenebilir)
 const allSizes = fs.readdirSync(LEVELS_DIR).filter((d) =>
-  fs.existsSync(path.join(LEVELS_DIR, d, "pack.json")));
+  !d.startsWith("efor-") && fs.existsSync(path.join(LEVELS_DIR, d, "pack.json")));
 const sizes = process.env.TM_SIZES
   ? process.env.TM_SIZES.split(",").map((s) => s.trim()).filter(Boolean)
   : allSizes.sort();
@@ -41,10 +51,10 @@ const li = process.argv.indexOf("--levels");
 if (li !== -1) {
   const size = process.argv[li + 1];
   const pk = readPack(size);
-  console.log(size + " — level başına bot eforu\n");
+  console.log(size + " — level başına bot eforu" + (MODEL ? " (" + MODEL + ")" : "") + "\n");
   console.log("id   diff      çift  adım  ort    eşik+  maks   @t");
   for (const lv of pk.levels) {
-    const ec = effortCurve(lv.pairs, pk.rows, pk.cols);
+    const ec = effortCurve(lv.pairs, pk.rows, pk.cols, null, MODEL);
     console.log(
       String(lv.id).padEnd(5) +
       String(lv.diff).padEnd(10) +
@@ -78,7 +88,7 @@ for (const size of sizes) {
   const byDiff = newBins();
   for (const lv of pk.levels) {
     levelsN++;
-    const ec = effortCurve(lv.pairs, pk.rows, pk.cols);
+    const ec = effortCurve(lv.pairs, pk.rows, pk.cols, null, MODEL);
     if (!ec) { stuckN++; console.error("TIKALI: " + size + " #" + lv.id); continue; }
     if (!DIFFS.includes(lv.diff)) continue; // bilinmeyen etiket (olmamalı)
     for (const m of METRICS) {
@@ -111,9 +121,13 @@ function table(title, key) {
     monotone(global[key]) + "\n");
 }
 
+if (MODEL) {
+  console.log("MODEL: " + (MODEL === "sweep"
+    ? "sweep (tarama — ilk match'e kadar süpürülen search point)"
+    : "salience (görünürlük — search/match point oranı)") + "\n");
+}
 table("ORT EFOR (eğri alanı) × diff — hücreler ort±sd; zorluk sinyali", "mean");
-table("EŞİK-ÜSTÜ ADIM PAYI (efor ≥ " + require("../js/flow.js").EFFORT_HI_THR +
-  ") × diff — yükün taşınma süresi", "hi");
+table("EŞİK-ÜSTÜ ADIM PAYI (efor " + HI_LABEL + ") × diff — yükün taşınma süresi", "hi");
 console.log(
   "maks efor (bilgi; doyar, ayırmaz): " +
   DIFFS.map((d) => d + " " + fmt(stats(global.max[d]))).join(" · "));

@@ -510,54 +510,430 @@ function boardEfforts(board, pairs, last, weights) {
   return { cells, stepTerm };
 }
 
+// ── Salience (görünürlük) efor modeli — parametresiz alternatif ──
+//
+// Karma modelin (boardEfforts) ağırlıkları elle seçilidir; bu model eforu
+// tamamen board geometrisinden türetir. Tanımlar:
+//   kesişim      ≥2 taş gören boş hücre (iki taşın ışını burada buluşur;
+//                tap'lenirse taşlar gelir çarpışır — match ya da miss).
+//   search point taş-ışını incidence'ı: bir taşın ışını üstündeki hücre,
+//                ışın ilerisinde (ya da o hücrede) bir kesişim varsa sayılır
+//                — "kesişime kadar olan kısım". Koridorda her hücre iki taşı
+//                birden görür → tüm koridor 2'şer sayılır; L'de köşe hücresi
+//                2, bacak hücreleri 1'er sayılır (çokluk = hücreyi kesen taş).
+//                L-yapısının tarama yolu böylece maliyete yapısal girer.
+//   match point  çifti gerçekten kıran hücreler (openOf).
+//   efor(hamle)  toplam search point / hamlenin match point sayısı
+//                = rastgele tarayan oyuncunun beklenen deneme sayısı (≥ ~2,
+//                SINIRSIZ — karma modelin doygunluk problemi yok).
+// Combo hücresinde match point'ler kırılan çiftlerin hücre birleşimidir.
+//
+// Karma modelden ayrıştığı bilinçli nokta: uzun açık koridor burada UCUZdur
+// (çok match point = nereye bassan tutar), karma modelde span cezalıdır
+// (uzak çift geç fark edilir) — hangisi oyuncu gerçeği, canlı göstergeyle
+// test edilir. dist (yerellik) terimi bu modelde yoktur.
+//
+// Kalibrasyon bulgusu (report_effort --salience): efor ölçeği board ALANIYLA
+// büyür (6×8 ort ~38, 12×18 ort ~205 — havuz alanla ölçeklenir); bu yüzden
+// boyutlar-arası sabit eşik anlamsızdır, hiShare level'ın KENDİ medyanına
+// göre hesaplanır (≥ 2×medyan = zirve adımı). Ham haliyle etiket ayrışması
+// karma modelden zayıftır (ort efor boyut içinde çoğu pakette monoton değil).
+
+// Dönüş null = match hücresi yok. cells[]: { r, c, pairIds, matchPts, effort }
+function boardSalience(board, pairs) {
+  const rows = board.length, cols = board[0].length;
+  const scan = scanBoard(board);
+  if (!scan.openOf.size) return null;
+  // boş hücre başına gören taş sayısı (≥2 = kesişim)
+  const seenN = Array.from({ length: rows }, () => Array(cols).fill(0));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] === null) seenN[r][c] = visibleTilesFrom(board, r, c).length;
+    }
+  }
+  // search point havuzu: her taş 4 yönde ışınını yürür; ışındaki SON kesişim
+  // hücresine kadarki hücre sayısı eklenir (kesişimsiz ışın 0 katar).
+  let searchPts = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] === null) continue;
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        let rr = r + dr, cc = c + dc, i = 0, last = 0;
+        while (rr >= 0 && rr < rows && cc >= 0 && cc < cols && board[rr][cc] === null) {
+          i++;
+          if (seenN[rr][cc] >= 2) last = i;
+          rr += dr; cc += dc;
+        }
+        searchPts += last;
+      }
+    }
+  }
+  // hücre eforları (cellMap inversiyonu boardEfforts ile aynı)
+  const cellMap = new Map();
+  for (const [pid, cells] of scan.openOf) {
+    for (const [r, c] of cells) {
+      const k = r * cols + c;
+      if (!cellMap.has(k)) cellMap.set(k, { r, c, pairIds: [] });
+      cellMap.get(k).pairIds.push(pid);
+    }
+  }
+  const cells = [];
+  for (const cell of cellMap.values()) {
+    const u = new Set(); // hamlenin match noktaları: çift(ler)i kıran hücreler
+    for (const pid of cell.pairIds) {
+      for (const [r, c] of scan.openOf.get(pid)) u.add(r * cols + c);
+    }
+    cells.push({
+      r: cell.r, c: cell.c, pairIds: cell.pairIds,
+      matchPts: u.size, effort: searchPts / u.size,
+    });
+  }
+  return { cells, searchPts };
+}
+
+// ── Tarama (sweep) efor modeli — salience'ın yörüngeli hali ──
+//
+// Oran modeli (boardSalience) rastgele taramanın BEKLENEN deneme sayısıydı;
+// burada tarama süreci simüle edilir: göz son tap'ten (ilk adımda board
+// merkezinden) halka halka dışa süpürür (artan Manhattan; eş mesafede
+// satır-major), geçtiği search point'leri sayar. Hücrenin maliyeti =
+// üstündeki nitelikli incidence sayısı (boardSalience ile AYNI sayım:
+// taş-ışını, o hücrede ya da ilerisinde kesişim varsa sayılır) — yem yoğun
+// bölge süpürmeyi yavaşlatır, görüşsüz boş hücre bedava geçilir.
+//
+// Her match hücresinin eforu = ona VARIŞ anındaki kümülatif sayaç. Bot ilk
+// bulduğunu oynar (= min efor; satisficing — gerçek oyuncu tüm hamleleri
+// sıralamaz, ilk gördüğünü oynar). Salience'ın iki eksiği böyle kapanır:
+// yerellik parametresiz geri gelir (efor yerel havuzdan, uzaklık ancak
+// gerçekten gerekince maliyete girer) ve ölçek board alanıyla şişmez.
+
+// Ortak hazırlık: seenN (hücre başına gören taş), inc (hücre başına
+// NİTELİKLİ incidence: taş-ışını, ışındaki son kesişime kadar +1),
+// cellMap (match hücresi → pairIds), searchPts (tüm havuz).
+// Dönüş null = match hücresi yok.
+function scanPrep(board) {
+  const rows = board.length, cols = board[0].length;
+  const scan = scanBoard(board);
+  if (!scan.openOf.size) return null;
+  const seenN = Array.from({ length: rows }, () => Array(cols).fill(0));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] === null) seenN[r][c] = visibleTilesFrom(board, r, c).length;
+    }
+  }
+  const inc = Array.from({ length: rows }, () => Array(cols).fill(0));
+  let searchPts = 0;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] === null) continue;
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        const ray = [];
+        let rr = r + dr, cc = c + dc, last = -1;
+        while (rr >= 0 && rr < rows && cc >= 0 && cc < cols && board[rr][cc] === null) {
+          ray.push([rr, cc]);
+          if (seenN[rr][cc] >= 2) last = ray.length - 1;
+          rr += dr; cc += dc;
+        }
+        for (let i = 0; i <= last; i++) inc[ray[i][0]][ray[i][1]]++;
+        searchPts += last + 1;
+      }
+    }
+  }
+  const cellMap = new Map();
+  for (const [pid, cells] of scan.openOf) {
+    for (const [r, c] of cells) {
+      const k = r * cols + c;
+      if (!cellMap.has(k)) cellMap.set(k, { r, c, pairIds: [] });
+      cellMap.get(k).pairIds.push(pid);
+    }
+  }
+  return { seenN, inc, cellMap, searchPts };
+}
+
+// Gezinti sıraları (hepsi deterministik):
+// halka süpürme — artan Manhattan (start yoksa board merkezi), eşitlikte
+// satır-major.
+function sweepOrder(board, start) {
+  const rows = board.length, cols = board[0].length;
+  const sr = start ? start[0] : (rows - 1) / 2;
+  const sc = start ? start[1] : (cols - 1) / 2;
+  const order = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] === null) order.push({ r, c, d: Math.abs(r - sr) + Math.abs(c - sc) });
+    }
+  }
+  order.sort((a, b) => a.d - b.d || (a.r * cols + a.c) - (b.r * cols + b.c));
+  return order;
+}
+// düz satır-major (okuyucu bot)
+function rasterOrder(board) {
+  const order = [];
+  for (let r = 0; r < board.length; r++) {
+    for (let c = 0; c < board[0].length; c++) {
+      if (board[r][c] === null) order.push({ r, c });
+    }
+  }
+  return order;
+}
+
+// Gezinti sırasına kümülatif maliyet uygula; match hücrelerinin eforu =
+// varış anındaki sayaç (vi = gezinti indeksi — hafıza güncellemesi için).
+function traverseCells(order, prep, cols, costFn) {
+  let cum = 0, vi = 0;
+  const cells = [], visited = [];
+  for (const cell of order) {
+    cum += costFn(cell.r, cell.c);
+    visited.push(cell.r * cols + cell.c);
+    const mc = prep.cellMap.get(cell.r * cols + cell.c);
+    if (mc) cells.push({ r: mc.r, c: mc.c, pairIds: mc.pairIds, effort: cum, vi });
+    vi++;
+  }
+  return { cells, visited };
+}
+
+// Dönüş null = match hücresi yok. cells[]: { r, c, pairIds, effort }
+// (efor = varışa dek süpürülen search point; hücrenin kendi incidence'ları
+// dahil). searchPts = tüm boardın havuzu (bilgi). Oyun içi gösterge ve
+// "sweep" botunun ortak hesabı.
+function boardSweep(board, pairs, start) {
+  const prep = scanPrep(board);
+  if (!prep) return null;
+  const cols = board[0].length;
+  const t = traverseCells(sweepOrder(board, start), prep, cols, (r, c) => prep.inc[r][c]);
+  return { cells: t.cells, visited: t.visited, searchPts: prep.searchPts };
+}
+
+// ── Bot ailesi — aynı efor tanımı (geçilen search point), farklı arama ──
+// psikolojileri. Hepsi deterministik ve parametresiz (memory/mix'in sabitleri
+// aşağıda). effortCurve(pairs, rows, cols, null, <botId>) ile koşarlar.
+//
+//   sweep   yerel süpürücü: son tap'ten halka halka (akış oyuncusu; referans)
+//   center  merkezci: HER adım board merkezinden halka (zoom-fit oyuncusu;
+//           yerellik hipotezinin kontrol botu)
+//   raster  okuyucu: her adım sol üstten satır satır (sistematik taban
+//           çizgisi; efor haritası levelin konum önyargısını açığa çıkarır)
+//   ray     ışın takipçisi: son tap'e en yakın TAŞtan başlar, taşın 4 ışınını
+//           yürütür ("bu taşın eşi nerede?"), eş yoksa sıradaki taşa geçer —
+//           hücre değil taş tarayan oyuncu (basılı-tut önizleme dili)
+//   memory  hafızalı süpürücü: sweep gibi gezer ama süpürüp "match değil"
+//           dediği hücreyi MEMORY_DECAY hamle boyunca yeniden saymaz; taş
+//           kalkınca yalnız o taşın satır/sütunu geçersizleşir (görüş 4 yönlü
+//           olduğundan bu kural TAM — uzman oyuncu; öğütmeyi doğru ölçer)
+//   mix     karışım: MIX yarıçapına dek yerel halka, bulamazsa kalan
+//           hücreleri satır-major tarar ("önce elimin altı, sonra sistematik")
+
+var SEARCH_BOTS = ["sweep", "center", "raster", "ray", "memory", "mix"];
+var MEMORY_DECAY = 6; // hafıza ömrü (hamle) — çürüme: eski bilgi güvenilmez
+var MIX_RADIUS_DIV = 6; // karışım yerel yarıçapı: max(2, (rows+cols)/6)
+
+// Işın takipçisi: taşlar son tap'e mesafe sırasında (eşitlikte satır-major);
+// her taşın 4 ışını DIRS sırasında yürünür, nitelikli prefix (son kesişime
+// kadar) hücre başına 1 sayar. Match hücresine İLK varışta efor kaydedilir
+// (match hücresi kesişim olduğundan her match hücresine mutlaka varılır).
+function rayEfforts(board, prep, last) {
+  const rows = board.length, cols = board[0].length;
+  const sr = last ? last[0] : (rows - 1) / 2;
+  const sc = last ? last[1] : (cols - 1) / 2;
+  const tiles = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] !== null) tiles.push({ r, c, d: Math.abs(r - sr) + Math.abs(c - sc) });
+    }
+  }
+  tiles.sort((a, b) => a.d - b.d || (a.r * cols + a.c) - (b.r * cols + b.c));
+  let cum = 0;
+  const seen = new Set(), cells = [];
+  for (const t of tiles) {
+    for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+      const ray = [];
+      let rr = t.r + dr, cc = t.c + dc, lastInt = -1;
+      while (rr >= 0 && rr < rows && cc >= 0 && cc < cols && board[rr][cc] === null) {
+        ray.push([rr, cc]);
+        if (prep.seenN[rr][cc] >= 2) lastInt = ray.length - 1;
+        rr += dr; cc += dc;
+      }
+      for (let i = 0; i <= lastInt; i++) {
+        cum++;
+        const k = ray[i][0] * cols + ray[i][1];
+        const mc = prep.cellMap.get(k);
+        if (mc && !seen.has(k)) {
+          seen.add(k);
+          cells.push({ r: mc.r, c: mc.c, pairIds: mc.pairIds, effort: cum });
+        }
+      }
+    }
+  }
+  return { cells, searchPts: prep.searchPts };
+}
+
+// Tek adım: botun gözüyle tüm match hücrelerinin keşif eforları.
+// state = { last, step, mem } (effortCurve taşır; canlı gösterge de
+// kullanabilir). Dönüş null = match hücresi yok.
+function botEfforts(board, pairs, botId, state) {
+  const rows = board.length, cols = board[0].length;
+  const prep = scanPrep(board);
+  if (!prep) return null;
+  const last = state ? state.last : null;
+  if (botId === "ray") return rayEfforts(board, prep, last);
+  let order;
+  if (botId === "raster") {
+    order = rasterOrder(board);
+  } else if (botId === "center") {
+    order = sweepOrder(board, null);
+  } else if (botId === "mix") {
+    // yerel halka (d ≤ R) + kalanlar satır-major
+    const R = Math.max(2, Math.round((rows + cols) / MIX_RADIUS_DIV));
+    const near = sweepOrder(board, last).filter((c) => c.d <= R);
+    const nearSet = new Set(near.map((c) => c.r * cols + c.c));
+    order = near.concat(rasterOrder(board).filter((c) => !nearSet.has(c.r * cols + c.c)));
+  } else {
+    order = sweepOrder(board, last); // sweep, memory
+  }
+  let costFn = (r, c) => prep.inc[r][c];
+  if (botId === "memory" && state && state.mem) {
+    costFn = (r, c) => {
+      const s = state.mem.get(r * cols + c);
+      return s !== undefined && state.step - s <= MEMORY_DECAY ? 0 : prep.inc[r][c];
+    };
+  }
+  const t = traverseCells(order, prep, cols, costFn);
+  return { cells: t.cells, visited: t.visited, searchPts: prep.searchPts };
+}
+
 // Dönüş null = tıkalı (deadlock). Aksi halde:
 //   effort[t]  adım eforu (min hamle + adım terimleri)
 //   moves[t]   { r, c, pairIds } — botun oynadığı hücre
 //   order      kırılan çiftlerin sırası (combo'da ikisi de girer)
 //   effortMax / effortMaxPos / effortMean / effortHiShare — zorluk özetleri
-function effortCurve(pairs, rows, cols, weights) {
+// model: "salience" → boardSalience; SEARCH_BOTS üyesi → botEfforts (weights
+// yok sayılır; hiShare eşiği 2×level medyanı — ölçekleri mutlak eşik taşımaz).
+function effortCurve(pairs, rows, cols, weights, model) {
   const n = pairs.length;
   if (n === 0) return null;
   const board = boardFromPairs(rows, cols, pairs);
+  const isBot = SEARCH_BOTS.indexOf(model) !== -1;
+  const state = { last: null, step: 0, mem: new Map() };
   const effort = [], moves = [], order = [];
-  let last = null, alive = n;
+  let alive = n;
   while (alive > 0) {
-    const ef = boardEfforts(board, pairs, last, weights);
+    const ef = model === "salience" ? boardSalience(board, pairs)
+      : isBot ? botEfforts(board, pairs, model, state)
+      : boardEfforts(board, pairs, state.last, weights);
     if (!ef) return null; // tıkalı — yapısal deadlock
+    // seçim anahtarı: karma modelde hamle terimleri (adım terimleri ortak);
+    // salience'ta efor (payda ortak → maks match point); botlarda efor
+    // (min = gezintide İLK bulunan — satisficing oyuncu)
+    const keyOf = (cell) => (model ? cell.effort : cell.move);
     let pick = null, pickKey = Infinity;
     for (const cell of ef.cells) {
       const key = cell.r * cols + cell.c; // eşitlikte satır-major (deterministik)
-      if (!pick || cell.move < pick.move - 1e-9 ||
-          (Math.abs(cell.move - pick.move) <= 1e-9 && key < pickKey)) {
+      if (!pick || keyOf(cell) < keyOf(pick) - 1e-9 ||
+          (Math.abs(keyOf(cell) - keyOf(pick)) <= 1e-9 && key < pickKey)) {
         pick = cell; pickKey = key;
       }
     }
     effort.push(pick.effort);
     moves.push({ r: pick.r, c: pick.c, pairIds: pick.pairIds.slice() });
+    // hafıza: oyuncu pick'e KADAR süpürdüklerini öğrendi (sonrasını görmedi)
+    if (model === "memory" && ef.visited && pick.vi !== undefined) {
+      for (let i = 0; i <= pick.vi; i++) state.mem.set(ef.visited[i], state.step);
+    }
     for (const pid of pick.pairIds) {
       const [[r1, c1], [r2, c2]] = pairs[pid];
       board[r1][c1] = null;
       board[r2][c2] = null;
       order.push(pid);
+      // taş kalkınca yalnız satırı/sütunu değişir → o hatlardaki bilgi bayat
+      if (model === "memory") {
+        for (const k of state.mem.keys()) {
+          const kr = Math.floor(k / cols), kc = k % cols;
+          if (kr === r1 || kr === r2 || kc === c1 || kc === c2) state.mem.delete(k);
+        }
+      }
     }
     alive -= pick.pairIds.length;
-    last = [pick.r, pick.c];
+    state.last = [pick.r, pick.c];
+    state.step++;
   }
   const L = effort.length;
   let maxI = 0;
   for (let i = 1; i < L; i++) if (effort[i] > effort[maxI]) maxI = i;
+  let hiThr = EFFORT_HI_THR;
+  if (model) {
+    // salience/sweep ölçeği mutlak eşik taşımaz → level-göreli: 2×medyan
+    const sorted = effort.slice().sort((a, b) => a - b);
+    hiThr = 2 * sorted[Math.floor(L / 2)];
+  }
   return {
     effort, moves, order,
     effortMax: effort[maxI],
     effortMaxPos: L > 1 ? maxI / (L - 1) : 0,
     effortMean: effort.reduce((a, b) => a + b, 0) / L,
-    effortHiShare: effort.filter((x) => x >= EFFORT_HI_THR).length / L,
+    effortHiShare: effort.filter((x) => x >= hiThr).length / L,
   };
+}
+
+// ── Efor eğrisi şekil hedefleri ─────────────────────────────────────────
+// Efor-hedefli level üretiminin (tools/gen_effort_levels.js) ölçü tarafı.
+// Şablon = [t, y] kontrol noktaları (ikisi de 0..1), aralar doğrusal:
+//   bel    ortada zirve, sonda rahatlama — funnel hissinin efor karşılığı
+//   dalga  iki tepe — gerilim-rahatlama ritmi
+var CURVE_TEMPLATES = {
+  bel: [[0, 0.30], [0.50, 1.00], [1, 0.30]],
+  dalga: [[0, 0.25], [0.30, 1.00], [0.50, 0.35], [0.75, 1.00], [1, 0.30]],
+};
+
+// şablonu t'de değerle (kontrol noktaları arası doğrusal interpolasyon)
+function templateAt(tpl, t) {
+  if (t <= tpl[0][0]) return tpl[0][1];
+  for (let i = 1; i < tpl.length; i++) {
+    if (t <= tpl[i][0]) {
+      const f = (t - tpl[i - 1][0]) / (tpl[i][0] - tpl[i - 1][0]);
+      return tpl[i - 1][1] * (1 - f) + tpl[i][1] * f;
+    }
+  }
+  return tpl[tpl.length - 1][1];
+}
+
+// Ham efor eğrisi → şablona uzaklık (RMSE, 0 = tam oturma). Sıra:
+// 3'lük hareketli ortalamayla yumuşat (ham eğri testere gibi — yumuşatmadan
+// şekil uydurmak gürültüyü uydurmak olur), 20 noktalı ortak t eksenine
+// örnekle (bot adım sayıları farklı), kendi maksimumuna normalize et
+// (bot ölçekleri karşılaştırılamaz), şablonla karşılaştır.
+function shapeScore(effort, tpl) {
+  const L = effort.length;
+  if (!L) return Infinity;
+  const sm = effort.map((_, i) => {
+    let s = 0, n = 0;
+    for (let j = i - 1; j <= i + 1; j++) {
+      if (j >= 0 && j < L) { s += effort[j]; n++; }
+    }
+    return s / n;
+  });
+  const G = 20;
+  const ys = [];
+  let mx = 0;
+  for (let k = 0; k < G; k++) {
+    const x = (k / (G - 1)) * (L - 1);
+    const i = Math.floor(x), f = x - i;
+    const v = i + 1 < L ? sm[i] * (1 - f) + sm[i + 1] * f : sm[i];
+    ys.push(v);
+    if (v > mx) mx = v;
+  }
+  let se = 0;
+  for (let k = 0; k < G; k++) {
+    const d = (mx > 0 ? ys[k] / mx : 0) - templateAt(tpl, k / (G - 1));
+    se += d * d;
+  }
+  return Math.sqrt(se / G);
 }
 
 if (typeof module !== "undefined") {
   module.exports = {
     spanOf, isCollinear, pairOptions, analyzeFlow, scanBoard, pairsCurve,
-    localityStats, boardEfforts, effortCurve, EFFORT_WEIGHTS, EFFORT_HI_THR,
+    localityStats, boardEfforts, boardSalience, boardSweep, botEfforts,
+    effortCurve, EFFORT_WEIGHTS, EFFORT_HI_THR, SEARCH_BOTS, MEMORY_DECAY,
+    CURVE_TEMPLATES, templateAt, shapeScore,
   };
 }
