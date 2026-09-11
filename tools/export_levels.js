@@ -1,15 +1,21 @@
 "use strict";
 
-// Efor paketlerini dış motor formatına aktarır:
-//   node tools/export_levels.js → export_levels/<boyut>/<id>_<e|m|h>.json
+// Efor paketlerini dış motor formatına TEK FUNNEL olarak aktarır:
+//   node tools/export_levels.js → export_levels/<n>_<e|m|h>.json (n = 1..100)
+//                                 + export_levels/funnel.csv (sıralı dosya adları)
 //
-// Format (hücre dizisi, index 0 = SOL ALT, satır satır yukarı):
+// Funnel sırası: boyut merdiveni alan artışıyla (6x8 → 7x10 → 8x12 → 9x14 →
+// 10x15), her paketin 20 levelı kendi id sırasında (etiket şeridi paket
+// içinde testere gibi iki kez e→vh tırmanır; boyut büyüdükçe efor ort.
+// 12.2→21.9 yükselir — funnel'ın genel rampası buradan gelir).
+//
+// Dosya formatı (hücre dizisi, index 0 = SOL ALT, satır satır yukarı):
 //   { "width": 6, "height": 8, "cells": [ ... ] }
 //   -1  oyun dışı hücre (bizim boardlarda yok: dikdörtgen boardda her
 //       hücre tap'lenebilir — maske dışı hücreler de dot'tur)
 //    0  dot (boş, tap'lenebilir hücre)
 //   1+  sticker id = çift kimliği (1 tabanlı; her id tam iki hücrede)
-// Dosya adı: <levelId>_<diff harfi>; veryhard → "h" (dış şema e/m/h).
+// Dosya adı: <funnelNo>_<diff harfi>; veryhard → "h" (dış şema e/m/h).
 // İç temsil r=0 üst satır olduğundan dönüşüm: dışIdx = (rows-1-r)*cols + c.
 
 const fs = require("fs");
@@ -20,15 +26,20 @@ const DIFF = { easy: "e", medium: "m", hard: "h", veryhard: "h" };
 const LEVELS_DIR = path.join(__dirname, "..", "levels");
 const OUT = path.join(__dirname, "..", "export_levels");
 
-const sizes = fs.readdirSync(LEVELS_DIR).filter((d) => d.startsWith("efor-")).sort();
-fs.rmSync(OUT, { recursive: true, force: true });
+// alan artışına göre boyut merdiveni
+const sizes = fs.readdirSync(LEVELS_DIR)
+  .filter((d) => d.startsWith("efor-"))
+  .map((d) => ({ d, pk: readPack(d) }))
+  .sort((a, b) => a.pk.rows * a.pk.cols - b.pk.rows * b.pk.cols);
 
-let n = 0;
-for (const size of sizes) {
-  const pk = readPack(size);
-  const dir = path.join(OUT, size);
-  fs.mkdirSync(dir, { recursive: true });
+fs.rmSync(OUT, { recursive: true, force: true });
+fs.mkdirSync(OUT, { recursive: true });
+
+let no = 0;
+const names = [];
+for (const { pk } of sizes) {
   for (const lv of pk.levels) {
+    no++;
     const cells = new Array(pk.rows * pk.cols).fill(0);
     lv.pairs.forEach((pair, pi) => {
       for (const [r, c] of pair) cells[(pk.rows - 1 - r) * pk.cols + c] = pi + 1;
@@ -45,8 +56,11 @@ for (const size of sizes) {
       '  "width": ' + pk.cols + ",\n" +
       '  "height": ' + pk.rows + ",\n" +
       '  "cells": [\n' + rowsTxt.join(",\n") + "\n  ]\n}\n";
-    fs.writeFileSync(path.join(dir, lv.id + "_" + DIFF[lv.diff] + ".json"), json);
-    n++;
+    const name = no + "_" + DIFF[lv.diff];
+    fs.writeFileSync(path.join(OUT, name + ".json"), json);
+    names.push(name);
   }
 }
-console.log("export_levels/ yazıldı: " + sizes.length + " boyut, " + n + " level");
+fs.writeFileSync(path.join(OUT, "funnel.csv"), names.join(",") + "\n");
+console.log("export_levels/ yazıldı: " + no + " level (funnel: " +
+  sizes.map((s) => s.d.replace("efor-", "")).join(" → ") + ") + funnel.csv");
