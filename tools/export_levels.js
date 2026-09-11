@@ -1,13 +1,20 @@
 "use strict";
 
-// Efor paketlerini dış motor formatına TEK FUNNEL olarak aktarır:
+// Efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır:
 //   node tools/export_levels.js → export_levels/<n>_<e|m|h>.json (n = 1..100)
 //                                 + export_levels/funnel.csv (sıralı dosya adları)
 //
-// Funnel sırası: boyut merdiveni alan artışıyla (6x8 → 7x10 → 8x12 → 9x14 →
-// 10x15), her paketin 20 levelı kendi id sırasında (etiket şeridi paket
-// içinde testere gibi iki kez e→vh tırmanır; boyut büyüdükçe efor ort.
-// 12.2→21.9 yükselir — funnel'ın genel rampası buradan gelir).
+// Funnel yolu (boyut DEĞİŞKEN — katı merdiven değil): her levelın gerçek
+// zorluğu yerel botla ölçülür (sweep effortMean; boyutu ve reçeteyi tek
+// sayıda birleştirir), leveller efor yüzdeliğine çevrilir ve testere-dişi
+// bir hedef eğrisine göre dizilir:
+//   taban    slot 1→100 doğrusal tırmanır
+//   testere  onluk içi ofsetler — pos 5 ve 9'da tepe, pos 6'da soluklanma,
+//            pos 10'da büyük nefes (AG funnel deseninin efor karşılığı)
+// Slot hedefine EN YAKIN efor yüzdelikli level seçilir; boyut çeşitliliği
+// efor örtüşmesinden kendiliğinden gelir (zor 6x8 ≈ kolay 8x12), ayrıca
+// anti-seri kuralı: aynı boyut art arda 3 kez gelmez (yakın alternatif
+// varsa 2'de de değişir). Tamamen deterministik.
 //
 // Dosya formatı (hücre dizisi, index 0 = SOL ALT, satır satır yukarı):
 //   { "width": 6, "height": 8, "cells": [ ... ] }
@@ -21,46 +28,87 @@
 const fs = require("fs");
 const path = require("path");
 const { readPack } = require("./pack_io.js");
+const { effortCurve } = require("../js/flow.js");
 
 const DIFF = { easy: "e", medium: "m", hard: "h", veryhard: "h" };
 const LEVELS_DIR = path.join(__dirname, "..", "levels");
 const OUT = path.join(__dirname, "..", "export_levels");
 
-// alan artışına göre boyut merdiveni
-const sizes = fs.readdirSync(LEVELS_DIR)
-  .filter((d) => d.startsWith("efor-"))
-  .map((d) => ({ d, pk: readPack(d) }))
-  .sort((a, b) => a.pk.rows * a.pk.cols - b.pk.rows * b.pk.cols);
+// onluk içi testere ofsetleri (efor yüzdeliği cinsinden)
+const SAW = [-0.10, -0.05, 0.00, 0.04, 0.08, -0.12, -0.04, 0.04, 0.12, -0.16];
 
-fs.rmSync(OUT, { recursive: true, force: true });
-fs.mkdirSync(OUT, { recursive: true });
-
-let no = 0;
-const names = [];
-for (const { pk } of sizes) {
+// ── levelleri topla ve eforlarını ölç ──
+const pool = [];
+for (const d of fs.readdirSync(LEVELS_DIR).filter((x) => x.startsWith("efor-")).sort()) {
+  const pk = readPack(d);
   for (const lv of pk.levels) {
-    no++;
-    const cells = new Array(pk.rows * pk.cols).fill(0);
-    lv.pairs.forEach((pair, pi) => {
-      for (const [r, c] of pair) cells[(pk.rows - 1 - r) * pk.cols + c] = pi + 1;
+    const ec = effortCurve(lv.pairs, pk.rows, pk.cols, null, "sweep");
+    pool.push({
+      size: d.replace("efor-", ""), rows: pk.rows, cols: pk.cols,
+      diff: lv.diff, pairs: lv.pairs, effort: ec.effortMean,
     });
-    // okunur yazım: satır başına bir dizi satırı (ilk satır = boardun ALTI)
-    const w = String(lv.pairs.length).length + 1; // -1 ve genişleme payı
-    const rowsTxt = [];
-    for (let rr = 0; rr < pk.rows; rr++) {
-      const row = cells.slice(rr * pk.cols, (rr + 1) * pk.cols);
-      rowsTxt.push("    " + row.map((v) => String(v).padStart(w)).join(","));
-    }
-    const json =
-      "{\n" +
-      '  "width": ' + pk.cols + ",\n" +
-      '  "height": ' + pk.rows + ",\n" +
-      '  "cells": [\n' + rowsTxt.join(",\n") + "\n  ]\n}\n";
-    const name = no + "_" + DIFF[lv.diff];
-    fs.writeFileSync(path.join(OUT, name + ".json"), json);
-    names.push(name);
   }
 }
+// efor yüzdeliği (eşitlikte havuz sırası — deterministik)
+const order = pool.map((_, i) => i).sort((a, b) => pool[a].effort - pool[b].effort || a - b);
+order.forEach((idx, rank) => { pool[idx].pct = rank / (order.length - 1); });
+
+// ── funnel yolu: slot hedefine en yakın yüzdelik + anti-seri ──
+const used = new Set();
+const seq = [];
+for (let slot = 0; slot < pool.length; slot++) {
+  const target = Math.max(0, Math.min(1,
+    slot / (pool.length - 1) + SAW[slot % 10]));
+  const cands = pool
+    .map((lv, i) => ({ i, d: Math.abs(lv.pct - target) }))
+    .filter((c) => !used.has(c.i))
+    .sort((a, b) => a.d - b.d || a.i - b.i);
+  const prev = seq.length ? pool[seq[seq.length - 1]].size : null;
+  const prev2 = seq.length > 1 ? pool[seq[seq.length - 2]].size : null;
+  let pick = cands[0];
+  // seri 2 olduysa boyutu ZORLA değiştir (geniş tolerans); değilse yakın
+  // alternatif varsa yine değiştir (dar tolerans)
+  const tol = prev === prev2 && prev !== null ? 0.15 : 0.06;
+  if (pool[pick.i].size === prev) {
+    const alt = cands.find((c) => pool[c.i].size !== prev && c.d <= cands[0].d + tol);
+    if (alt) pick = alt;
+  }
+  used.add(pick.i);
+  seq.push(pick.i);
+}
+
+// ── yaz ──
+fs.rmSync(OUT, { recursive: true, force: true });
+fs.mkdirSync(OUT, { recursive: true });
+const names = [];
+seq.forEach((idx, slot) => {
+  const lv = pool[idx];
+  const cells = new Array(lv.rows * lv.cols).fill(0);
+  lv.pairs.forEach((pair, pi) => {
+    for (const [r, c] of pair) cells[(lv.rows - 1 - r) * lv.cols + c] = pi + 1;
+  });
+  // okunur yazım: satır başına bir dizi satırı (ilk satır = boardun ALTI)
+  const w = String(lv.pairs.length).length + 1;
+  const rowsTxt = [];
+  for (let rr = 0; rr < lv.rows; rr++) {
+    const row = cells.slice(rr * lv.cols, (rr + 1) * lv.cols);
+    rowsTxt.push("    " + row.map((v) => String(v).padStart(w)).join(","));
+  }
+  const json =
+    "{\n" +
+    '  "width": ' + lv.cols + ",\n" +
+    '  "height": ' + lv.rows + ",\n" +
+    '  "cells": [\n' + rowsTxt.join(",\n") + "\n  ]\n}\n";
+  const name = (slot + 1) + "_" + DIFF[lv.diff];
+  fs.writeFileSync(path.join(OUT, name + ".json"), json);
+  names.push(name);
+});
 fs.writeFileSync(path.join(OUT, "funnel.csv"), names.join(",") + "\n");
-console.log("export_levels/ yazıldı: " + no + " level (funnel: " +
-  sizes.map((s) => s.d.replace("efor-", "")).join(" → ") + ") + funnel.csv");
+
+// özet: boyut yolu (cols benzersiz kimlik: 6,7,8,9,10) + efor akışı
+console.log("boyut yolu: " + seq.map((i) => pool[i].cols).join("-"));
+const efs = seq.map((i) => pool[i].effort);
+console.log("efor yolu (5'lik ort): " +
+  Array.from({ length: 20 }, (_, k) =>
+    (efs.slice(k * 5, k * 5 + 5).reduce((a, b) => a + b, 0) / 5).toFixed(0)).join(" "));
+console.log("export_levels/ yazıldı: " + seq.length + " level + funnel.csv");
