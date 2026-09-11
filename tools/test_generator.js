@@ -386,7 +386,8 @@ for (const cfg of configs) {
   const { readPack } = require("./pack_io.js");
   const LABELS = ["easy", "easy", "easy", "medium", "medium",
                   "medium", "hard", "hard", "veryhard", "veryhard"];
-  check("efor paketleri var", Array.isArray(TM_EFOR_PACKS) && TM_EFOR_PACKS.length === 10);
+  check("efor paketleri var (5 boyutlu merdiven)",
+    Array.isArray(TM_EFOR_PACKS) && TM_EFOR_PACKS.length === 5);
   check("efor sarmalayıcı js == levels/ ağacı",
     TM_EFOR_PACKS.every((pk) => JSON.stringify(pk) === JSON.stringify(readPack(pk.size))));
 

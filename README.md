@@ -280,13 +280,21 @@ Etiket şeridi banda göre easy→veryhard. İlerleme/favori anahtarları
 `tam-6x8:id` biçiminde (klasik paketlerle çakışmaz).
 
 **Efor hedefli paketler** (`levels_efor.js`, `tools/gen_effort_levels.js`
-yazar): boyut başına 20 tam dolu level × 10 boyut = 200 level; ana ekranda
-"Efor hedefli" bölümü. Üretim iki katmanlıdır: iç katman (`generateFullLevel`)
-yapısal kaliteyi, dış katman EFOR EĞRİSİNİN ŞEKLİNİ seçer — level başına 60
-aday üretilir, her adayı yerel + ışın botları oynar, eğrilerinin hedef
-şablona RMSE ortalaması aday skorudur (hafızalı + karışım tutarlılık bandı:
-0.35'ten fazla kaçan aday, bant içi aday varken seçilmez — büyük boardlarda
-hiç bant içi aday çıkmayabilir, o zaman en az kaçan son çaredir). Aşama B
+yazar): boyut başına 20 tam dolu level × 5 boyutluk merdiven (6x8, 7x10,
+8x12, 9x14, 10x15) = 100 level; ana ekranda "Efor hedefli" bölümü. Üretim
+iki katmanlıdır: iç katman (`generateFullLevel`) yapısal kaliteyi, dış
+katman EFOR EĞRİSİNİN ŞEKLİNİ ve YÜKSEKLİĞİNİ seçer — level başına 60
+aday üretilir, her adayı yerel + ışın botları oynar. Aday hedefi (leader)
+üç parça: (1) eğrilerin hedef şablona RMSE ortalaması; (2) ÖĞÜTME CEZASI —
+art arda uzun mesafe match (kırılan tüm çiftlerin spanı ≥ uzun kenarın
+yarısı) payı × 0.4: oyuncu bulgusu, üst üste uzun matchler akma/düğüm
+hissine hizmet etmiyor (ilk nesil paketlerde bu pay %36-44'tü, cezayla
+~%13'e iner); (3) EFOR TABANI — aday kendi havuzunun efor medyanının altına
+düşemez, mutasyon da leveli ucuzlatamaz ("efor olarak daha üstlere").
+Reçeteler de aynı yöne iter: cornerP/düğüm yüksek (zorluk köşe/kilitten),
+spanBias düşük (uzun koridor üretimden az gelsin). Hafızalı + karışım
+tutarlılık bandı: 0.35'ten fazla kaçan aday, bant içi aday varken
+seçilmez (hiç yoksa en az kaçan son çaredir). Aşama B
 en iyi adayı REHBERLİ MUTASYONLA şablona iter (büyük boardlarda rastgele
 aday havuzu şablonu tutturamıyor): mutasyon = iki çiftin 4 hücresini yeniden
 eşleme (repairing — tam doluluk yapıdan korunur, hizalı+bitişik yasak
@@ -294,12 +302,12 @@ yerleşim ucuz elenir, çözülebilirlik bot koşusunda elenir); %50 olasılıkl
 ilk çift, sweep eğrisinin şablondan en çok saptığı adım çevresinde kırılan
 çiftlerden seçilir (sapmayı yapan bölgeye nişan). Kabul = öncü skor
 iyileşir VE bant kötüleşmez; bütçe board alanıyla ölçeklenir (8×alan,
-150-2000). Kalibrasyon: 12x18'de mutasyon 0.366→0.279 getirdi (432 eval),
-bant dışı level 10→3. Şablonlar `js/flow.js CURVE_TEMPLATES`:
+150-2000). Şablonlar `js/flow.js CURVE_TEMPLATES`:
 1-10 **bel** (ortada zirve, sonda rahatlama — tek parça şekil + düğüm/dar
 bel reçetesi), 11-20 **dalga** (iki tepe — kesme hatlı şekil: iki ada = iki
-keşif fazı). Referans: düz çizginin bel şablonuna RMSE'si ≈ 0.45; mutasyon
-sonrası seçilen leveller ~0.13 (6x9) – 0.23 (12x18) bandında, medyan 0.17,
+keşif fazı). Kalibrasyon (leader = şekil + öğütme cezası; düz çizginin bel
+şablonuna salt-şekil RMSE'si ≈ 0.45): mutasyon A→B ort. 0.33→0.19 (6x8) /
+0.42→0.29 (10x15); efor ort merdiveni 12.2→21.9; öğütme payı %6-14.5;
 tutarlılık bandı dışında level yok. `report_bot_curves.js` efor
 paketlerinde hedef şablonu grafiğe kesikli çizgiyle koyar — uyum gözle
 denetlenir.
