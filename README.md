@@ -362,7 +362,7 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
 | `tools/gen_effort_levels.js` | efor-hedefli paket üretimi: aday başına yerel+ışın botu oynar, efor eğrisi hedef şablona (bel/dalga) RMSE ile seçilir; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8` ile kuru koşu |
 | `tools/pack_io.js` | paket yazıcı/okuyucu: üretici çıktısını level başına json dosyalarına + `.js` sarmalayıcıya böler (`writePacks`), testler için geri okur (`readPack`) |
-| `tools/export_levels.js` | efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır → `export_levels/<n>_<e\|m\|h>.json` (n=1..100) + `funnel.csv`; sıralama ölçülen efora dayalı (sweep effortMean yüzdeliği, testere-dişi hedef eğrisi, boyut DEĞİŞKEN — anti-seri: aynı boyut ≤2 art arda); hücre dizisi index 0 sol alt; -1 oyun dışı / 0 dot / 1+ sticker=çift id; veryhard → h |
+| `tools/export_levels.js` | efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır → `export_levels/<n>_<e\|m\|h>.json` + `funnel.csv`; sıralama ölçülen efora dayalı (sweep effortMean yüzdeliği, testere-dişi hedef eğrisi, boyut DEĞİŞKEN — anti-seri: aynı boyut ≤2 art arda); hücre dizisi index 0 sol alt; -1 oyun dışı / 0 dot / 1+ sticker=çift id; veryhard → h. Funnel 200 level: 1-100 ARŞİV nesli (göz terimi öncesi üretim, dondurulmuş dosyalar), 101-200 güncel paketler — yeniden koşum `--offset 100` ile (1-100'e dokunmaz, funnel.csv'yi klasörün tamamından kurar) |
 
 ## Çalıştırma
 

@@ -3,6 +3,12 @@
 // Efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır:
 //   node tools/export_levels.js → export_levels/<n>_<e|m|h>.json (n = 1..100)
 //                                 + export_levels/funnel.csv (sıralı dosya adları)
+//   --offset K → mevcut paketler K+1'den numaralanır; 1..K dosyaları ARŞİV
+//                sayılır ve dokunulmaz (yalnız K üstü tazelenir), funnel.csv
+//                klasördeki TÜM leveller (arşiv + yeni) numara sırasıyla
+//                yeniden yazılır. Kullanım: funnel'da eski nesil 1-100
+//                dondurulmuşken güncel paketleri 101-200 olarak eklemek —
+//                `node tools/export_levels.js --offset 100`.
 //
 // Funnel yolu (boyut DEĞİŞKEN — katı merdiven değil): her levelın gerçek
 // zorluğu yerel botla ölçülür (sweep effortMean; boyutu ve reçeteyi tek
@@ -31,6 +37,10 @@ const { readPack } = require("./pack_io.js");
 const { effortCurve } = require("../js/flow.js");
 
 const DIFF = { easy: "e", medium: "m", hard: "h", veryhard: "h" };
+const OFFSET = (() => {
+  const a = process.argv.indexOf("--offset");
+  return a >= 0 ? parseInt(process.argv[a + 1], 10) : 0;
+})();
 const LEVELS_DIR = path.join(__dirname, "..", "levels");
 const OUT = path.join(__dirname, "..", "export_levels");
 
@@ -78,8 +88,14 @@ for (let slot = 0; slot < pool.length; slot++) {
 }
 
 // ── yaz ──
-fs.rmSync(OUT, { recursive: true, force: true });
+if (OFFSET === 0) fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
+// offset koşumu: 1..OFFSET arşiv, yalnız OFFSET üstü dosyalar tazelenir
+for (const f of fs.readdirSync(OUT)) {
+  if (/^\d+_[emh]\.json$/.test(f) && parseInt(f, 10) > OFFSET) {
+    fs.unlinkSync(path.join(OUT, f));
+  }
+}
 const names = [];
 seq.forEach((idx, slot) => {
   const lv = pool[idx];
@@ -99,11 +115,16 @@ seq.forEach((idx, slot) => {
     '  "width": ' + lv.cols + ",\n" +
     '  "height": ' + lv.rows + ",\n" +
     '  "cells": [\n' + rowsTxt.join(",\n") + "\n  ]\n}\n";
-  const name = (slot + 1) + "_" + DIFF[lv.diff];
+  const name = (OFFSET + slot + 1) + "_" + DIFF[lv.diff];
   fs.writeFileSync(path.join(OUT, name + ".json"), json);
   names.push(name);
 });
-fs.writeFileSync(path.join(OUT, "funnel.csv"), names.join(",") + "\n");
+// funnel.csv klasördeki TÜM levellerden (arşiv + yeni), numara sırasıyla
+const all = fs.readdirSync(OUT)
+  .filter((f) => /^\d+_[emh]\.json$/.test(f))
+  .map((f) => f.replace(".json", ""))
+  .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+fs.writeFileSync(path.join(OUT, "funnel.csv"), all.join(",") + "\n");
 
 // özet: boyut yolu (cols benzersiz kimlik: 6,7,8,9,10) + efor akışı
 console.log("boyut yolu: " + seq.map((i) => pool[i].cols).join("-"));
@@ -111,4 +132,6 @@ const efs = seq.map((i) => pool[i].effort);
 console.log("efor yolu (5'lik ort): " +
   Array.from({ length: 20 }, (_, k) =>
     (efs.slice(k * 5, k * 5 + 5).reduce((a, b) => a + b, 0) / 5).toFixed(0)).join(" "));
-console.log("export_levels/ yazıldı: " + seq.length + " level + funnel.csv");
+console.log("export_levels/ yazıldı: " + seq.length + " level (" +
+  (OFFSET + 1) + ".." + (OFFSET + seq.length) + ") + funnel.csv (toplam " +
+  all.length + ")");
