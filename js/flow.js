@@ -723,9 +723,21 @@ function boardSweep(board, pairs, start) {
 //   mix     karışım: MIX yarıçapına dek yerel halka, bulamazsa kalan
 //           hücreleri satır-major tarar ("önce elimin altı, sonra sistematik")
 
-var SEARCH_BOTS = ["sweep", "center", "raster", "ray", "memory", "mix"];
+//   eye     göz botu: TAŞ-öncelikli algı — hücre değil taş tarar ("taşı
+//           gör, eşini gör, oyna" akış oyuncusu). Bakışa uzaklık sırasıyla
+//           taş inceler (taş başına 1); incelenen taşın çifti ŞU AN
+//           matchlenebilir VE eşi algı penceresindeyse "anında görüldü".
+//           Pencere hizaya duyarlı: hizalı eş uzaktan da görülür (koridor
+//           gözü yönlendirir, span ≤ uzun kenarın yarısı), hizasız eş ancak
+//           yakınsa (Chebyshev ≤ EYE_DIAG). Hiçbir çift görülmezse oyuncu
+//           akıştan kopar → sweep taramasına düşer (efor = tüm taşlar +
+//           tarama). Search-point modellerinin kör noktasını ölçer: search
+//           pointler yakın olsa da TAŞI görmek kolay olmayabilir.
+
+var SEARCH_BOTS = ["sweep", "center", "raster", "ray", "memory", "mix", "eye"];
 var MEMORY_DECAY = 6; // hafıza ömrü (hamle) — çürüme: eski bilgi güvenilmez
 var MIX_RADIUS_DIV = 6; // karışım yerel yarıçapı: max(2, (rows+cols)/6)
+var EYE_DIAG = 3; // göz botu: hizasız eşin görülme yarıçapı (Chebyshev)
 
 // Işın takipçisi: taşlar son tap'e mesafe sırasında (eşitlikte satır-major);
 // her taşın 4 ışını DIRS sırasında yürünür, nitelikli prefix (son kesişime
@@ -767,14 +779,77 @@ function rayEfforts(board, prep, last) {
   return { cells, searchPts: prep.searchPts };
 }
 
+// Göz botu tek adımı. Taşlar bakışa (son hamle; ilk hamlede board merkezi)
+// artan Manhattan ile incelenir, eşitlikte satır-major. "Anında görülen"
+// çiftin eforu = o ana dek incelenen taş sayısı. Görülmeyen çiftlerin
+// hücreleri sweep fallback'iyle fiyatlanır: tümTaşlar + tarama varış
+// maliyeti — akış kopması eğride sıçrama olarak görünür.
+function eyeEfforts(board, pairs, last) {
+  const rows = board.length, cols = board[0].length;
+  const scan = scanBoard(board);
+  if (!scan.openOf.size) return null;
+  const sr = last ? last[0] : (rows - 1) / 2;
+  const sc = last ? last[1] : (cols - 1) / 2;
+  const tiles = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (board[r][c] !== null) {
+        tiles.push({ r, c, pid: board[r][c], d: Math.abs(r - sr) + Math.abs(c - sc) });
+      }
+    }
+  }
+  tiles.sort((a, b) => a.d - b.d || (a.r * cols + a.c) - (b.r * cols + b.c));
+  const RALI = Math.ceil(Math.max(rows, cols) / 2);
+  const seen = new Map(); // pid → anında görüş eforu
+  let cum = 0;
+  for (const t of tiles) {
+    cum++;
+    if (seen.has(t.pid) || !scan.openOf.has(t.pid)) continue;
+    const [[r1, c1], [r2, c2]] = pairs[t.pid];
+    const mr = t.r === r1 && t.c === c1 ? r2 : r1;
+    const mc = t.r === r1 && t.c === c1 ? c2 : c1;
+    const aligned = mr === t.r || mc === t.c;
+    const visible = aligned
+      ? Math.abs(mr - t.r) + Math.abs(mc - t.c) <= RALI
+      : Math.max(Math.abs(mr - t.r), Math.abs(mc - t.c)) <= EYE_DIAG;
+    if (visible) seen.set(t.pid, cum);
+  }
+  // fallback fiyatları: sweep varış maliyetleri (hücre → efor)
+  const sw = boardSweep(board, pairs, last);
+  const swOf = new Map();
+  for (const cell of sw.cells) swOf.set(cell.r * cols + cell.c, cell.effort);
+  // hücrelere indirge: hücre eforu = pairIds üzerinden min
+  const cells = [];
+  const cellMap = new Map();
+  for (const [pid, list] of scan.openOf) {
+    for (const [r, c] of list) {
+      const k = r * cols + c;
+      if (!cellMap.has(k)) cellMap.set(k, { r, c, pairIds: [] });
+      cellMap.get(k).pairIds.push(pid);
+    }
+  }
+  for (const mc of cellMap.values()) {
+    let eff = Infinity;
+    for (const pid of mc.pairIds) {
+      const e = seen.has(pid)
+        ? seen.get(pid)
+        : cum + swOf.get(mc.r * cols + mc.c); // akış koptu: tüm taşlar + tarama
+      if (e < eff) eff = e;
+    }
+    cells.push({ r: mc.r, c: mc.c, pairIds: mc.pairIds, effort: eff });
+  }
+  return { cells, searchPts: cum };
+}
+
 // Tek adım: botun gözüyle tüm match hücrelerinin keşif eforları.
 // state = { last, step, mem } (effortCurve taşır; canlı gösterge de
 // kullanabilir). Dönüş null = match hücresi yok.
 function botEfforts(board, pairs, botId, state) {
   const rows = board.length, cols = board[0].length;
+  const last = state ? state.last : null;
+  if (botId === "eye") return eyeEfforts(board, pairs, last); // prep gerekmez
   const prep = scanPrep(board);
   if (!prep) return null;
-  const last = state ? state.last : null;
   if (botId === "ray") return rayEfforts(board, prep, last);
   let order;
   if (botId === "raster") {
@@ -934,6 +1009,6 @@ if (typeof module !== "undefined") {
     spanOf, isCollinear, pairOptions, analyzeFlow, scanBoard, pairsCurve,
     localityStats, boardEfforts, boardSalience, boardSweep, botEfforts,
     effortCurve, EFFORT_WEIGHTS, EFFORT_HI_THR, SEARCH_BOTS, MEMORY_DECAY,
-    CURVE_TEMPLATES, templateAt, shapeScore,
+    EYE_DIAG, CURVE_TEMPLATES, templateAt, shapeScore,
   };
 }

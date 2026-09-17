@@ -24,6 +24,7 @@ const BOTS = [
   { id: "ray", name: "ışın", color: "#f59e0b" },
   { id: "memory", name: "hafızalı", color: "#10b981" },
   { id: "mix", name: "karışım", color: "#78716c" },
+  { id: "eye", name: "göz", color: "#ec4899" },
 ];
 
 const LEVELS_DIR = path.join(__dirname, "..", "levels");

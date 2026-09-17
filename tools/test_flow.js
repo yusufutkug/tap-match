@@ -257,6 +257,20 @@ for (const lv of TM_LEVELS) {
     shapeScore(effW, wv) < shapeScore(effW, tpl));
 }
 
+// Göz botu: taş-öncelikli algı. Hizalı yakın eş anında görülür (efor =
+// incelenen taş sayısı); hizasız uzak eş görülmez → sweep fallback
+// (efor > tüm taş sayısı — akış kopması).
+{
+  const pairs = [[[0, 0], [0, 2]], [[5, 0], [1, 5]]]; // hizalı span2 + köşegen uzak
+  const board = boardFromPairs(6, 6, pairs);
+  const ef = botEfforts(board, pairs, "eye", { last: null, step: 0, mem: new Map() });
+  const effOf = (pid) => Math.min(...ef.cells
+    .filter((c) => c.pairIds.includes(pid)).map((c) => c.effort));
+  check("eye: hizalı yakın çift anında görülür", effOf(0) <= 4);
+  check("eye: hizasız uzak çift akışı koparır (fallback)", effOf(1) > 4);
+  check("eye: taş sayacı doğru", ef.searchPts === 4);
+}
+
 // Tüm botlar tüm öğretici levelleri çözer, sonlu ve deterministik.
 for (const bot of SEARCH_BOTS) {
   for (const lv of TM_LEVELS) {

@@ -72,14 +72,20 @@ temizlenmesini. `js/flow.js` bunun üstüne iki ölçüm kurar:
   `tools/report_hard_moves.js` boyut başına en zor 10 hamleyi, önceki
   hamlenin boardu + tarama başlangıcıyla `hard_moves.html`'e yazar.
 - **Bot ailesi** (`SEARCH_BOTS`, `botEfforts`) — aynı efor tanımı (geçilen
-  search point), altı arama psikolojisi: **yerel** (sweep; son tap'ten halka),
+  search point), yedi arama psikolojisi: **yerel** (sweep; son tap'ten halka),
   **merkezci** (her adım board merkezinden — yerellik kontrol botu),
   **okuyucu** (sol üstten satır satır — sistematik taban çizgisi; konum
   önyargısını açığa çıkarır), **ışın** (en yakın taşın ışınlarını takip eden
   taş-güdümlü oyuncu), **hafızalı** (süpürdüğünü `MEMORY_DECAY`=6 hamle
   hatırlar; taş kalkınca yalnız satır/sütunu bayatlar — görüş 4 yönlü
   olduğundan bu geçersizleme tamdır; öğütmeyi ölçer), **karışım** (önce
-  yerel halka `max(2,(rows+cols)/6)`, sonra satır tarama). Hepsi
+  yerel halka `max(2,(rows+cols)/6)`, sonra satır tarama), **göz** (eye;
+  TAŞ-öncelikli algı — hücre değil taş tarar, efor = incelenen taş sayısı;
+  incelenen taşın eşi matchlenebilir ve algı penceresindeyse "anında
+  görüldü": hizalı eş span ≤ uzun kenar/2'den, hizasız eş ancak Chebyshev ≤
+  `EYE_DIAG`=3'ten; hiç çift görülmezse sweep fallback — efor sıçrar.
+  Search-point modellerinin kör noktasını ölçer: search pointler yakın olsa
+  da taşı GÖRMEK kolay olmayabilir). Hepsi
   deterministik, `effortCurve(..., <botId>)` ile koşar. Bulgu
   (`tools/report_bot_curves.js` özeti): KLASİK paketlerde yalnız okuyucu
   monoton ayrışır (39.7→48.0 — zorluk sistematik taramada görünür, yerellik
@@ -284,12 +290,18 @@ yazar): boyut başına 20 tam dolu level × 5 boyutluk merdiven (6x8, 7x10,
 8x12, 9x14, 10x15) = 100 level; ana ekranda "Efor hedefli" bölümü. Üretim
 iki katmanlıdır: iç katman (`generateFullLevel`) yapısal kaliteyi, dış
 katman EFOR EĞRİSİNİN ŞEKLİNİ ve YÜKSEKLİĞİNİ seçer — level başına 60
-aday üretilir, her adayı yerel + ışın botları oynar. Aday hedefi (leader)
-üç parça: (1) eğrilerin hedef şablona RMSE ortalaması; (2) ÖĞÜTME CEZASI —
-art arda uzun mesafe match (kırılan tüm çiftlerin spanı ≥ uzun kenarın
-yarısı) payı × 0.4: oyuncu bulgusu, üst üste uzun matchler akma/düğüm
-hissine hizmet etmiyor (ilk nesil paketlerde bu pay %36-44'tü, cezayla
-~%13'e iner); (3) EFOR TABANI — aday kendi havuzunun efor medyanının altına
+aday üretilir, her adayı yerel + ışın + göz botları oynar. Aday hedefi
+(leader) dört parça: (1) yerel+ışın eğrilerinin hedef şablona RMSE
+ortalaması; (2) ÖĞÜTME CEZASI — art arda uzun mesafe match (kırılan tüm
+çiftlerin spanı ≥ uzun kenarın yarısı) payı × 0.4: oyuncu bulgusu, üst
+üste uzun matchler akma/düğüm hissine hizmet etmiyor (ilk nesil paketlerde
+bu pay %36-44'tü, cezayla ~%13'e iner); (3) GÖZ AKIŞ TERİMİ — şablonun
+vadilerinde (g ≤ 0.5, akış anları) göz botunun "anında görüş" payı
+(efor ≤ `EYE_FAST`=3 taş) düşükse ceza: (1 − vadiHızlıPay) × 0.25. Oyuncu
+bulgusu: search pointler yakın olsa da TAŞI görmek kolay olmayabiliyor —
+vadide taş hızla görülüp matchlensin, tepelerde serbest (düğüm anı).
+Göz-terimsiz nesilde vadi hızlı-pay %47'ydi (`tools/report_eye.js`);
+(4) EFOR TABANI — aday kendi havuzunun efor medyanının altına
 düşemez, mutasyon da leveli ucuzlatamaz ("efor olarak daha üstlere").
 Reçeteler de aynı yöne iter: cornerP/düğüm yüksek (zorluk köşe/kilitten),
 spanBias düşük (uzun koridor üretimden az gelsin). Hafızalı + karışım
@@ -305,10 +317,12 @@ iyileşir VE bant kötüleşmez; bütçe board alanıyla ölçeklenir (8×alan,
 150-2000). Şablonlar `js/flow.js CURVE_TEMPLATES`:
 1-10 **bel** (ortada zirve, sonda rahatlama — tek parça şekil + düğüm/dar
 bel reçetesi), 11-20 **dalga** (iki tepe — kesme hatlı şekil: iki ada = iki
-keşif fazı). Kalibrasyon (leader = şekil + öğütme cezası; düz çizginin bel
-şablonuna salt-şekil RMSE'si ≈ 0.45): mutasyon A→B ort. 0.33→0.19 (6x8) /
-0.42→0.29 (10x15); efor ort merdiveni 12.2→21.9; öğütme payı %6-14.5;
-tutarlılık bandı dışında level yok. `report_bot_curves.js` efor
+keşif fazı). Kalibrasyon (leader = şekil + öğütme + göz akış; düz çizginin
+bel şablonuna salt-şekil RMSE'si ≈ 0.45): mutasyon A→B ort. 0.42→0.24
+(6x8) / 0.52→0.36 (10x15); efor ort merdiveni 12.5→21.9; öğütme payı
+%6-15; vadi hızlı-görüş payı %69-84 (göz terimi öncesi %42-65; vadi göz
+eforu ort 18.1→8.7 taş, tepe 35.3'te sabit — düğüm/akış kontrastı
+keskinleşti); tutarlılık bandı dışında level yok. `report_bot_curves.js` efor
 paketlerinde hedef şablonu grafiğe kesikli çizgiyle koyar — uyum gözle
 denetlenir.
 
@@ -342,7 +356,8 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `tools/test_generator.js` | üretici duman testi + konfigürasyon istatistikleri |
 | `tools/report_effort.js` | efor botu kalibrasyon raporu: tüm paketlerde `effortCurve`, diff etiketi × ort efor / eşik-üstü pay tabloları (`--salience` / `--sweep` alternatif modeller; `--levels <boyut>` tek paketin level dökümü) |
 | `tools/report_hard_moves.js` | sweep botla (`--salience` ile oran modeli) boyut başına en zor 10 hamle (level başına ≤2), zor hamlenin boardu + önceki hamlenin boardu yan yana → `hard_moves.html` (üretilir, gitignore'da) |
-| `tools/report_bot_curves.js` | bot ailesi grafikleri: paket başına her diff'ten ortadaki level, 6 botun normalize efor eğrisi tek grafikte (`--level 9x12:37` hedefli) → `bot_curves.html` + konsola bot × diff ayrışma özeti |
+| `tools/report_bot_curves.js` | bot ailesi grafikleri: paket başına her diff'ten ortadaki level, 7 botun normalize efor eğrisi tek grafikte (`--level 9x12:37` hedefli) → `bot_curves.html` + konsola bot × diff ayrışma özeti |
+| `tools/report_eye.js` | göz botu akış kalibrasyonu: efor paketlerinde şablon vadisi/tepesi ayrımıyla göz eforu ort/p90 ve hızlı-görüş payı (≤3 taş) — üretimdeki göz akış teriminin eşik/ağırlık dayanağı |
 | `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels/<boyut>/` + `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
 | `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
 | `tools/gen_effort_levels.js` | efor-hedefli paket üretimi: aday başına yerel+ışın botu oynar, efor eğrisi hedef şablona (bel/dalga) RMSE ile seçilir; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8` ile kuru koşu |

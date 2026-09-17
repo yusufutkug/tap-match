@@ -44,6 +44,13 @@ const CAND = 60;     // level başına aday tavanı (best-of-N, Aşama A)
 const ACCEPT = 0.10; // erken kabul eşiği (leader — hedef fiilen oturdu)
 const BAND = 0.35;   // hafızalı/karışım tutarlılık bandı (üstü elenir)
 const GRIND_W = 0.4; // öğütme payının leader'daki ağırlığı
+// Göz akışı: şablon VADİLERİNDE (g ≤ 0.5, akış anları) hamleler gözle
+// "anında görülmeli" — göz botu eforu ≤ EYE_FAST taş. Oyuncu bulgusu:
+// search pointler yakın olsa da TAŞI görmek kolay olmayabiliyor; vadide
+// taş-öncelikli algıyla hızlı match istenir, tepelerde serbest (düğüm anı).
+// Kalibrasyon (report_eye.js, önceki nesil): vadi hızlı-pay ~%47'ydi.
+const EYE_FAST = 3;  // "anında görüş" eşiği (incelenen taş)
+const EYE_W = 0.25;  // vadi yavaş-payının (1 − hızlıPay) leader ağırlığı
 // Aşama B (mutasyon) değerlendirme bütçesi: board büyüdükçe artar — sorun
 // büyük boardlarda (rastgele adayın uzun eğrisi şablona kendiliğinden
 // oturmuyor), bütçe de oraya akar. 6x8→384, 9x15→1080, 12x18→1728.
@@ -130,19 +137,36 @@ function grindShare(ecS, pairs, rows, cols) {
   return n / L;
 }
 
-// Öncü değerlendirme (sweep+ray): leader = şekil RMSE ort. + öğütme cezası.
-// meanEffort = yerel botun ortalama eforu (efor tabanı bununla uygulanır).
-// Botlardan biri çözemezse (tıkalı) → null.
+// Şablon vadilerinde göz botunun hızlı-görüş payı (≤ EYE_FAST taş).
+// Vadi = eğrinin kendi t ekseninde g(t) ≤ 0.5 olan adımlar.
+function valleyFastShare(ecE, tpl) {
+  const L = ecE.effort.length;
+  let v = 0, fast = 0;
+  ecE.effort.forEach((e, i) => {
+    if (templateAt(tpl, L > 1 ? i / (L - 1) : 0) <= 0.5) {
+      v++;
+      if (e <= EYE_FAST) fast++;
+    }
+  });
+  return v ? fast / v : 1;
+}
+
+// Öncü değerlendirme (sweep+ray+göz): leader = şekil RMSE ort. + öğütme
+// cezası + vadi yavaş-görüş cezası. meanEffort = yerel botun ortalama
+// eforu (efor tabanı bununla uygulanır). Bot çözemezse (tıkalı) → null.
 function leaderOf(pairs, rows, cols, tpl) {
   const ecS = effortCurve(pairs, rows, cols, null, "sweep");
   if (!ecS) return null;
   const ecR = effortCurve(pairs, rows, cols, null, "ray");
   if (!ecR) return null;
+  const ecE = effortCurve(pairs, rows, cols, null, "eye");
+  if (!ecE) return null;
   const fit = (shapeScore(ecS.effort, tpl) + shapeScore(ecR.effort, tpl)) / 2;
   const grind = grindShare(ecS, pairs, rows, cols);
+  const vfs = valleyFastShare(ecE, tpl);
   return {
-    leader: fit + GRIND_W * grind,
-    fit, grind, meanEffort: ecS.effortMean, ecS,
+    leader: fit + GRIND_W * grind + EYE_W * (1 - vfs),
+    fit, grind, vfs, meanEffort: ecS.effortMean, ecS,
   };
 }
 
@@ -254,7 +278,7 @@ function refine(start, rows, cols, tpl, rng, floor) {
 function buildPack(sizeStr) {
   const [cols, rows] = sizeStr.split("x").map(Number);
   const levels = [];
-  const stats = { bel: [], dalga: [], before: [], efor: [], grind: [], bandOut: 0 };
+  const stats = { bel: [], dalga: [], before: [], efor: [], grind: [], goz: [], bandOut: 0 };
   for (let id = 1; id <= 20; id++) {
     const tplId = id <= 10 ? "bel" : "dalga";
     const tpl = CURVE_TEMPLATES[tplId];
@@ -300,6 +324,7 @@ function buildPack(sizeStr) {
     stats[tplId].push(ref.leader);
     stats.efor.push(ref.meanEffort);
     stats.grind.push(ref.grind);
+    stats.goz.push(ref.vfs);
     levels.push({
       id,
       name: TM_SHAPES.DEFS[best.g.shape].name + " · " + tplId,
@@ -317,6 +342,7 @@ function buildPack(sizeStr) {
         bandRmse: +ref.band.toFixed(3),
         eforOrt: +ref.meanEffort.toFixed(1),
         grind: +ref.grind.toFixed(3),
+        gozPay: +ref.vfs.toFixed(3),
         cand: best.cand,
         mut: ref.accepted,
       },
@@ -343,6 +369,7 @@ for (const s of SIZES) {
     " (" + mutN + " mut)  " +
     "efor ort " + mean(stats.efor).toFixed(1) + "  " +
     "öğütme " + (100 * mean(stats.grind)).toFixed(1) + "%  " +
+    "göz payı " + (100 * mean(stats.goz)).toFixed(0) + "%  " +
     (stats.bandOut ? "bant dışı " + stats.bandOut + "  " : "") +
     ((Date.now() - t0) / 1000).toFixed(1) + " sn");
 }
