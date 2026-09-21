@@ -62,8 +62,9 @@
   // şekil silüeti %100 taş, dıştan soyularak biter. Ana ekranda ayrı
   // bölümde listelenir; ilerleme/favori anahtarları "tam-6x8:id" biçiminde.
   const SHAPE_PACKS = (typeof TM_SHAPE_PACKS !== "undefined") ? TM_SHAPE_PACKS : [];
-  // Efor hedefli paketler (levels_efor.js): boyut başına 20 tam dolu level;
-  // efor eğrisi hedef şablona (1-10 bel, 11-20 dalga) uydurulmuş.
+  // Efor hedefli paketler (levels_efor.js): boyut başına 125 tam dolu level;
+  // efor eğrisi hedef şablona uydurulmuş (onluk paritesi: çift onluk bel,
+  // tek onluk dalga), maske/açılış çeşitliliği üretimde zorlanmış.
   const EFOR_PACKS = (typeof TM_EFOR_PACKS !== "undefined") ? TM_EFOR_PACKS : [];
   const ALL_PACKS = PACKS.concat(SHAPE_PACKS, EFOR_PACKS);
 

@@ -4,7 +4,7 @@
 
 const { isAdjacentCollinear } = require("../js/board.js");
 const { analyzeFlow, pairsCurve } = require("../js/flow.js");
-const { generateLevel, generateCandidates, generateFullLevel } = require("../js/generator.js");
+const { generateLevel, generateCandidates, generateFullLevel, symMask } = require("../js/generator.js");
 const { TM_SHAPES } = require("../js/shapes.js");
 
 let nOk = 0, nFail = 0;
@@ -378,6 +378,37 @@ for (const cfg of configs) {
   }
 }
 
+// ── symMask: simetrik prosedürel maskeler ──
+// Sözleşme: istenen simetri sağlanır, silinen hücre sayısı çift ve pozitif
+// (parite onarımı hiç tetiklenmez), doluluk yüksek kalır, deterministik.
+{
+  const mirrors = { // hücrenin eş görüntüleri — hepsi hücreye eşit olmalı
+    V: (m, r, c, R, C) => [m[r][C - 1 - c]],
+    P: (m, r, c, R, C) => [m[R - 1 - r][C - 1 - c]],
+    Q: (m, r, c, R, C) => [m[r][C - 1 - c], m[R - 1 - r][c]],
+  };
+  for (const [rows, cols] of [[8, 6], [10, 7], [12, 8], [14, 9]]) {
+    for (const t of ["V", "P", "Q"]) {
+      for (let s = 0; s < 12; s++) {
+        const m = symMask(rows, cols, 1000 + s * 7, t);
+        let holes = 0, sym = true;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (!m[r][c]) holes++;
+            if (!mirrors[t](m, r, c, rows, cols).every((v) => v === m[r][c])) sym = false;
+          }
+        }
+        const tag = "symMask " + rows + "x" + cols + " " + t + " s" + s;
+        check(tag + ": simetrik", sym);
+        check(tag + ": çift ve pozitif boşluk", holes > 0 && holes % 2 === 0);
+        check(tag + ": doluluk ≥ %85", holes <= Math.round(rows * cols * 0.15));
+      }
+    }
+  }
+  check("symMask deterministik",
+    JSON.stringify(symMask(12, 8, 77, "P")) === JSON.stringify(symMask(12, 8, 77, "P")));
+}
+
 // ── Efor hedefli paketler (levels/efor-<boyut>/ + levels_efor.js) ──
 // Şekil uyum kalitesi üretim anında skorla seçilir (gen_effort_levels.js);
 // burada yayınlanan veri sözleşmesi + çözülebilirlik test edilir.
@@ -386,8 +417,9 @@ for (const cfg of configs) {
   const { readPack } = require("./pack_io.js");
   const LABELS = ["easy", "easy", "easy", "medium", "medium",
                   "medium", "hard", "hard", "veryhard", "veryhard"];
-  check("efor paketleri var (5 boyutlu merdiven)",
-    Array.isArray(TM_EFOR_PACKS) && TM_EFOR_PACKS.length === 5);
+  check("efor paketleri var (4 boyut × 125 = 500)",
+    Array.isArray(TM_EFOR_PACKS) && TM_EFOR_PACKS.length === 4 &&
+    TM_EFOR_PACKS.reduce((a, p) => a + p.levels.length, 0) === 500);
   check("efor sarmalayıcı js == levels/ ağacı",
     TM_EFOR_PACKS.every((pk) => JSON.stringify(pk) === JSON.stringify(readPack(pk.size))));
 
@@ -397,8 +429,8 @@ for (const cfg of configs) {
 
   for (const pk of TM_EFOR_PACKS) {
     const P = pk.levels, tag = "paket " + pk.size;
-    check(tag + ": 20 level", P.length === 20);
-    check(tag + ": idler 1..20 sıralı", P.every((l, i) => l.id === i + 1));
+    check(tag + ": 125 level", P.length === 125);
+    check(tag + ": idler 1..125 sıralı", P.every((l, i) => l.id === i + 1));
     check(tag + ": tam dolu paket bayrağı", pk.full === true);
     check(tag + ": etiket şeridi (onluk başına 3-3-2-2)",
       P.every((l, i) => l.diff === LABELS[i % 10]));

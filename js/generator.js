@@ -1327,10 +1327,60 @@ function generateCandidates(opts) {
   return { candidates: out, failed, baseSeed };
 }
 
+// Simetrik prosedürel maske — "kalıpların anlam ifade etmesi gerekmiyor,
+// simetrik görünüm yeter; genel olarak dolu" (oyuncu tercihi). Dolu
+// boarddan başlar, 1-2 tohum boşluk bloğu (1x1..2x2) yerleştirir ve
+// simetriye göre yansıtır:
+//   "V" dikey ayna · "P" nokta (180°) · "Q" çift ayna (V+H)
+// Parite garantisi: tohum bloğu yansıtılan eksenlere göre KESİN YARI
+// DÜZLEME kısıtlanır (V → sol yarı, P → üst yarı, Q → sol üst çeyrek);
+// blok eksene hiç değmediği için görüntüleri ayrıktır → her hücre çift
+// (Q'da dört) kez silinir, silinen sayı her boyut paritesinde çifttir ve
+// generateFullLevel'ın simetri bozan kenar-kırpma onarımı hiç tetiklenmez.
+// (Tek kolonlu/satırlı orta eksene oturan tohum orbit-1 kalırdı — tek
+// silme, parite onarımı simetriyi bozardı; kısıt bunu yapısal engeller.)
+// Boşluk bütçesi alanın ~%10'u — dolu his korunur; bütçeyi aşan tohum
+// geri alınır. En az bir tohum garanti (tap edilecek boş hücre şart).
+// Deterministik: seed → maske.
+function symMask(rows, cols, seed, type) {
+  const rng = mulberry32(seed >>> 0);
+  const t = type || ["V", "P", "Q"][Math.floor(rng() * 3)];
+  const budget = Math.max(4, Math.round(rows * cols * 0.10));
+  let holes = new Set();
+  const put = (set, r, c) => {
+    const pts = t === "V" ? [[r, c], [r, cols - 1 - c]]
+      : t === "P" ? [[r, c], [rows - 1 - r, cols - 1 - c]]
+      : [[r, c], [r, cols - 1 - c], [rows - 1 - r, c], [rows - 1 - r, cols - 1 - c]];
+    for (const [rr, cc] of pts) set.add(rr * cols + cc);
+  };
+  // tohum bölgesi: yansıtılan eksene göre kesin yarı düzlem
+  const rMax = (h) => (t === "P" || t === "Q" ? Math.floor(rows / 2) : rows) - h;
+  const cMax = (w) => (t === "V" || t === "Q" ? Math.floor(cols / 2) : cols) - w;
+  const nSeeds = 1 + Math.floor(rng() * 2);
+  for (let s = 0; s < nSeeds; s++) {
+    const h = 1 + Math.floor(rng() * 2), w = 1 + Math.floor(rng() * 2);
+    if (rMax(h) < 0 || cMax(w) < 0) continue; // board yarısına sığmayan blok
+    const r0 = Math.floor(rng() * (rMax(h) + 1));
+    const c0 = Math.floor(rng() * (cMax(w) + 1));
+    const next = new Set(holes);
+    for (let r = r0; r < r0 + h; r++) {
+      for (let c = c0; c < c0 + w; c++) put(next, r, c);
+    }
+    if (next.size <= budget) holes = next;
+  }
+  if (!holes.size) {
+    // tüm tohumlar bütçeyi aştı/sığmadı: tek hücrelik tohum her zaman sığar
+    put(holes, Math.floor(rng() * (rMax(1) + 1)), Math.floor(rng() * (cMax(1) + 1)));
+  }
+  const mask = Array.from({ length: rows }, (_, r) =>
+    Array.from({ length: cols }, (_, c) => !holes.has(r * cols + c)));
+  return mask;
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     mulberry32, hashSeed, shuffle,
     buildGeometry, generateLevel, generateCandidates,
-    peelBuild, generateFullLevel, computeCutLine,
+    peelBuild, generateFullLevel, computeCutLine, symMask,
   };
 }

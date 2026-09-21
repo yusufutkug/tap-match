@@ -33,7 +33,8 @@ for (const size of sizes) {
   const pk = readPack(size);
   const v = [], p = [];
   for (const lv of pk.levels) {
-    const tpl = CURVE_TEMPLATES[lv.id <= 10 ? "bel" : "dalga"];
+    // şablon onluk paritesinden (eski 20'lik ve yeni 125'lik düzenin ortak kuralı)
+    const tpl = CURVE_TEMPLATES[Math.floor((lv.id - 1) / 10) % 2 === 0 ? "bel" : "dalga"];
     const ec = effortCurve(lv.pairs, pk.rows, pk.cols, null, "eye");
     const L = ec.effort.length;
     ec.effort.forEach((e, i) => {

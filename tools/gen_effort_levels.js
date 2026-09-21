@@ -19,24 +19,40 @@
 // Hafızalı + karışım tutarlılık bandıdır: şablondan BAND'den fazla kaçan
 // aday, bant içi aday varken seçilmez.
 //
-// Paket düzeni: boyut başına 20 level — 1-10 "bel" (ortada zirve, sonda
-// rahatlama), 11-20 "dalga" (iki tepe). Reçeteler şablona yatkın seçilir
-// (kabul oranını asıl bu belirler): bel → tek parça şekil + düğüm/bel
-// kısıtı (kısıtlanma ortada yoğunlaşır); dalga → KESME HATLI şekil (board
-// iki adaya bölünür, her ada kendi keşif fazını getirir → iki tepe).
-// spanBias bilinçli düşük (uzun koridor üretimden az gelsin), cornerP ve
-// düğüm yüksek (zorluk köşe/kilitten gelsin — düğüm hissi). Etiket şeridi
-// her onlukta reçete sertleşmesiyle: 3 easy, 3 medium, 2 hard, 2 veryhard.
+// Paket düzeni: boyut başına PACK_N level, ONLUK PARİTESİYLE şablon —
+// çift onluk (1-10, 21-30, ...) "bel" (ortada zirve, sonda rahatlama),
+// tek onluk (11-20, 31-40, ...) "dalga" (iki tepe; kesme hattı iki keşif
+// fazı verir). spanBias bilinçli düşük (uzun koridor üretimden az gelsin),
+// cornerP ve düğüm yüksek (zorluk köşe/kilitten — düğüm hissi). Etiket
+// şeridi her onlukta reçete sertleşmesiyle: 3 easy, 3 medium, 2 hard,
+// 2 veryhard.
+//
+// ÇEŞİTLİLİK (oyuncu isteği: "başlangıç kalıplarını olabildiğince
+// çeşitlendir; derinlik aynı kalsın"):
+//   maske    figüratif şekiller yerine dolu + simetrik prosedürel boşluklar
+//            (js/generator.js symMask; V/P/Q simetri, doluluk ~%90) + seyrek
+//            dama — "anlam gerekmez, simetrik görünüm yeter; genelde dolu".
+//            Boşluklar giriş havuzu olduğundan maske aynı zamanda açılış
+//            cephelerinin yerini de çeşitlendirir.
+//   açılış   entryN 1-3 (9x14'te 4) ve frontMode yilan/cepheler/bolge
+//            rotasyonu, seyrek frontBias yumuşatması — onluk içinde ve
+//            onluklar arasında faz kaydırmalı, deterministik.
+//   imza     AÇILIŞ İMZASI: ilk hamlelerin ölçülen karakteri (göz eforu,
+//            span, köşe payı, tap konumu). Aşama A seçimi, skor bandı
+//            içindeki adaylardan pakete önce girmiş levellerin imzalarına
+//            EN UZAK olanı alır (uzak-nokta seçimi) — çeşitlilik reçeteye
+//            değil ölçüme dayanır.
 
 const { TM_SHAPES } = require("../js/shapes.js");
 const { writePacks } = require("./pack_io.js");
-const { generateFullLevel } = require("../js/generator.js");
+const { generateFullLevel, symMask } = require("../js/generator.js");
 const { isAdjacentCollinear } = require("../js/board.js");
 const { effortCurve, shapeScore, CURVE_TEMPLATES, templateAt,
-        spanOf } = require("../js/flow.js");
+        spanOf, isCollinear } = require("../js/flow.js");
 
-// boyut merdiveni (oyuncu seçimi): küçükten büyüğe 5 basamak
-const ALL_SIZES = ["6x8", "7x10", "8x12", "9x14", "10x15"];
+// boyut merdiveni: 4 basamak (funnel 1-500 bu boyutlarda çeşitlenir)
+const ALL_SIZES = ["6x8", "7x10", "8x12", "9x14"];
+const PACK_N = 125; // boyut başına level (4 × 125 = 500)
 const SIZES = process.env.TM_SIZES ? process.env.TM_SIZES.split(",") : ALL_SIZES;
 const DRY = !!process.env.TM_SIZES;
 
@@ -60,34 +76,50 @@ const mutBudget = (rows, cols) => Math.min(2000, Math.max(150, 8 * rows * cols))
 const LABELS = ["easy", "easy", "easy", "medium", "medium",
                 "medium", "hard", "hard", "veryhard", "veryhard"];
 
-// Onluk reçeteleri (i = 0..9, onluk içi sertleşme):
-// bel — tek parça şekiller, kesme yok; düğüm + dar bel ortada sıkışma yapar.
-const BEL_SHAPES = ["dolu", "kalp", "cerceve", "halka", "dolu",
-                    "kalp", "cerceve", "halka", "dolu", "carpi"];
-// dalga — kesme hatlı şekiller; yön dönüşümlü. Kesme tutmazsa aday üretici
-// önce diğer yönü, sonra dolu+dikey'i dener (fallback zinciri).
-const DALGA_SHAPES = ["dolu", "kalp", "cerceve", "dolu", "halka",
-                      "kalp", "dolu", "cerceve", "halka", "dolu"];
+// Maske rotasyonu (onluk içi pozisyona göre): çoğunluk simetrik boşluklu,
+// ~üçte bir dolu. Dama bel onluklarının 9. pozisyonunda, iki onlukta bir —
+// yalnız desen alanı çift kalan boyutlarda (6x8, 8x12; 7x10/9x14'te dama
+// 35/63 taş verir, parite onarımı tek hücre silip simetriyi bozardı).
+const MASK_ROT = ["dolu", "sym-V", "sym-P", "sym-Q", "dolu",
+                  "sym-P", "sym-V", "dolu", "sym-Q", "sym-V"];
+function maskKindOf(tplId, d, i, rows, cols) {
+  const damaOk = ((rows * cols) / 2) % 2 === 0;
+  if (tplId === "bel" && i === 9 && d % 4 === 0 && damaOk) return "dama";
+  return MASK_ROT[(i + d) % 10]; // onluklar arası faz kayması
+}
 
-// Sertleştirilmiş reçeteler ("efor olarak daha üstlere"): cornerP ve düğüm
-// önceki nesle göre yüksek (zorluk köşe/kilitten), spanBias düşük (uzun
-// koridor üretimden az gelsin — öğütme cezasıyla aynı yöne iter).
-function recipeOf(tplId, i) {
+// Reçete matrisi (i = onluk içi 0..9 sertleşme, d = onluk indeksi 0..):
+// cornerP/spanBias/knots/waistOpen ("derinlik") ÖNCEKİ NESİLLE AYNI —
+// çeşitlilik maske + açılış eksenlerinden gelir: entryN ve frontMode
+// farklı fazlarla döner (tam korelasyon olmasın diye katsayılar farklı),
+// frontBias beşte bir yumuşar (disiplinden küçük sapmalar).
+function recipeOf(tplId, d, i, rows, cols) {
+  const maxE = rows * cols >= 120 ? 4 : 3; // 9x14'te 4 cepheye izin
+  const base = {
+    maskKind: maskKindOf(tplId, d, i, rows, cols),
+    entryN: 1 + (i + d) % maxE,
+    frontMode: ["bolge", "yilan", "cepheler"][(i + 2 * d) % 3],
+    frontBias: i % 5 === 4 ? 0.85 : 1.0,
+  };
   if (tplId === "bel") {
     return {
-      shape: BEL_SHAPES[i], cut: null,
-      entryN: 2, frontMode: "bolge", frontBias: 1.0,
+      ...base, cut: null,
       cornerP: 0.55 + 0.03 * i, spanBias: 0.30 + 0.02 * i,
       knots: i < 4 ? 3 : 4, waistOpen: i < 6 ? 3 : 2,
     };
   }
   return {
-    shape: DALGA_SHAPES[i], cut: i % 2 === 0 ? "dikey" : "yatay",
-    entryN: 2, frontMode: "bolge", frontBias: 1.0,
+    ...base, cut: i % 2 === 0 ? "dikey" : "yatay",
+    // dama + kesme hattı bilinmedik bölge: dalga onluklarında dama yok
+    maskKind: base.maskKind === "dama" ? "sym-V" : base.maskKind,
     cornerP: 0.55 + 0.025 * i, spanBias: 0.32 + 0.02 * i,
     knots: Math.min(4, 3 + Math.floor(i / 4)), waistOpen: null,
   };
 }
+
+// maske adları (level name alanı yalnız konsol/inceleme içindir)
+const MASK_NAMES = { dolu: "Dolu", dama: "Satranç",
+  "sym-V": "Simetrik·V", "sym-P": "Simetrik·P", "sym-Q": "Simetrik·Q" };
 
 function hashSeed(str) {
   let h = 2166136261 >>> 0;
@@ -98,26 +130,58 @@ function hashSeed(str) {
   return h >>> 0;
 }
 
-// Tek aday: kesme tutmazsa fallback zinciri (diğer yön → dolu + dikey).
+// Tek aday: maske türünden maske üretilir (sym maskeleri aday seedine
+// bağlı — her aday farklı boşluk yerleşimi dener, havuz maskede de
+// çeşitlenir). Kesme tutmazsa fallback: diğer yön → dolu+dikey; maske
+// inşayı tıkarsa dolu.
 function genCandidate(rows, cols, rec, seed) {
+  const maskFrom = (kind) =>
+    kind === "dolu" ? null
+    : kind === "dama" ? TM_SHAPES.maskFor("satranc", rows, cols)
+    : symMask(rows, cols, (seed ^ 0x5bd1e995) >>> 0, kind.slice(4));
   const tries = rec.cut
-    ? [{ shape: rec.shape, cut: rec.cut },
-       { shape: rec.shape, cut: rec.cut === "dikey" ? "yatay" : "dikey" },
-       { shape: "dolu", cut: "dikey" }]
-    : [{ shape: rec.shape, cut: null }];
+    ? [{ kind: rec.maskKind, cut: rec.cut },
+       { kind: rec.maskKind, cut: rec.cut === "dikey" ? "yatay" : "dikey" },
+       { kind: "dolu", cut: "dikey" }]
+    : [{ kind: rec.maskKind, cut: null },
+       { kind: "dolu", cut: null }];
   for (const t of tries) {
-    const mask = TM_SHAPES.maskFor(t.shape, rows, cols);
-    if (!mask && t.shape !== "dolu") continue;
     const lv = generateFullLevel({
-      rows, cols, mask, seed,
+      rows, cols, mask: maskFrom(t.kind), seed,
       entryN: rec.entryN, frontMode: rec.frontMode, frontBias: rec.frontBias,
       cornerP: rec.cornerP, spanBias: rec.spanBias,
       knots: rec.knots, waistOpen: rec.waistOpen, cut: t.cut,
     });
-    if (lv) return { lv, shape: t.shape, cut: t.cut };
+    if (lv) return { lv, maskKind: t.kind, cut: t.cut };
   }
   return null;
 }
+
+// ── Açılış imzası: ilk SIG_K hamlenin ölçülen karakteri ─────────────────
+// 0..1 bileşenler: [göz eforu (taş sayısına oranla), ort span (uzun kenara
+// oranla), köşe payı, tap konumu satır, tap konumu sütun]. Uzak-nokta
+// seçimi bu uzayda çalışır — "başlangıç kalıbı" reçeteyle değil oyunun
+// ilk hamlelerinin ölçümüyle tanımlanır.
+const SIG_K = 6;
+function sigOf(ecS, ecE, pairs, rows, cols) {
+  const K = Math.min(SIG_K, ecS.moves.length);
+  const maxDim = Math.max(rows, cols);
+  let eye = 0, span = 0, corner = 0, np = 0, pr = 0, pc = 0;
+  for (let t = 0; t < K; t++) {
+    const mv = ecS.moves[t];
+    pr += mv.r / (rows - 1);
+    pc += mv.c / (cols - 1);
+    for (const pid of mv.pairIds) {
+      span += spanOf(pairs[pid]) / maxDim;
+      corner += isCollinear(pairs[pid]) ? 0 : 1;
+      np++;
+    }
+    eye += Math.min(1, ecE.effort[Math.min(t, ecE.effort.length - 1)] / (pairs.length * 2));
+  }
+  return [eye / K, span / np, corner / np, pr / K, pc / K];
+}
+const sigDist = (a, b) =>
+  Math.sqrt(a.reduce((s, x, i) => s + (x - b[i]) * (x - b[i]), 0) / a.length);
 
 // Öğütme payı: art arda "uzun mesafe match" — hamlenin kırdığı tüm çiftler
 // span ≥ uzun kenarın yarısı ise hamle "uzun"dur (hizalı ŞART DEĞİL: eski
@@ -167,6 +231,7 @@ function leaderOf(pairs, rows, cols, tpl) {
   return {
     leader: fit + GRIND_W * grind + EYE_W * (1 - vfs),
     fit, grind, vfs, meanEffort: ecS.effortMean, ecS,
+    sig: sigOf(ecS, ecE, pairs, rows, cols),
   };
 }
 
@@ -275,15 +340,22 @@ function refine(start, rows, cols, tpl, rng, floor) {
   return { ...cur, accepted };
 }
 
+// uzak-nokta seçim bandı: en iyi skora bu kadar yakın adaylar kalite
+// olarak eşdeğer sayılır — aralarından açılış imzası pakete en uzak seçilir
+const DIV_BAND = 0.05;
+
 function buildPack(sizeStr) {
   const [cols, rows] = sizeStr.split("x").map(Number);
   const levels = [];
-  const stats = { bel: [], dalga: [], before: [], efor: [], grind: [], goz: [], bandOut: 0 };
-  for (let id = 1; id <= 20; id++) {
-    const tplId = id <= 10 ? "bel" : "dalga";
+  const stats = { bel: [], dalga: [], before: [], efor: [], grind: [],
+                  goz: [], sigd: [], bandOut: 0 };
+  const chosenSigs = []; // paket içinde seçilmiş levellerin açılış imzaları
+  for (let id = 1; id <= PACK_N; id++) {
+    const d = Math.floor((id - 1) / 10); // onluk indeksi
+    const tplId = d % 2 === 0 ? "bel" : "dalga"; // onluk paritesi
     const tpl = CURVE_TEMPLATES[tplId];
     const i = (id - 1) % 10;
-    const rec = recipeOf(tplId, i);
+    const rec = recipeOf(tplId, d, i, rows, cols);
     // Aşama A: aday havuzu — efor tabanı havuzdan türediği için (medyan)
     // erken çıkış yok, tüm adaylar toplanır
     const pool = [];
@@ -299,9 +371,18 @@ function buildPack(sizeStr) {
     const means = pool.map((p) => p.sc.meanEffort).sort((a, b) => a - b);
     const floor = means[Math.floor(means.length / 2)];
     const eligible = pool.filter((p) => p.sc.meanEffort >= floor);
-    let best = null;
-    for (const p of (eligible.length ? eligible : pool)) {
-      if (!best || p.sc.key < best.sc.key) best = p;
+    // seçim: kalite bandı içinden AÇILIŞ İMZASI pakete en uzak aday
+    // (uzak-nokta örneklemesi). Sıralama key→cand deterministik; eşit
+    // uzaklıkta düşük key kazanır (liste o sırayla gezilir).
+    const list = (eligible.length ? eligible : pool)
+      .slice().sort((a, b) => a.sc.key - b.sc.key || a.cand - b.cand);
+    const elite = list.filter((p) => p.sc.key <= list[0].sc.key + DIV_BAND);
+    let best = elite[0], bestD = -1;
+    if (chosenSigs.length) {
+      for (const p of elite) {
+        const dMin = Math.min(...chosenSigs.map((s) => sigDist(p.sc.sig, s)));
+        if (dMin > bestD + 1e-12) { bestD = dMin; best = p; }
+      }
     }
     const { lv } = best.g;
     // sözleşme: %100 dolu (generateFullLevel garantisi; yine de doğrula)
@@ -318,7 +399,11 @@ function buildPack(sizeStr) {
     if (ref.pairs.length !== lv.pairs.length || cellSet.size !== ref.pairs.length * 2) {
       throw new Error("mutasyon doluluğu bozdu: " + sizeStr + " #" + id);
     }
-    // meta için bileşenler son halden ölçülür
+    // meta için bileşenler son halden ölçülür; imza havuza SON halden girer
+    // (mutasyon açılışı az değiştirir ama ölçüm gerçeği yazsın)
+    if (chosenSigs.length) stats.sigd.push(
+      Math.min(...chosenSigs.map((s) => sigDist(ref.sig, s))));
+    chosenSigs.push(ref.sig);
     const ecS = effortCurve(ref.pairs, rows, cols, null, "sweep");
     const ecR = effortCurve(ref.pairs, rows, cols, null, "ray");
     stats[tplId].push(ref.leader);
@@ -327,15 +412,17 @@ function buildPack(sizeStr) {
     stats.goz.push(ref.vfs);
     levels.push({
       id,
-      name: TM_SHAPES.DEFS[best.g.shape].name + " · " + tplId,
+      name: MASK_NAMES[best.g.maskKind] + " · " + tplId,
       rows, cols,
       pairs: ref.pairs,
       seed: lv.seed,
       meta: {
         label: LABELS[i],
         template: tplId,
-        shape: best.g.shape,
+        mask: best.g.maskKind,
         cut: best.g.cut,
+        entryN: rec.entryN,
+        frontMode: rec.frontMode,
         score: +ref.leader.toFixed(3),
         sweepRmse: +shapeScore(ecS.effort, tpl).toFixed(3),
         rayRmse: +shapeScore(ecR.effort, tpl).toFixed(3),
@@ -370,6 +457,7 @@ for (const s of SIZES) {
     "efor ort " + mean(stats.efor).toFixed(1) + "  " +
     "öğütme " + (100 * mean(stats.grind)).toFixed(1) + "%  " +
     "göz payı " + (100 * mean(stats.goz)).toFixed(0) + "%  " +
+    "imza çeş. " + mean(stats.sigd).toFixed(3) + "  " +
     (stats.bandOut ? "bant dışı " + stats.bandOut + "  " : "") +
     ((Date.now() - t0) / 1000).toFixed(1) + " sn");
 }
@@ -390,7 +478,7 @@ if (DRY) {
       "// Üretilmiş efor-hedefli tam dolu paketler — ELLE DÜZENLEME; kanonik\n" +
       '// veri: levels/efor-<boyut>/ (şema: README "Level JSON formatı"),\n' +
       "// yazan: tools/gen_effort_levels.js; şablonlar js/flow.js\n" +
-      "// CURVE_TEMPLATES (1-10 bel, 11-20 dalga).\n\n",
+      "// CURVE_TEMPLATES, onluk paritesiyle (çift onluk bel, tek dalga).\n\n",
   });
   console.log("yazıldı: levels/efor-<boyut>/*.json + levels_efor.js (" +
     packs.length + " paket, " +

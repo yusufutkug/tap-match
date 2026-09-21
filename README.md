@@ -286,8 +286,8 @@ Etiket şeridi banda göre easy→veryhard. İlerleme/favori anahtarları
 `tam-6x8:id` biçiminde (klasik paketlerle çakışmaz).
 
 **Efor hedefli paketler** (`levels_efor.js`, `tools/gen_effort_levels.js`
-yazar): boyut başına 20 tam dolu level × 5 boyutluk merdiven (6x8, 7x10,
-8x12, 9x14, 10x15) = 100 level; ana ekranda "Efor hedefli" bölümü. Üretim
+yazar): boyut başına 125 tam dolu level × 4 boyut (6x8, 7x10, 8x12,
+9x14) = 500 level; ana ekranda "Efor hedefli" bölümü. Üretim
 iki katmanlıdır: iç katman (`generateFullLevel`) yapısal kaliteyi, dış
 katman EFOR EĞRİSİNİN ŞEKLİNİ ve YÜKSEKLİĞİNİ seçer — level başına 60
 aday üretilir, her adayı yerel + ışın + göz botları oynar. Aday hedefi
@@ -314,15 +314,32 @@ yerleşim ucuz elenir, çözülebilirlik bot koşusunda elenir); %50 olasılıkl
 ilk çift, sweep eğrisinin şablondan en çok saptığı adım çevresinde kırılan
 çiftlerden seçilir (sapmayı yapan bölgeye nişan). Kabul = öncü skor
 iyileşir VE bant kötüleşmez; bütçe board alanıyla ölçeklenir (8×alan,
-150-2000). Şablonlar `js/flow.js CURVE_TEMPLATES`:
-1-10 **bel** (ortada zirve, sonda rahatlama — tek parça şekil + düğüm/dar
-bel reçetesi), 11-20 **dalga** (iki tepe — kesme hatlı şekil: iki ada = iki
-keşif fazı). Kalibrasyon (leader = şekil + öğütme + göz akış; düz çizginin
-bel şablonuna salt-şekil RMSE'si ≈ 0.45): mutasyon A→B ort. 0.42→0.24
-(6x8) / 0.52→0.36 (10x15); efor ort merdiveni 12.5→21.9; öğütme payı
-%6-15; vadi hızlı-görüş payı %69-84 (göz terimi öncesi %42-65; vadi göz
-eforu ort 18.1→8.7 taş, tepe 35.3'te sabit — düğüm/akış kontrastı
-keskinleşti); tutarlılık bandı dışında level yok. `report_bot_curves.js` efor
+150-2000). Şablonlar `js/flow.js CURVE_TEMPLATES`, onluk PARİTESİYLE:
+çift onluk (1-10, 21-30, ...) **bel** (ortada zirve, sonda rahatlama),
+tek onluk **dalga** (iki tepe — kesme hatlı: iki ada = iki keşif fazı).
+
+ÇEŞİTLİLİK (oyuncu isteği: "başlangıç kalıplarını olabildiğince
+çeşitlendir; derinlik aynı kalsın"): (a) MASKE — figüratif şekiller yerine
+dolu + simetrik prosedürel boşluklar (`js/generator.js symMask`: V/P/Q
+simetri, 1-2 tohum blok yansıtılır, boşluk bütçesi alanın ~%10'u — "anlam
+gerekmez, simetrik görünüm yeter; genelde dolu"; kolon sayısı çift
+boyutlarda parite kendiliğinden korunur, kenar-kırpma onarımı hiç
+tetiklenmez) + seyrek dama (yalnız desen alanı çift kalan 6x8/8x12).
+Boşluklar giriş havuzu olduğundan maske, açılış cephelerinin YERİNİ de
+çeşitlendirir; sym maske aday seedine bağlı — havuz maskede de çeşitlenir.
+(b) AÇILIŞ — entryN 1-3 (9x14'te 4) ve frontMode yilan/cepheler/bolge
+rotasyonu, faz kaydırmalı; beşte bir frontBias 0.85. (c) AÇILIŞ İMZASI —
+ilk 6 hamlenin ölçülen karakteri (göz eforu, span, köşe payı, tap konumu;
+0..1 vektör). Aşama A seçimi, en iyi skora 0.05 bandında kalan adaylardan
+pakete önce girmiş levellerin imzalarına EN UZAK olanı alır (uzak-nokta
+örneklemesi) — çeşitlilik reçeteye değil ölçüme dayanır.
+
+Kalibrasyon (leader = şekil + öğütme + göz akış; düz çizginin bel
+şablonuna salt-şekil RMSE'si ≈ 0.45): mutasyon A→B ort. 0.41→0.27 (6x8) /
+0.55→0.38 (9x14); efor ort merdiveni 11.1→17.8; öğütme %10-14; vadi
+hızlı-görüş payı %68-82 (vadi göz eforu ort 8.5 taş, tepe 26.7 —
+düğüm/akış kontrastı korunur); açılış imza çeşitliliği ort 0.078-0.082;
+tutarlılık bandı dışında 3/500 level. `report_bot_curves.js` efor
 paketlerinde hedef şablonu grafiğe kesikli çizgiyle koyar — uyum gözle
 denetlenir.
 
@@ -342,7 +359,7 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 |---|---|
 | `js/board.js` | çekirdek: `visibleTilesFrom` (4 yön taraması), `resolveTap` (occupied/blank/miss/match), `availableTapCells`, `isAdjacentCollinear` |
 | `js/flow.js` | ölçüm: `analyzeFlow` (AND/OR dalga + deadlock tespiti), `pairsCurve` (U-eğri + arama eforu + köşe payı), `localityStats` (yerel-oyuncu: sıçrama/düğüm/öğütme/bölünme), `boardEfforts` (anlık hamle eforları — oyun içi gösterge ile botun ortak hesabı), `effortCurve` (min-efor bot: hamle-başına efor modeli + zorluk profili), `CURVE_TEMPLATES`/`shapeScore` (efor eğrisi hedef şablonları + RMSE uyum skoru — efor hedefli üretimin ölçü tarafı) |
-| `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim |
+| `js/generator.js` | yapı-önce üretici: `buildGeometry` (giriş/kapı/kilitli), `generateLevel` (doğrula+seç), `generateCandidates`; `mask` opsiyonuyla şekilli üretim; `peelBuild` + `generateFullLevel` ile tam dolu (ileri soyma) üretim; `symMask` (simetrik prosedürel maske: V/P/Q yansımalı boşluk tohumları, doluluk ~%90, parite garantili) |
 | `js/shapes.js` | şekil maskeleri: `maskFor` (id+boyut → maske), `encode`/`decode` (JSON taşıma); ada maskeleri (papyon/yonca/takımada/bantlar); bitmap kalıplar (`sampleBitmap` çoğunluk örneklemesi) + özel kalıp kaydı (localStorage) |
 | `kalip.html` + `js/kalip.js` | kalıp editörü: formülsüz şekil tasarımı — 24×16 tuvalde boya (simetri kilitleri, PNG içe aktarma, hazır şablonlar), 10 boyutta canlı önizleme (ada/alan/kesme tanıları), test üretimi + oynama, localStorage'a kayıt (lab şekil satırı okur), DEFS kodu dışa aktarma |
 | `levels.js` | elle yazılmış 6 öğretici level (oyun listesinde değil; test/lab tarafında) |
@@ -360,9 +377,9 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `tools/report_eye.js` | göz botu akış kalibrasyonu: efor paketlerinde şablon vadisi/tepesi ayrımıyla göz eforu ort/p90 ve hızlı-görüş payı (≤3 taş) — üretimdeki göz akış teriminin eşik/ağırlık dayanağı |
 | `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels/<boyut>/` + `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
 | `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
-| `tools/gen_effort_levels.js` | efor-hedefli paket üretimi: aday başına yerel+ışın botu oynar, efor eğrisi hedef şablona (bel/dalga) RMSE ile seçilir; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8` ile kuru koşu |
+| `tools/gen_effort_levels.js` | efor-hedefli paket üretimi (4 boyut × 125 = 500): aday başına yerel+ışın+göz botu oynar, efor eğrisi hedef şablona (bel/dalga, onluk paritesi) RMSE ile seçilir; maske (dolu/symMask/dama) + açılış (entryN/frontMode) rotasyonu ve açılış imzası uzak-nokta seçimiyle çeşitlilik; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8` ile kuru koşu |
 | `tools/pack_io.js` | paket yazıcı/okuyucu: üretici çıktısını level başına json dosyalarına + `.js` sarmalayıcıya böler (`writePacks`), testler için geri okur (`readPack`) |
-| `tools/export_levels.js` | efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır → `export_levels/<n>_<e\|m\|h>.json` + `funnel.csv`; sıralama ölçülen efora dayalı (sweep effortMean yüzdeliği, testere-dişi hedef eğrisi, boyut DEĞİŞKEN — anti-seri: aynı boyut ≤2 art arda); hücre dizisi index 0 sol alt; -1 oyun dışı / 0 dot / 1+ sticker=çift id; veryhard → h. Funnel 200 level: 1-100 ARŞİV nesli (göz terimi öncesi üretim, dondurulmuş dosyalar), 101-200 güncel paketler — yeniden koşum `--offset 100` ile (1-100'e dokunmaz, funnel.csv'yi klasörün tamamından kurar) |
+| `tools/export_levels.js` | efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır → `export_levels/<n>_<e\|m\|h>.json` + `funnel.csv`; sıralama ölçülen efora dayalı (sweep effortMean yüzdeliği, testere-dişi hedef eğrisi, boyut DEĞİŞKEN — anti-seri: aynı boyut ≤2 art arda); hücre dizisi index 0 sol alt; -1 oyun dışı / 0 dot / 1+ sticker=çift id; veryhard → h. Yalnız yazılan aralık (`--offset K` → K+1..K+N) tazelenir, aralık dışı dosyalar ARŞİV; funnel.csv klasörün tamamından kurulur. Mevcut düzen 700 level: 1-500 çeşitlilik nesli (düz koşum), 501-700 dondurulmuş arşiv (501-600 göz-terimi öncesi, 601-700 göz-terimli 20'lik nesil) |
 
 ## Çalıştırma
 

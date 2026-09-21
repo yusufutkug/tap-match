@@ -71,10 +71,11 @@ function chart(curves, tpl) {
 }
 
 // efor paketlerinde şablon id'den bilinir (gen_effort_levels düzeni:
-// 1-10 bel, 11-20 dalga) — kesikli hedef çizgisi grafiğe eklenir
+// onluk paritesi — çift onluk bel, tek onluk dalga; eski 20'lik paketlerin
+// 1-10/11-20 düzenini de kapsar) — kesikli hedef çizgisi grafiğe eklenir
 function tplOf(pk, lv) {
   if (!pk.size.startsWith("efor-")) return null;
-  return lv.id <= 10 ? "bel" : "dalga";
+  return Math.floor((lv.id - 1) / 10) % 2 === 0 ? "bel" : "dalga";
 }
 
 function levelCard(pk, lv) {
@@ -96,10 +97,11 @@ function levelCard(pk, lv) {
 }
 
 // varsayılan seçki: paket başına her diff'ten ORTADAKİ level; efor
-// paketlerinde şablon başına orta + en sert reçete (5, 10, 15, 20)
+// paketlerinde pakete yayılmış 4 örnek (paket boyu değişebilir: 20 / 125)
 function pickLevels(pk) {
   if (pk.size.startsWith("efor-")) {
-    return pk.levels.filter((l) => [5, 10, 15, 20].includes(l.id));
+    return [0.12, 0.38, 0.62, 0.88]
+      .map((f) => pk.levels[Math.round(f * (pk.levels.length - 1))]);
   }
   const out = [];
   for (const d of DIFFS) {
