@@ -66,7 +66,27 @@
   // efor eğrisi hedef şablona uydurulmuş (onluk paritesi: çift onluk bel,
   // tek onluk dalga), maske/açılış çeşitliliği üretimde zorlanmış.
   const EFOR_PACKS = (typeof TM_EFOR_PACKS !== "undefined") ? TM_EFOR_PACKS : [];
-  const ALL_PACKS = PACKS.concat(SHAPE_PACKS, EFOR_PACKS);
+  // Mekanik paketi (levels_mekanik.js): elle yazılmış Tile Generator
+  // levelleri, dış motor formatında saklanır → burada iç modele çevrilir
+  // (levelFromExternal). Boyut level başına değişir; kart adla listelenir.
+  const MECH_PACKS = (typeof TM_MECH_LEVELS !== "undefined" && TM_MECH_LEVELS.length)
+    ? [{
+      size: "mekanik", name: "Tile Generator", cols: 0, rows: 0,
+      levels: TM_MECH_LEVELS.map((ext) => levelFromExternal(ext, { id: ext.id, name: ext.name })),
+    }]
+    : [];
+  // Funnel paketleri (levels_funnel.js, tools/build_funnel_js.js): dış
+  // formatlı üretilmiş setler (ör. v3 Tile Generator funnel'ı); Mekanikler
+  // bölümünde listelenir. İlerleme anahtarı "<size>:<no>".
+  if (typeof TM_FUNNEL_PACKS !== "undefined") {
+    for (const p of TM_FUNNEL_PACKS) {
+      MECH_PACKS.push({
+        size: p.size, name: p.name, cols: 0, rows: 0,
+        levels: p.levels.map((ext) => levelFromExternal(ext, { id: ext.id, name: ext.name })),
+      });
+    }
+  }
+  const ALL_PACKS = PACKS.concat(SHAPE_PACKS, EFOR_PACKS, MECH_PACKS);
 
   // Level json'ları küçük tutulur (levels/<size>/NNN.json — README "Level
   // JSON formatı"): level yalnızca id + diff + pairs taşır. rows/cols
@@ -194,6 +214,9 @@
     if (!game || !game.effortEl) return;
     game.effortEl.innerHTML = "";
     if (!effortMode || game.over || game.alive.size === 0) return;
+    // generator'lı boardda overlay yok: lv.pairs basılan taşların konumunu
+    // taşımaz (çevrimdışı ölçüm js/flow.js effortCurve(..., gens) ile yapılır)
+    if (game.gens) return;
     const karma = effortMode === 1;
     const ef = effortMode === 2 ? boardSalience(game.board, game.lv.pairs)
       : effortMode === 3 ? boardSweep(game.board, game.lv.pairs, game.lastTap)
@@ -267,13 +290,17 @@
     const cur = SKINS.find((s) => s.id === skinId);
     $("btnSkin").textContent = "Taş: " + cur.name.split(" ·")[0];
   }
-  // Asset 1'e özel hücre ölçüsü: görselin beyaz yüzü 260×230 px — genişliği
-  // boyundan ~%13 fazla. Kare hücrede dikey esnetilince taş "dikdörtgensi"
-  // (uzun) görünüyordu. Bu skin'de hücre yüksekliği yüz oranına sadıktır:
-  // 64 × 230/260 ≈ 56.6px; alt et bandı yine alttaki hücreye sarkar (CSS).
+  // Hücre ölçüsü skin'in asset oranına sadıktır: PNG'ler tam kare değil,
+  // style.css taş yüzünü 100%/100% ile hücreye bastığı için kare hücrede
+  // görsel dikey esnerdi. Oranlar görselin piksel ölçülerinden:
+  //   a1  tile_asset_1.png beyaz yüz 260×230 (alt et bandı 29px hücre
+  //       DIŞINA sarkar, bkz. style.css) → 230/260 ≈ 0.885
+  //   a2  tile_asset_2.png 131×129 → 129/131 ≈ 0.985
+  //   a3  new_tiles.png    261×257 → 257/261 ≈ 0.985
   // Konumlar %-tabanlı olduğundan yalnız board piksel boyutu değişir.
+  const SKIN_CELL_RATIO = { flat: 1, a1: 230 / 260, a2: 129 / 131, a3: 257 / 261 };
   function cellW() { return BASE_CELL; }
-  function cellH() { return skinId === "a1" ? BASE_CELL * 230 / 260 : BASE_CELL; }
+  function cellH() { return BASE_CELL * (SKIN_CELL_RATIO[skinId] || 1); }
 
   // Skin değişince board'un piksel boyutunu yeni hücre oranına göre güncelle
   // (oyun ortası toggle: hücre/taş boyutları % olduğu için kendiliğinden
@@ -427,7 +454,7 @@
     const card = document.createElement("button");
     card.className = "size-card";
     card.innerHTML =
-      '<span class="sz-name">' + p.cols + "×" + p.rows + "</span>" +
+      '<span class="sz-name">' + (p.name || p.cols + "×" + p.rows) + "</span>" +
       '<span class="sz-meta">' + p.levels.length + " level · " + dn + " tamamlandı</span>" +
       '<span class="sz-bar"><i style="width:' + (100 * dn / p.levels.length) + '%"></i></span>';
     card.addEventListener("click", () => { pack = p; listMode = "pack"; showList(); });
@@ -452,6 +479,11 @@
     eg.innerHTML = "";
     for (const p of EFOR_PACKS) eg.appendChild(sizeCard(p, done));
     $("eforSection").hidden = !EFOR_PACKS.length;
+    // mekanik paketleri (Tile Generator vb.)
+    const mg = $("mechGrid");
+    mg.innerHTML = "";
+    for (const p of MECH_PACKS) mg.appendChild(sizeCard(p, done));
+    $("mechSection").hidden = !MECH_PACKS.length;
     const favN = favSet().size;
     $("favLibMeta").textContent = favN ? favN + " level" : "henüz boş — oyunda ♡ ile ekle";
     renderThemeRow();
@@ -479,7 +511,7 @@
       (label ? " diff-" + label : "") +
       (done.has(key) ? " done" : "");
     card.innerHTML =
-      '<span class="lv-id">' + (showSize ? p.cols + "×" + p.rows + " · " : "") +
+      '<span class="lv-id">' + (showSize ? lv.cols + "×" + lv.rows + " · " : "") +
         lv.id + (lv.name ? " · " + lv.name : "") + "</span>" +
       '<span class="lv-meta">' + lv.pairs.length + " çift</span>" +
       (done.has(key) ? '<span class="lv-check">✓</span>' : "");
@@ -509,7 +541,7 @@
     }
 
     const dn = pack.levels.filter((lv) => done.has(pack.size + ":" + lv.id)).length;
-    $("packTitle").textContent = (pack.full ? "Tam dolu " : "") + pack.cols + "×" + pack.rows;
+    $("packTitle").textContent = pack.name || ((pack.full ? "Tam dolu " : "") + pack.cols + "×" + pack.rows);
     $("packInfo").textContent = pack.levels.length + " level · " + dn + " tamamlandı";
     for (const lv of pack.levels) grid.appendChild(levelCard(pack, lv, done, false));
   }
@@ -577,16 +609,48 @@
     el.style.transform = "translate(" + c * 100 + "%, " + r * 100 + "%)";
   }
 
+  // Taş elementi (board hücre yüzdesi boyutunda, (r,c)'ye yerleşik).
+  function makeTile(pairId, r, c) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.style.width = 100 / game.lv.cols + "%";
+    tile.style.height = 100 / game.lv.rows + "%";
+    posEl(tile, r, c);
+    tile.innerHTML = '<span class="face">' + game.faceOf(pairId) + "</span>";
+    tile._seq = 0; // animasyon jetonu: yeni animasyon eskisinin callback'lerini iptal eder
+    return tile;
+  }
+
+  // Tile Generator yön glifleri (ekran yönü; iç "U" = r azalır = ekranda yukarı)
+  const GEN_ARROWS = { U: "▲", D: "▼", L: "◀", R: "▶" };
+
   function startLevel(lv) {
     cancelSight();
     const theme = TM_THEMES[currentThemeId()];
     const rng = mulberry32(lv.seed ^ 0x5bf03635);
     const perm = shuffle(Array.from({ length: theme.faces.length }, (_, i) => i), rng);
 
+    // Sticker'lı level: lv.stickers[pairId] = sid (kalıcı sticker kimliği,
+    // bkz. sticker_manager/README). Görsel yolu stickers_map.js'ten çözülür;
+    // sid haritada yoksa (emekli sid vb.) tema yüzüne düşülür — level yine
+    // oynanır, eksik görsel oyunu kırmaz.
+    const sidSrc = typeof TM_STICKERS !== "undefined" ? TM_STICKERS : null;
+    const stickerFace = (pairId) => {
+      if (!lv.stickers || !sidSrc) return null;
+      const src = sidSrc[lv.stickers[pairId]];
+      return src
+        ? '<img class="sticker" src="sticker_manager/library/' + src + '" alt="" draggable="false">'
+        : null;
+    };
+
     game = {
       lv,
-      board: boardFromPairs(lv.rows, lv.cols, lv.pairs),
-      faceOf: (pairId) => theme.faces[perm[pairId % theme.faces.length]],
+      board: boardFromLevel(lv),
+      // Tile Generator durumu (oynanış kopyası; kuyruklar tüketilir) ya da null
+      gens: lv.generators && lv.generators.length ? cloneGenerators(lv.generators) : null,
+      genEls: [],         // generator elementleri (gens ile aynı indeks)
+      faceOf: (pairId) =>
+        stickerFace(pairId) || theme.faces[perm[pairId % theme.faces.length]],
       alive: new Set(lv.pairs.map((_, i) => i)),
       tiles: new Map(),   // "r,c" → taş elementi (yalnız canlı taşlar)
       cells: new Map(),   // "r,c" → hücre elementi
@@ -640,16 +704,24 @@
         game.cells.set(r + "," + c, cell);
         boardEl.appendChild(cell);
 
-        if (game.board[r][c] !== null) {
-          const tile = document.createElement("div");
-          tile.className = "tile";
-          tile.style.width = w;
-          tile.style.height = h;
-          posEl(tile, r, c);
-          tile.innerHTML = '<span class="face">' + game.faceOf(game.board[r][c]) + "</span>";
-          tile._seq = 0; // animasyon jetonu: yeni animasyon eskisinin callback'lerini iptal eder
+        const v = game.board[r][c];
+        if (v !== null && v >= 0) {
+          const tile = makeTile(v, r, c);
           game.tiles.set(r + "," + c, tile);
           boardEl.appendChild(tile);
+        } else if (v !== null) {
+          // generator: yön oku + kalan taş sayacı (kuyruk uzunluğu)
+          const gi = genIndexOf(v), g = game.gens[gi];
+          const el = document.createElement("div");
+          el.className = "tile gen gen-" + g.dir.toLowerCase();
+          el.style.width = w;
+          el.style.height = h;
+          posEl(el, r, c);
+          el.innerHTML = '<span class="face"><span class="gen-arrow">' + GEN_ARROWS[g.dir] +
+            '</span><span class="gen-count">' + g.queue.length + "</span></span>";
+          el._seq = 0;
+          game.genEls[gi] = el;
+          boardEl.appendChild(el);
         }
       }
     }
@@ -772,7 +844,8 @@
     const res = resolveTap(game.board, r, c);
 
     if (res.kind === "occupied") {
-      const tile = game.tiles.get(key);
+      const v = game.board[r][c];
+      const tile = v < 0 ? game.genEls[genIndexOf(v)] : game.tiles.get(key);
       if (tile) {
         tile.classList.add("wiggle");
         setTimeout(() => tile.classList.remove("wiggle"), 280);
@@ -814,13 +887,27 @@
     if (isCombo) game.combos++;
     playScan(r, c, res); // board mutate edilmeden: ışınlar eşleşen taşları görsün
     flashCell(key, "good", scanDelay() + 450); // doğru hücre: soket tap anında yeşil
+    // Eşleşen taşların elementleri ŞİMDİ haritadan alınır: generator aynı
+    // hücreye hemen yeni taş basabilir ve o taş haritada bu anahtarı devralır;
+    // gecikmeli uçuş eski elementi (yenisini değil) taşımalı.
+    const flyers = [];
+    for (const m of res.matches) {
+      for (const [tr, tc] of m.tiles) {
+        const el = game.tiles.get(tr + "," + tc);
+        if (el) { game.tiles.delete(tr + "," + tc); flyers.push(el); }
+      }
+    }
     applyMatches(game.board, res.matches);
     for (const m of res.matches) game.alive.delete(m.pairId);
+    const genEv = game.gens ? applyGenerators(game.board, game.gens) : null;
     setTimeout(() => {
       if (game !== g) return;
-      for (const m of res.matches)
-        for (const [tr, tc] of m.tiles) flyAndBreak(tr, tc, r, c);
+      for (const el of flyers) flyAndBreak(el, r, c);
     }, scanDelay());
+    if (genEv && (genEv.spawned.length || genEv.broken.length)) {
+      // model güncel; görsel eşleşen taş patladıktan sonra oynar
+      playGenerators(genEv, scanDelay() + FLY_MS + POP_MS - POP_LEAD);
+    }
     setTimeout(() => {
       if (game !== g) return;
       spawnBurst(r, c, isCombo);
@@ -843,11 +930,55 @@
     }
   }
 
+  // Tile Generator görseli. Üretilen taş hemen yaratılıp haritaya yazılır
+  // (model zaten öne basmış durumda; ara tap'ler bu elementi bulmalı), ama
+  // generator hücresinde küçük/saydam bekler; `delay` sonra öne kayar ve
+  // sayaç düşer. Kuyruğu biten generator aynı anda patlar (popFace).
+  function playGenerators(ev, delay) {
+    const g = game;
+    const pending = [];
+    for (const s of ev.spawned) {
+      const gen = game.gens[s.gen];
+      const tile = makeTile(s.pairId, gen.r, gen.c);
+      tile.classList.add("spawn");
+      game.tiles.set(s.r + "," + s.c, tile);
+      // generator'ın altından çıksın: DOM'da generator elementinden önce
+      $("board").insertBefore(tile, game.genEls[s.gen]);
+      pending.push({ tile, s, gen });
+    }
+    setTimeout(() => {
+      if (game !== g) return;
+      for (const { tile, s, gen } of pending) {
+        if (!tile.isConnected) continue; // bu arada eşleşip patlamış olabilir
+        tile.classList.remove("spawn");
+        // hâlâ generator hücresindeyse öne kaydır (ara tap uçurmadıysa)
+        if (!tile.classList.contains("flying")) posEl(tile, s.r, s.c);
+        const el = game.genEls[s.gen];
+        const cnt = el && el.querySelector(".gen-count");
+        if (cnt) cnt.textContent = gen.queue.length;
+        if (el) {
+          el.classList.add("emit");
+          setTimeout(() => el.classList.remove("emit"), 300);
+        }
+      }
+      for (const gi of ev.broken) {
+        const el = game.genEls[gi];
+        if (!el) continue;
+        game.genEls[gi] = null;
+        setTimeout(() => {
+          if (game !== g) return;
+          el.classList.add("pop");
+          spawnBurst(game.gens[gi].r, game.gens[gi].c, false);
+          setTimeout(() => el.remove(), POP_MS);
+        }, FLY_MS); // önce son taş yerine otursun, sonra kırılsın
+      }
+    }, delay);
+  }
+
   // Eşleşen taş: hücreye uç, orada patla, DOM'dan kalk.
-  function flyAndBreak(r0, c0, r, c) {
-    const tile = game.tiles.get(r0 + "," + c0);
+  // (element haritadan çağıran tarafından çıkarılmıştır — bkz. onCellTap match)
+  function flyAndBreak(tile, r, c) {
     if (!tile) return;
-    game.tiles.delete(r0 + "," + c0);
     const seq = ++tile._seq;
     tile.classList.add("flying");
     posEl(tile, r, c);

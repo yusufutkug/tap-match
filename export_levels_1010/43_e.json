@@ -1,0 +1,43 @@
+{
+  "width": 7,
+  "height": 10,
+  "cells": [
+     23, 16, 19,  0, 10,  6,  0,
+     18, 12,  0,  0,  0,  9,  6,
+     19,  5, 15,  0,  2, 21, 16,
+      0,  0, 12,  2, 21, 11, 17,
+      4,  0,  4,  9, 11,  3,  0,
+      0,  5, 10, 15, 14,  0,  3,
+     25, 24, 23,  7,  8,  0,  0,
+     24,  8,  1,  0,  1, 17, 22,
+     25, 18,  0,  0,  0, 22, 14,
+      0, 20, 13,  0,  7, 13, 20
+  ],
+  "stickers": [
+    "fruits_yellow_02",
+    "flowers_blue_03",
+    "fruits_red_04",
+    "flowers_white_01",
+    "flowers_pink_01",
+    "fruits_blue_01",
+    "fruits_red_02",
+    "flowers_blue_02",
+    "fruits_red_01",
+    "fruits_purple_02",
+    "flowers_pink_02",
+    "flowers_white_04",
+    "flowers_green_03",
+    "fruits_green_03",
+    "flowers_green_08",
+    "flowers_blue_01",
+    "fruits_yellow_03",
+    "flowers_orange_05",
+    "flowers_red_09",
+    "music_orange_02",
+    "toys_yellow_05",
+    "fruits_green_02",
+    "flowers_yellow_04",
+    "fruits_green_04",
+    "flowers_orange_02"
+  ]
+}

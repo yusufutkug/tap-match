@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     15,  2,  0,  8, 11,  7,
+     20,  5,  8, 19, 21, 12,
+     12, 21,  5, 23, 22, 18,
+     23, 10,  2, 10, 14, 17,
+     20, 13, 14, 11, 18, 16,
+     13,  9, 22,  6, 16, 15,
+      7,  6,  3,  4,  9, 17,
+     19,  4,  1,  0,  1,  3
+  ],
+  "stickers": [
+    "circus_red_01",
+    "fairytale_pink_01",
+    "fairytale_orange_02",
+    "fairytale_red_04",
+    "circus_red_08",
+    "fairytale_green_01",
+    "bags_blue_01",
+    "fairytale_red_01",
+    "bags_blue_04",
+    "fairytale_green_02",
+    "bags_blue_06",
+    "fairytale_blue_01",
+    "circus_blue_04",
+    "circus_blue_02",
+    "icons_pink_01",
+    "bags_green_01",
+    "bags_blue_03",
+    "circus_red_04",
+    "circus_orange_06",
+    "bags_white_05",
+    "circus_orange_03",
+    "bags_pink_05",
+    "bags_green_04"
+  ]
+}

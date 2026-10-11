@@ -1,0 +1,37 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     19, 20, 21, 10, 19,  2,
+     18,  8, 20, 11,  2,  0,
+     17, 18, 21,  9,  5,  0,
+     13, 16, 17,  6,  4,  0,
+     11,  9,  6,  4,  3,  0,
+     13, 15,  8,  3,  1,  0,
+     14, 12, 10,  7,  5,  0,
+     15, 16, 12, 14,  7,  1
+  ],
+  "stickers": [
+    "cold_drink_brown_01",
+    "cold_drink_pink_01",
+    "gems_teal_03",
+    "cold_drink_green_02",
+    "gems_green_04",
+    "cold_drink_green_03",
+    "gems_blue_04",
+    "gems_red_04",
+    "cold_drink_yellow_01",
+    "gems_yellow_02",
+    "gems_pink_01",
+    "gems_blue_03",
+    "cold_drink_blue_01",
+    "cold_drink_orange_01",
+    "cold_drink_red_01",
+    "cold_drink_green_01",
+    "gems_yellow_01",
+    "gems_red_03",
+    "cold_drink_red_02",
+    "gems_teal_02",
+    "gems_green_03"
+  ]
+}

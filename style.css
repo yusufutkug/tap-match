@@ -765,6 +765,22 @@ body.dark .theme-sample .mj-red { color: #e8a29b; }
   height: 62%;
 }
 
+/* Sticker'lı leveller (lv.stickers → sticker_manager/library PNG'leri):
+   sticker taş yüzünü maksimum doldurur, oranı korunur */
+.tile .face .sticker {
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+body.skin-a1 .board .tile .face .sticker,
+body.skin-a2 .board .tile .face .sticker,
+body.skin-a3 .board .tile .face .sticker {
+  width: 80%;
+  height: 80%;
+}
+
 /* Mücevher teması: biraz daha iri + hafif gölgeyle derinlik */
 .tile .face .gem {
   width: 70%;
@@ -845,6 +861,69 @@ body.skin-a2 .board .tile.bad .face,
 body.skin-a3 .board .tile.bad .face {
   filter: drop-shadow(0 0 4px var(--accent)) saturate(1.4) brightness(1.02);
 }
+
+/* ── Tile Generator (js/game.js playGenerators) ──
+   Koyu, metalik blok: taşlardan açıkça farklı (eşleşmez, engel). Yön oku
+   bakış yönünü, köşedeki rozet kuyrukta KALAN taş sayısını gösterir.
+   Seçici gövdesi `body .board` ile başlar ki skin PNG kuralları
+   (body.skin-* .board .tile .face) bunu ezmesin; kaynak sırasında onlardan
+   sonra gelir. Üretilen taş .spawn ile generator'ın içinde küçük/saydam
+   bekler, sınıf kalkınca .tile transition'ıyla öne kayar. */
+body .board .tile.gen { z-index: 3; } /* altından çıkan taşın üstünde */
+body .board .tile.gen .face {
+  inset: 3px;
+  background: linear-gradient(160deg, #6e6a78 0%, #45424d 55%, #35333b 100%);
+  border-radius: 18%;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.28);
+  filter: none;
+  font-size: 0; /* çocuklar kendi boyutunu alır */
+  padding: 0; /* skin-a1'in padding-bottom'ı sıfırlanır (inset bottom'ı da ezer) */
+  color: #f3efe6;
+}
+body .board .tile.gen .gen-arrow {
+  font-size: 30px;
+  line-height: 1;
+  opacity: 0.92;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+body .board .tile.gen-u .gen-arrow { transform: translateY(-6%); }
+body .board .tile.gen-d .gen-arrow { transform: translateY(8%); }
+body .board .tile.gen-l .gen-arrow { transform: translateX(-8%); }
+body .board .tile.gen-r .gen-arrow { transform: translateX(8%); }
+body .board .tile.gen .gen-count {
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e2725b;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 0 0 2px var(--table);
+}
+/* üretim anı: blok hafifçe nabız atar */
+body .board .tile.gen.emit .face { animation: genEmit 0.3s ease; }
+@keyframes genEmit {
+  40% { transform: scale(1.1); }
+}
+/* üretilen taş: generator içinde gizli bekler, sonra öne kayar */
+body .board .tile.spawn { z-index: 1; }
+body .board .tile.spawn .face {
+  transform: scale(0.4);
+  opacity: 0;
+}
+body .board .tile:not(.spawn) .face { transition: transform 0.16s ease, background 0.15s, box-shadow 0.16s, opacity 0.16s; }
+/* kırılma: popFace .face ölçeğiyle çalışır; rozet de birlikte söner */
+body .board .tile.gen.pop .face { animation: popFace 0.24s forwards; }
 
 /* ── Kazanma / kaybetme overlay'i ── */
 .win {

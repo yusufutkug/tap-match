@@ -1,4 +1,13 @@
 .DS_Store
+node_modules/
+tools/editor/effort_cache.json
 hard_moves.html
 bot_curves.html
 export_levels.zip
+# ağır / yerel varlıklar (oyun için gerekmez)
+sticker_manager/figma_assets/
+sticker_manager/trash/
+sticker_manager/__pycache__/
+*.zip
+paylasim_paket/
+matchtiles_level_win_duration_US.xlsx

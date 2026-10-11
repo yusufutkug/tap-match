@@ -1,0 +1,36 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     15, 18, 14, 10,  7,  6,
+     13, 15,  9,  3,  1,  2,
+      7,  9,  3,  8,  0,  0,
+     13, 18,  4,  1,  0,  0,
+     20, 12,  8,  4,  0,  0,
+     19, 17, 11,  6,  0,  0,
+     16, 14, 12, 10,  5,  2,
+     20, 17, 16, 19, 11,  5
+  ],
+  "stickers": [
+    "baby_items_blue_01",
+    "baby_items_gray_01",
+    "bedroom_yellow_01",
+    "bedroom_orange_02",
+    "baby_items_blue_04",
+    "bedroom_red_02",
+    "carnival_green_02",
+    "carnival_orange_01",
+    "bedroom_teal_03",
+    "baby_items_pink_04",
+    "bedroom_white_05",
+    "carnival_red_02",
+    "carnival_green_04",
+    "carnival_purple_01",
+    "carnival_blue_05",
+    "carnival_blue_01",
+    "bedroom_blue_04",
+    "carnival_yellow_03",
+    "carnival_yellow_01",
+    "bedroom_white_03"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "width": 7,
+  "height": 10,
+  "cells": [
+      0,  0,  0,  0,  0,  0,  0,
+      0,  0, 18, 20,  3,  0,  0,
+      0, 18, 12,  3, 19, 25,  0,
+      0, 10,  9, 13, 16, 20,  0,
+      0,  1,  5, 14, 15,  7,  0,
+      1,  5,  9, 11, 14, 12, 16,
+     11, 10, 19, 15, 13, 17,  7,
+      6, 23, 17, 21, 22,  8, 23,
+      2, 24, 21, 22, 24, 25,  4,
+      0,  2,  6,  0,  8,  4,  0
+  ],
+  "stickers": [
+    "animals_orange_02",
+    "school_blue_02",
+    "school_blue_09",
+    "under_sea_red_03",
+    "animals_orange_03",
+    "under_sea_yellow_03",
+    "under_sea_blue_02",
+    "under_sea_blue_05",
+    "animals_orange_08",
+    "school_blue_03",
+    "school_yellow_07",
+    "school_orange_03",
+    "school_blue_08",
+    "school_orange_02",
+    "school_yellow_01",
+    "under_sea_green_02",
+    "under_sea_orange_01",
+    "under_sea_white_03",
+    "under_sea_orange_02",
+    "school_yellow_11",
+    "animals_gray_03",
+    "animals_orange_07",
+    "under_sea_blue_06",
+    "under_sea_red_01",
+    "school_orange_04"
+  ]
+}

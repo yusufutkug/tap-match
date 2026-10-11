@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     23,  5, 23, 16, 20, 22,
+     21,  7, 20, 13, 16, 18,
+     11, 17, 21, 10, 13, 12,
+      9,  8, 19,  8,  9, 10,
+     11, 14,  6, 17, 15, 12,
+      5,  4,  3, 14, 19, 15,
+      3,  0,  1,  2,  0,  2,
+      4,  1,  6, 18, 22,  7
+  ],
+  "stickers": [
+    "cafe_orange_01",
+    "countrylife_orange_12",
+    "countrylife_orange_07",
+    "countrylife_red_09",
+    "countrylife_red_03",
+    "clothes_green_02",
+    "clothes_red_10",
+    "clothes_white_01",
+    "music_orange_06",
+    "music_blue_04",
+    "music_blue_01",
+    "countrylife_gray_01",
+    "countrylife_green_09",
+    "music_orange_01",
+    "music_blue_05",
+    "music_orange_04",
+    "clothes_red_06",
+    "countrylife_orange_10",
+    "clothes_green_04",
+    "clothes_blue_05",
+    "music_pink_02",
+    "clothes_black_01",
+    "cafe_orange_05"
+  ]
+}

@@ -15,8 +15,18 @@
 
 // Node için board yardımcıları; tarayıcıda script etiketiyle global.
 if (typeof module !== "undefined" && typeof boardFromPairs === "undefined") {
-  var { boardFromPairs, visibleTilesFrom, availableTapCells, resolveTap, applyMatches } =
+  var { boardFromPairs, visibleTilesFrom, availableTapCells, resolveTap, applyMatches,
+        cloneGenerators, applyGenerators } =
     require("./board.js");
+}
+
+// Taş mı? (generator hücresi negatif kimlik taşır: ışını keser, taş değildir)
+function isTileCell(v) { return v !== null && v >= 0; }
+// Hücreyi gören TAŞ sayısı (generator sayılmaz) — kesişim nitelemesi için
+function seenTilesN(board, r, c) {
+  let n = 0;
+  for (const t of visibleTilesFrom(board, r, c)) if (t.pairId >= 0) n++;
+  return n;
 }
 
 function spanOf([[r1, c1], [r2, c2]]) {
@@ -548,7 +558,7 @@ function boardSalience(board, pairs) {
   const seenN = Array.from({ length: rows }, () => Array(cols).fill(0));
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] === null) seenN[r][c] = visibleTilesFrom(board, r, c).length;
+      if (board[r][c] === null) seenN[r][c] = seenTilesN(board, r, c);
     }
   }
   // search point havuzu: her taş 4 yönde ışınını yürür; ışındaki SON kesişim
@@ -556,7 +566,7 @@ function boardSalience(board, pairs) {
   let searchPts = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] === null) continue;
+      if (!isTileCell(board[r][c])) continue; // generator ışın yaymaz
       for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
         let rr = r + dr, cc = c + dc, i = 0, last = 0;
         while (rr >= 0 && rr < rows && cc >= 0 && cc < cols && board[rr][cc] === null) {
@@ -618,14 +628,14 @@ function scanPrep(board) {
   const seenN = Array.from({ length: rows }, () => Array(cols).fill(0));
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] === null) seenN[r][c] = visibleTilesFrom(board, r, c).length;
+      if (board[r][c] === null) seenN[r][c] = seenTilesN(board, r, c);
     }
   }
   const inc = Array.from({ length: rows }, () => Array(cols).fill(0));
   let searchPts = 0;
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] === null) continue;
+      if (!isTileCell(board[r][c])) continue; // generator ışın yaymaz
       for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
         const ray = [];
         let rr = r + dr, cc = c + dc, last = -1;
@@ -750,7 +760,7 @@ function rayEfforts(board, prep, last) {
   const tiles = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] !== null) tiles.push({ r, c, d: Math.abs(r - sr) + Math.abs(c - sc) });
+      if (isTileCell(board[r][c])) tiles.push({ r, c, d: Math.abs(r - sr) + Math.abs(c - sc) });
     }
   }
   tiles.sort((a, b) => a.d - b.d || (a.r * cols + a.c) - (b.r * cols + b.c));
@@ -793,7 +803,7 @@ function eyeEfforts(board, pairs, last) {
   const tiles = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (board[r][c] !== null) {
+      if (isTileCell(board[r][c])) {
         tiles.push({ r, c, pid: board[r][c], d: Math.abs(r - sr) + Math.abs(c - sc) });
       }
     }
@@ -883,18 +893,31 @@ function botEfforts(board, pairs, botId, state) {
 //   effortMax / effortMaxPos / effortMean / effortHiShare — zorluk özetleri
 // model: "salience" → boardSalience; SEARCH_BOTS üyesi → botEfforts (weights
 // yok sayılır; hiShare eşiği 2×level medyanı — ölçekleri mutlak eşik taşımaz).
-function effortCurve(pairs, rows, cols, weights, model) {
+//
+// gens (isteğe bağlı): Tile Generator listesi [{ r, c, dir, queue }] (bkz.
+// js/board.js). Generator hücresi ışını keser ama taş değildir; her
+// eşleşmeden sonra önü boşalan generator kuyruğundaki taşı öne basar
+// (applyGenerators). Kuyruktaki eşi henüz boardda olmayan çift tek
+// koordinatlıdır; basıldığında koordinatı livePairs'e eklenir. Dönüşteki
+// `pairs` alanı = tüm taşların son (basıldığı) konumlarıyla çiftler —
+// isCollinear/spanOf gibi iki-koordinat bekleyen ölçümler onu kullanmalı.
+// spawns[t] = t. hamleden sonra basılan taş sayısı (tempo analizi için).
+function effortCurve(pairs, rows, cols, weights, model, gens) {
   const n = pairs.length;
   if (n === 0) return null;
-  const board = boardFromPairs(rows, cols, pairs);
+  // canlı çiftler: kuyruktaki taşlar basıldıkça koordinat kazanır
+  const livePairs = pairs.map((p) => p.map((t) => t.slice()));
+  const board = boardFromPairs(rows, cols, livePairs);
+  const liveGens = gens && gens.length ? cloneGenerators(gens) : null;
+  if (liveGens) liveGens.forEach((g, gi) => { board[g.r][g.c] = -1 - gi; });
   const isBot = SEARCH_BOTS.indexOf(model) !== -1;
   const state = { last: null, step: 0, mem: new Map() };
-  const effort = [], moves = [], order = [];
+  const effort = [], moves = [], order = [], spawns = [];
   let alive = n;
   while (alive > 0) {
-    const ef = model === "salience" ? boardSalience(board, pairs)
-      : isBot ? botEfforts(board, pairs, model, state)
-      : boardEfforts(board, pairs, state.last, weights);
+    const ef = model === "salience" ? boardSalience(board, livePairs)
+      : isBot ? botEfforts(board, livePairs, model, state)
+      : boardEfforts(board, livePairs, state.last, weights);
     if (!ef) return null; // tıkalı — yapısal deadlock
     // seçim anahtarı: karma modelde hamle terimleri (adım terimleri ortak);
     // salience'ta efor (payda ortak → maks match point); botlarda efor
@@ -915,7 +938,7 @@ function effortCurve(pairs, rows, cols, weights, model) {
       for (let i = 0; i <= pick.vi; i++) state.mem.set(ef.visited[i], state.step);
     }
     for (const pid of pick.pairIds) {
-      const [[r1, c1], [r2, c2]] = pairs[pid];
+      const [[r1, c1], [r2, c2]] = livePairs[pid];
       board[r1][c1] = null;
       board[r2][c2] = null;
       order.push(pid);
@@ -928,6 +951,23 @@ function effortCurve(pairs, rows, cols, weights, model) {
       }
     }
     alive -= pick.pairIds.length;
+    // generator adımı: önü boşalan generator taş basar (yeni taş = yeni
+    // bilgi; hafızada o satır/sütun bayatlar)
+    let spawnedN = 0;
+    if (liveGens) {
+      const g = applyGenerators(board, liveGens);
+      for (const s of g.spawned) {
+        livePairs[s.pairId].push([s.r, s.c]);
+        spawnedN++;
+        if (model === "memory") {
+          for (const k of state.mem.keys()) {
+            if (Math.floor(k / cols) === s.r || k % cols === s.c) state.mem.delete(k);
+          }
+        }
+      }
+      // kırılan generator'ın hücresi boşaldı (applyGenerators null yazdı)
+    }
+    spawns.push(spawnedN);
     state.last = [pick.r, pick.c];
     state.step++;
   }
@@ -941,12 +981,73 @@ function effortCurve(pairs, rows, cols, weights, model) {
     hiThr = 2 * sorted[Math.floor(L / 2)];
   }
   return {
-    effort, moves, order,
+    effort, moves, order, spawns, pairs: livePairs,
     effortMax: effort[maxI],
     effortMaxPos: L > 1 ? maxI / (L - 1) : 0,
     effortMean: effort.reduce((a, b) => a + b, 0) / L,
     effortHiShare: effort.filter((x) => x >= hiThr).length / L,
   };
+}
+
+// ── Oynama süresi tahmini (kalibre efor) ────────────────────────────────
+// Funnel'ı dizen / bantlayan TEK efor sayısı: tahmini OYUNCU saniyesi.
+// Doğrusal model: sn = base + sal·salYük + coll·hizalıPay. İki profil:
+//
+// player (varsayılan) — US oyuncu verisi, 1010 funnel, level başına medyan
+//   kazanma süresi (matchtiles_level_win_duration_US.xlsx; 142 level
+//   users≥30, ağırlıklı OLS). Gerçek medyan ile korelasyon: salience yükü
+//   0.95, eye 0.93, sweep 0.92, çift sayısı 0.88. r² 0.91. Boyut başına
+//   gerçek/model: 6x8 1.09, 7x10 0.97, 8x12 0.97, 9x14 1.07 → tek denklem
+//   dört boyutu da tutar. Hizalı çift payı popülasyonda etkisiz (−2 sn/100%,
+//   gürültü içinde) → 0. Öğrenme etkisi yok: gerçek/tahmin oranı level
+//   1-300 boyunca düz. Veri sadece kazananları içerir.
+// designer — TASARIMCININ saniyesi = sweep yükü / 10 (effortMean × çift
+//   / 10). Parametresiz kural. Tasarımcının 54 kendi ölçümüyle sınandı
+//   (1010 funnel 200-224 ve 351-380): iki bağımsız sette RMSE 9.0 / 6.9.
+//   Denenen 3-parametreli salience+hizalı fit (27.05 + 0.0126·sal −
+//   28.74·hizalı) kalibre edildiği 25 levelde 5.7 verdi ama görülmemiş 29
+//   levelde 8.9'a düştü (aşırı uyum: taban 27 bol seçenekli 6x8'i
+//   şişirir, yatık eğim 8x12'yi düşük tutar). Tasarımcı oyuncudan ~2×
+//   hızlı (6x8 1.7×, 9x14 2.5×) ve seçenek bolluğundan oyuncu kadar
+//   kazanmaz — süresi hamle sayısıyla (sweep), oyuncununki seçenek
+//   yoğunluğuyla (salience) ölçeklenir. Level ÜRETİM hedefleri bu birimle
+//   verilir (tools/gen_v2_levels.js).
+//
+// Sweep yükü oyuncu için neden değil: tarayıcı bot ilk match'te durur,
+// SEÇENEK BOLLUĞUNA kredi vermez; salience, match-hücresi/boş-alan oranıyla
+// bolluğu ölçer. Oyuncu modelinden sapan uçlar: 9x14/8x12'de tek çok
+// pahalı an (zirve/ortalama oranı yüksek) medyanı 1.5-2× sürükler; küçük
+// boardda "görünmez" tek hamle medyanı değil ortalamayı şişirir.
+// Yeni ölçüm geldikçe profiller yeniden fit edilir; eşikler sn cinsinden.
+var PLAYTIME_PROFILES = {
+  player:   { base: 11.3, sal: 0.0444, coll: 0, sweep: 0 },
+  designer: { base: 0,    sal: 0,      coll: 0, sweep: 0.1 },
+};
+var PLAYTIME_COEF = PLAYTIME_PROFILES.player;
+
+// Dönüş null = tıkalı. Aksi halde { seconds (profil), designerSeconds,
+// playerSeconds, salLoad, sweepLoad, collShare, salMean }.
+// profile: "player" (varsayılan) | "designer".
+// gens: Tile Generator listesi (isteğe bağlı; bkz. effortCurve).
+function playTime(pairs, rows, cols, profile, gens) {
+  const n = pairs.length;
+  if (n === 0) return null;
+  const sal = effortCurve(pairs, rows, cols, null, "salience", gens);
+  if (!sal) return null;
+  const sw = effortCurve(pairs, rows, cols, null, "sweep", gens);
+  if (!sw) return null;
+  let coll = 0;
+  for (const p of sw.pairs) if (isCollinear(p)) coll++; // basılmış konumlarla
+  const collShare = coll / n;
+  const salLoad = sal.effortMean * n;
+  const sweepLoad = sw.effortMean * n;
+  const secOf = (c) => Math.max(1, c.base + c.sal * salLoad + c.coll * collShare +
+    (c.sweep || 0) * sweepLoad);
+  const playerSeconds = secOf(PLAYTIME_PROFILES.player);
+  const designerSeconds = secOf(PLAYTIME_PROFILES.designer);
+  const seconds = profile === "designer" ? designerSeconds : playerSeconds;
+  return { seconds, playerSeconds, designerSeconds, salLoad, sweepLoad, collShare,
+           salMean: sal.effortMean };
 }
 
 // ── Efor eğrisi şekil hedefleri ─────────────────────────────────────────
@@ -1010,5 +1111,6 @@ if (typeof module !== "undefined") {
     localityStats, boardEfforts, boardSalience, boardSweep, botEfforts,
     effortCurve, EFFORT_WEIGHTS, EFFORT_HI_THR, SEARCH_BOTS, MEMORY_DECAY,
     EYE_DIAG, CURVE_TEMPLATES, templateAt, shapeScore,
+    playTime, PLAYTIME_COEF, PLAYTIME_PROFILES,
   };
 }

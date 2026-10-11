@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     11, 22, 21, 19, 13, 12,
+      5,  7, 15, 12,  9,  6,
+      0,  3, 10, 19,  4,  0,
+      3,  5,  7, 10,  6,  4,
+      1, 20, 22, 17, 13,  2,
+      0, 14, 16, 18, 17,  0,
+      1,  8, 11, 14, 15,  2,
+      8, 16, 18, 20, 21,  9
+  ],
+  "stickers": [
+    "vegitables_yellow_03",
+    "sports_yellow_04",
+    "school_yellow_06",
+    "sports_yellow_08",
+    "bags_yellow_02",
+    "under_sea_yellow_01",
+    "school_yellow_10",
+    "cat_words_yellow_01",
+    "music_yellow_04",
+    "toys_yellow_07",
+    "music_yellow_06",
+    "toys_yellow_05",
+    "vehicles_yellow_02",
+    "icons_yellow_01",
+    "under_sea_yellow_04",
+    "school_yellow_07",
+    "breakfast_yellow_02",
+    "clothes_yellow_02",
+    "cleaning_items_yellow_04",
+    "blocks_yellow_03",
+    "sports_yellow_01",
+    "toys_yellow_10"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     17, 21, 16,  2, 21, 13,
+     14, 10,  0,  0,  5,  8,
+     19, 17, 12,  5, 19, 10,
+     16, 12,  9,  2,  9, 13,
+     18, 15, 11,  8, 11, 15,
+     22,  7,  4,  1,  4,  7,
+     20, 18,  0,  0,  3, 20,
+     22,  6,  3,  1,  6, 14
+  ],
+  "stickers": [
+    "vehicles_red_03",
+    "cafe_teal_01",
+    "vehicles_pink_02",
+    "cafe_red_01",
+    "vehicles_yellow_01",
+    "cafe_orange_07",
+    "cafe_green_01",
+    "cafe_green_03",
+    "vehicles_gray_01",
+    "cafe_orange_02",
+    "cafe_brown_01",
+    "vehicles_white_02",
+    "cafe_orange_01",
+    "vehicles_pink_01",
+    "cafe_black_01",
+    "cafe_yellow_01",
+    "cafe_white_01",
+    "cafe_green_02",
+    "breakfast_blue_01",
+    "cafe_brown_02",
+    "kitchen_gray_01",
+    "cafe_orange_08"
+  ]
+}

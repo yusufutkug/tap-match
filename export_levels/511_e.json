@@ -1,0 +1,33 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      0,  0,  0,  0,  0,  0,
+      0,  0,  4,  3,  0,  0,
+      0,  1,  9,  6, 15,  0,
+      1,  5, 13, 16, 17,  3,
+      5,  9, 11, 13, 14, 16,
+     11, 14, 10, 17, 15, 12,
+      2,  6, 12, 10,  7,  8,
+      0,  2,  7,  8,  4,  0
+  ],
+  "stickers": [
+    "camping_blue_01",
+    "school_yellow_04",
+    "camping_brown_01",
+    "school_orange_01",
+    "school_blue_08",
+    "camping_red_04",
+    "school_yellow_08",
+    "camping_orange_06",
+    "camping_orange_09",
+    "school_blue_01",
+    "school_blue_09",
+    "camping_gray_01",
+    "camping_orange_14",
+    "school_pink_04",
+    "school_pink_01",
+    "school_yellow_09",
+    "camping_green_05"
+  ]
+}

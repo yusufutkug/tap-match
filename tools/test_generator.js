@@ -415,11 +415,17 @@ for (const cfg of configs) {
 {
   const { TM_EFOR_PACKS } = require("../levels_efor.js");
   const { readPack } = require("./pack_io.js");
-  const LABELS = ["easy", "easy", "easy", "medium", "medium",
-                  "medium", "hard", "hard", "veryhard", "veryhard"];
-  check("efor paketleri var (4 boyut × 125 = 500)",
+  // 1000'lik funnel düzeni: 100 decade × sabit boyut döngüsü — boyut başına
+  // level sayısı ve etiket (zorluk boyuttan) gen_effort_levels PACK_PLAN'ı
+  const PLAN = {
+    "efor-6x8": { n: 500, label: "easy" },
+    "efor-7x10": { n: 300, label: "medium" },
+    "efor-8x12": { n: 100, label: "hard" },
+    "efor-9x14": { n: 100, label: "veryhard" },
+  };
+  check("efor paketleri var (funnel düzeni: 500+300+100+100 = 1000)",
     Array.isArray(TM_EFOR_PACKS) && TM_EFOR_PACKS.length === 4 &&
-    TM_EFOR_PACKS.reduce((a, p) => a + p.levels.length, 0) === 500);
+    TM_EFOR_PACKS.reduce((a, p) => a + p.levels.length, 0) === 1000);
   check("efor sarmalayıcı js == levels/ ağacı",
     TM_EFOR_PACKS.every((pk) => JSON.stringify(pk) === JSON.stringify(readPack(pk.size))));
 
@@ -429,11 +435,12 @@ for (const cfg of configs) {
 
   for (const pk of TM_EFOR_PACKS) {
     const P = pk.levels, tag = "paket " + pk.size;
-    check(tag + ": 125 level", P.length === 125);
-    check(tag + ": idler 1..125 sıralı", P.every((l, i) => l.id === i + 1));
+    const plan = PLAN[pk.size];
+    check(tag + ": " + plan.n + " level", P.length === plan.n);
+    check(tag + ": idler sıralı", P.every((l, i) => l.id === i + 1));
     check(tag + ": tam dolu paket bayrağı", pk.full === true);
-    check(tag + ": etiket şeridi (onluk başına 3-3-2-2)",
-      P.every((l, i) => l.diff === LABELS[i % 10]));
+    check(tag + ": etiket boyuttan (" + plan.label + ")",
+      P.every((l) => l.diff === plan.label));
 
     let solvable = true;
     for (const l of P) {

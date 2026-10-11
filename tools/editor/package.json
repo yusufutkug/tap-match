@@ -1,0 +1,16 @@
+{
+  "name": "tapmatch-level-editor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tap Match export_levels görüntüleyici/oynatıcı (Electron)",
+  "main": "main.js",
+  "scripts": {
+    "start": "env -u ELECTRON_RUN_AS_NODE electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0"
+  },
+  "allowScripts": {
+    "electron@33.4.11": true
+  }
+}

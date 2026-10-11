@@ -1,0 +1,41 @@
+{
+  "width": 9,
+  "height": 14,
+  "cells": [
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  2, 18, 16,  4,  5,  0,  0,
+      0,  2,  4, 13,  0,  3, 18, 14,  0,
+     19, 10, 19, 15, 16, 11,  6, 12,  5,
+      9,  7,  0,  0,  9,  0,  0,  8, 17,
+     11,  0,  0,  0,  1,  0,  0,  0, 14,
+      0,  0,  0,  0,  7,  0,  0,  0,  0,
+      0,  0,  0,  0,  3,  0,  0,  0,  0,
+      0,  0,  0,  1, 15,  6,  0,  0,  0,
+      0,  0,  0, 10,  0,  8,  0,  0,  0,
+      0,  0,  0, 12, 13, 17,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0
+  ],
+  "stickers": [
+    "cookie_words_pink_05",
+    "cookie_words_pink_11",
+    "icons_green_01",
+    "cookie_words_pink_16",
+    "cookie_words_pink_12",
+    "cookie_words_pink_15",
+    "cookie_words_orange_22",
+    "icons_blue_05",
+    "icons_red_02",
+    "icons_blue_04",
+    "cookie_words_pink_20",
+    "cookie_words_orange_07",
+    "cookie_words_pink_21",
+    "icons_red_03",
+    "icons_orange_01",
+    "icons_yellow_02",
+    "icons_teal_01",
+    "icons_green_02",
+    "cookie_words_orange_21"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     10, 23, 21, 17, 23, 20,
+     16, 22, 18, 21, 22, 15,
+     13, 14, 11, 14, 17, 12,
+     11, 19,  8,  4,  8, 10,
+     13, 16, 19,  6, 20, 12,
+      6,  3,  5,  7, 18, 15,
+      9,  1,  0,  0,  2,  5,
+      4,  3,  1,  9,  7,  2
+  ],
+  "stickers": [
+    "cinema_yellow_03",
+    "cinema_white_02",
+    "cinema_white_03",
+    "cinema_red_05",
+    "cold_drink_blue_01",
+    "cinema_white_01",
+    "cinema_red_01",
+    "cinema_orange_07",
+    "cold_drink_green_01",
+    "cinema_orange_02",
+    "cold_drink_brown_01",
+    "cinema_gray_03",
+    "cinema_yellow_01",
+    "cinema_blue_02",
+    "cold_drink_orange_01",
+    "cold_drink_yellow_01",
+    "cold_drink_red_01",
+    "cold_drink_green_02",
+    "fantasy_red_01",
+    "cold_drink_green_03",
+    "cinema_red_03",
+    "cold_drink_red_02",
+    "cold_drink_pink_01"
+  ]
+}

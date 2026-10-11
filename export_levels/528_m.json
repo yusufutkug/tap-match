@@ -1,0 +1,34 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      0,  5,  8,  6, 12,  0,
+      5,  4,  3, 14,  4, 17,
+      8,  3,  0,  0, 14,  1,
+      2,  9,  0,  0, 13, 16,
+     11, 13,  0,  0, 16, 17,
+     18, 11,  0,  0,  1, 10,
+     15,  7,  9,  7, 10, 12,
+      0,  2, 18,  6, 15,  0
+  ],
+  "stickers": [
+    "art_tools_red_01",
+    "christmas_green_04",
+    "christmas_red_12",
+    "christmas_red_09",
+    "cafe_orange_02",
+    "christmas_white_03",
+    "christmas_green_05",
+    "countrylife_green_09",
+    "christmas_red_08",
+    "countrylife_orange_11",
+    "countrylife_orange_14",
+    "christmas_white_01",
+    "cafe_white_01",
+    "christmas_teal_01",
+    "countrylife_brown_02",
+    "art_tools_red_03",
+    "cafe_orange_10",
+    "cafe_orange_03"
+  ]
+}

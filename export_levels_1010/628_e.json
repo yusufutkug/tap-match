@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     11,  4, 11, 17, 20, 21,
+     14,  2, 10, 14, 21, 18,
+     17,  0,  2,  8, 20, 15,
+      6, 12,  6, 23,  8, 10,
+     13,  9,  5, 13,  7, 15,
+      5,  0,  1,  4, 16, 19,
+      3,  1,  9,  7, 19, 22,
+     18,  3, 12, 16, 22, 23
+  ],
+  "stickers": [
+    "numbers_orange_08",
+    "numbers_pink_08",
+    "blocks_red_01",
+    "numbers_green_10",
+    "fruits_red_01",
+    "cat_words_pink_05",
+    "numbers_green_02",
+    "toys_green_06",
+    "numbers_yellow_05",
+    "cold_drink_blue_01",
+    "cold_drink_green_03",
+    "numbers_yellow_02",
+    "cold_drink_green_01",
+    "cold_drink_red_01",
+    "numbers_orange_09",
+    "cold_drink_brown_01",
+    "cold_drink_red_02",
+    "numbers_yellow_01",
+    "cold_drink_pink_01",
+    "cold_drink_orange_01",
+    "blocks_gray_02",
+    "cold_drink_green_02",
+    "cold_drink_yellow_01"
+  ]
+}

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sticker Manager</title>
+<style>
+  :root {
+    --bg: #1c1e24; --panel: #24262e; --border: #33363f;
+    --text: #e8e9ec; --muted: #9aa0ab; --accent: #ffb84d; --danger: #e05a4e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden;
+  }
+  /* ---------- sidebar ---------- */
+  #sidebar {
+    width: 260px; min-width: 260px; background: var(--panel);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  }
+  #sidebar h1 { font-size: 15px; padding: 14px 14px 4px; color: var(--accent); }
+  #sidebar .sub { font-size: 11px; color: var(--muted); padding: 0 14px 10px; }
+  .side-label { font-size: 11px; color: var(--muted); padding: 10px 14px 4px;
+    text-transform: uppercase; letter-spacing: .5px; }
+  #search {
+    margin: 0 12px; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    font-size: 13px; outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+  #colorchips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 12px; }
+  .cchip {
+    display: flex; align-items: center; gap: 5px; font-size: 11px; cursor: pointer;
+    padding: 4px 8px; border-radius: 20px; border: 1px solid var(--border);
+    color: var(--muted); user-select: none;
+  }
+  .cchip .dot { width: 12px; height: 12px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.25); }
+  .cchip.on { border-color: var(--accent); color: var(--text); background: #2d3039; }
+  #catlist { flex: 1; overflow-y: auto; padding: 4px 8px 12px; }
+  .cat-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; border-radius: 7px; cursor: pointer; font-size: 13px;
+  }
+  .cat-item:hover { background: #2d3039; }
+  .cat-item.active { background: var(--accent); color: #1a1a1a; font-weight: 600; }
+  .cat-item .count { font-size: 11px; color: var(--muted); }
+  .cat-item.active .count { color: #333; }
+  /* import kutusu */
+  #importbox { padding: 10px 12px; border-top: 1px solid var(--border); }
+  #importbox input {
+    width: 100%; margin-bottom: 6px; padding: 7px 9px; border-radius: 7px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    font-size: 12px; outline: none;
+  }
+  #importbox button {
+    width: 100%; padding: 8px; border-radius: 7px; border: none; cursor: pointer;
+    background: var(--accent); color: #1a1a1a; font-weight: 600; font-size: 13px;
+  }
+  #importmsg { font-size: 11px; color: var(--muted); padding-top: 6px; min-height: 16px; }
+  /* ---------- main ---------- */
+  #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #toolbar {
+    display: flex; align-items: center; gap: 14px; padding: 10px 16px;
+    background: var(--panel); border-bottom: 1px solid var(--border);
+    font-size: 13px; flex-wrap: wrap;
+  }
+  #toolbar label { color: var(--muted); }
+  #toolbar button {
+    background: var(--bg); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 6px 12px; font-size: 12px; cursor: pointer;
+  }
+  #delbtn { background: var(--danger); border: none; color: #fff; font-weight: 600; }
+  #delbtn:disabled { opacity: .35; cursor: default; }
+  #stats { margin-left: auto; color: var(--muted); font-size: 12px; }
+  #grid { flex: 1; overflow-y: auto; padding: 16px; }
+  .cat-section { margin-bottom: 26px; }
+  .cat-section h2 {
+    font-size: 14px; color: var(--accent); margin-bottom: 10px;
+    position: sticky; top: -16px; background: var(--bg); padding: 6px 0; z-index: 2;
+  }
+  .cat-section h2 .count { color: var(--muted); font-weight: 400; font-size: 12px; }
+  .cells { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cell {
+    border-radius: 10px; padding: 6px; cursor: pointer; text-align: center;
+    border: 2px solid transparent; position: relative; background: #2a2d35;
+  }
+  .cell:hover { border-color: #555; }
+  .cell.sel { border-color: var(--danger); background: #3a2528; }
+  .cell.sel::after {
+    content: '✕'; position: absolute; top: 4px; left: 7px; color: var(--danger);
+    font-size: 14px; font-weight: 700;
+  }
+  .cell img { display: block; }
+  .cell .name { font-size: 10px; color: var(--muted); margin-top: 3px; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cell .dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px;
+    border-radius: 50%; border: 1px solid rgba(0,0,0,.4); }
+  /* ---------- lightbox ---------- */
+  #lightbox {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.82);
+    z-index: 10; align-items: center; justify-content: center; flex-direction: column;
+    cursor: zoom-out;
+  }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 78vw; max-height: 62vh; border-radius: 12px;
+    background: #444; }
+  #lightbox .caption { color: #fff; margin-top: 14px; font-size: 14px; }
+  #lbcolors {
+    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+    margin-top: 14px; max-width: 78vw; cursor: default;
+  }
+  #lbcolors .pick {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; color: #ddd;
+    padding: 5px 10px; border-radius: 20px; border: 1px solid #555;
+    cursor: pointer; user-select: none; background: rgba(0,0,0,.4);
+  }
+  #lbcolors .pick:hover { border-color: #fff; }
+  #lbcolors .pick.cur { border-color: var(--accent); color: var(--accent); }
+  #lbcolors .pick .dot { width: 13px; height: 13px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.3); }
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <h1>Sticker Manager</h1>
+  <div class="sub" id="totals">yükleniyor...</div>
+  <input id="search" type="text" placeholder="Ara...">
+  <div class="side-label">Birincil renk</div>
+  <div id="colorchips"></div>
+  <div class="side-label">Kategori</div>
+  <div id="catlist"></div>
+  <div id="importbox">
+    <input id="imp-path" type="text" placeholder="Klasör yolu (örn. /Users/utku/Desktop/yeni_cicekler)">
+    <input id="imp-cat" type="text" placeholder="Kategori adı (boşsa klasör adı)">
+    <button id="imp-btn">Klasörü içeri al</button>
+    <div id="importmsg"></div>
+  </div>
+</div>
+<div id="main">
+  <div id="toolbar">
+    <label>Boyut <input id="size" type="range" min="48" max="220" value="100"></label>
+    <button id="selall">Görünenleri seç</button>
+    <button id="selnone">Seçimi temizle</button>
+    <button id="delbtn" disabled>Seçilenleri sil (0)</button>
+    <span id="stats"></span>
+  </div>
+  <div id="grid"></div>
+</div>
+<div id="lightbox">
+  <img id="lbimg" src="" alt="">
+  <div class="caption" id="lbcap"></div>
+  <div id="lbcolors"></div>
+</div>
+
+<script>
+const COLOR_HEX = {
+  red:'#d94040', orange:'#e8862f', yellow:'#e6c62e', green:'#4caf6d',
+  teal:'#2fb1a9', blue:'#4180d8', purple:'#8e5fc9', pink:'#e77fb2',
+  brown:'#8d6242', white:'#f0f0f0', gray:'#9aa0ab', black:'#3a3d45',
+};
+const COLORS = Object.keys(COLOR_HEX);
+const $ = id => document.getElementById(id);
+
+let CATALOG = [];
+const state = { q:'', colors:new Set(), cat:null, sel:new Set() };
+
+async function refresh() {
+  CATALOG = await (await fetch('/api/catalog')).json();
+  // kayip secimler temizlensin
+  const ids = new Set(CATALOG.map(e => e.id));
+  for (const s of [...state.sel]) if (!ids.has(s)) state.sel.delete(s);
+  render();
+}
+
+function matches(e) {
+  if (state.cat && e.cat !== state.cat) return false;
+  if (state.colors.size && !state.colors.has(e.color)) return false;
+  if (state.q) {
+    const q = state.q.toLowerCase();
+    if (!e.cat.includes(q) && !e.name.toLowerCase().includes(q) &&
+        !(e.sid || '').includes(q)) return false;
+  }
+  return true;
+}
+const filtered = () => CATALOG.filter(matches);
+
+function render() {
+  const fl = filtered();
+  $('totals').textContent = CATALOG.length + ' sticker · ' +
+    new Set(CATALOG.map(e=>e.cat)).size + ' kategori';
+
+  // renk cipleri
+  const ccounts = {};
+  for (const e of fl) ccounts[e.color] = (ccounts[e.color]||0)+1;
+  const cc = $('colorchips'); cc.innerHTML = '';
+  for (const c of COLORS) {
+    const chip = document.createElement('div');
+    chip.className = 'cchip' + (state.colors.has(c) ? ' on' : '');
+    chip.innerHTML = '<span class="dot" style="background:'+COLOR_HEX[c]+'"></span>'+
+      c+' <span>'+(ccounts[c]||0)+'</span>';
+    chip.onclick = () => {
+      state.colors.has(c) ? state.colors.delete(c) : state.colors.add(c);
+      render();
+    };
+    cc.appendChild(chip);
+  }
+
+  // kategori listesi (kategori filtresi haric sayim)
+  const saved = state.cat; state.cat = null;
+  const flNoCat = filtered(); state.cat = saved;
+  const kcounts = {};
+  for (const e of flNoCat) kcounts[e.cat] = (kcounts[e.cat]||0)+1;
+  const kl = $('catlist'); kl.innerHTML = '';
+  for (const c of Object.keys(kcounts).sort()) {
+    const div = document.createElement('div');
+    div.className = 'cat-item' + (state.cat===c ? ' active':'');
+    div.innerHTML = '<span>'+c+'</span><span class="count">'+kcounts[c]+'</span>';
+    div.onclick = () => { state.cat = (state.cat===c ? null : c); render(); };
+    kl.appendChild(div);
+  }
+
+  // grid
+  const px = +$('size').value;
+  const grid = $('grid'); grid.innerHTML = '';
+  const byCat = new Map();
+  for (const e of fl) {
+    if (!byCat.has(e.cat)) byCat.set(e.cat, []);
+    byCat.get(e.cat).push(e);
+  }
+  for (const [c, entries] of byCat) {
+    const sec = document.createElement('div');
+    sec.className = 'cat-section';
+    sec.innerHTML = '<h2>'+c+' <span class="count">('+entries.length+')</span></h2>';
+    const cells = document.createElement('div');
+    cells.className = 'cells';
+    for (const e of entries) {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (state.sel.has(e.id) ? ' sel' : '');
+      const img = document.createElement('img');
+      img.loading='lazy'; img.src = '/' + e.src; img.width = px; img.height = px;
+      const dot = document.createElement('span');
+      dot.className='dot'; dot.style.background = COLOR_HEX[e.color] || '#888';
+      dot.title = e.color + (e.color_locked ? ' (elle, kilitli)' : '');
+      if (e.color_locked) dot.style.boxShadow = '0 0 0 2px #fff';
+      const nm = document.createElement('div');
+      nm.className='name'; nm.textContent = e.sid || e.name;
+      nm.title = e.id; nm.style.maxWidth = px+'px';
+      cell.append(img, dot, nm);
+      cell.onclick = () => {
+        state.sel.has(e.id) ? state.sel.delete(e.id) : state.sel.add(e.id);
+        cell.classList.toggle('sel');
+        updateDelBtn();
+      };
+      cell.ondblclick = (ev) => { ev.preventDefault(); openLb(e); };
+      cells.appendChild(cell);
+    }
+    sec.appendChild(cells);
+    grid.appendChild(sec);
+  }
+  $('stats').textContent = byCat.size+' kategori, '+fl.length+' sticker gösteriliyor';
+  updateDelBtn();
+}
+
+function updateDelBtn() {
+  const n = state.sel.size;
+  const b = $('delbtn');
+  b.disabled = n === 0;
+  b.textContent = 'Seçilenleri sil ('+n+')';
+}
+
+function openLb(e) {
+  $('lbimg').src = '/' + e.src;
+  $('lbcap').textContent = (e.sid ? e.sid + ' · ' : '') + e.id + ' · ' + e.color +
+    (e.color_locked ? ' 🔒' : '');
+  const box = $('lbcolors'); box.innerHTML = '';
+  for (const c of [...COLORS, 'auto']) {
+    const pick = document.createElement('div');
+    pick.className = 'pick' + (c === e.color && c !== 'auto' ? ' cur' : '');
+    pick.innerHTML = (c === 'auto' ? '↻ ' :
+      '<span class="dot" style="background:'+COLOR_HEX[c]+'"></span>') + c;
+    pick.title = c === 'auto' ? 'otomatik hesapla, kilidi aç' : 'bu rengi ata ve kilitle';
+    pick.onclick = async (ev) => {
+      ev.stopPropagation();
+      const res = await (await fetch('/api/set_color', { method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ id: e.id, color: c }) })).json();
+      if (res.error) { $('lbcap').textContent = 'Hata: ' + res.error; return; }
+      e.color = res.color; e.color_locked = res.locked;
+      if (res.sid) e.sid = res.sid;
+      await refresh();
+      openLb(e);
+    };
+    box.appendChild(pick);
+  }
+  $('lightbox').classList.add('open');
+}
+$('lightbox').onclick = () => $('lightbox').classList.remove('open');
+
+$('search').oninput = ev => { state.q = ev.target.value.trim(); render(); };
+$('size').oninput = render;
+$('selall').onclick = () => { for (const e of filtered()) state.sel.add(e.id); render(); };
+$('selnone').onclick = () => { state.sel.clear(); render(); };
+
+$('delbtn').onclick = async () => {
+  const n = state.sel.size;
+  if (!n || !confirm(n + ' sticker silinsin mi? (trash/ klasörüne taşınır)')) return;
+  await fetch('/api/delete', { method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ ids: [...state.sel] }) });
+  state.sel.clear();
+  refresh();
+};
+
+$('imp-btn').onclick = async () => {
+  const path = $('imp-path').value.trim();
+  if (!path) { $('importmsg').textContent = 'Klasör yolu gir.'; return; }
+  $('importmsg').textContent = 'Alınıyor...';
+  const res = await (await fetch('/api/import', { method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ path, category: $('imp-cat').value }) })).json();
+  $('importmsg').textContent = res.error ? ('Hata: '+res.error)
+    : (res.added + ' sticker eklendi -> ' + res.category);
+  if (!res.error) { $('imp-path').value=''; $('imp-cat').value=''; refresh(); }
+};
+
+refresh();
+</script>
+</body>
+</html>

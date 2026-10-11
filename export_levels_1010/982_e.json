@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      5, 20,  3, 15,  5,  7,
+      3, 14,  9,  6,  2,  4,
+     14,  0,  1,  2,  0,  7,
+     17, 18, 12,  9,  4, 10,
+      1, 11, 13,  8,  6,  8,
+     23, 17, 12, 16, 13, 10,
+     22, 20, 11, 19, 18, 15,
+     23, 22, 16, 21, 19, 21
+  ],
+  "stickers": [
+    "gems_green_05",
+    "gems_orange_03",
+    "gems_yellow_01",
+    "gems_purple_01",
+    "animals_orange_10",
+    "gems_green_02",
+    "animals_brown_01",
+    "gems_red_01",
+    "animals_orange_01",
+    "animals_orange_08",
+    "animals_orange_05",
+    "animals_white_03",
+    "gems_blue_01",
+    "gems_teal_02",
+    "gems_blue_02",
+    "animals_orange_09",
+    "animals_orange_06",
+    "gems_pink_02",
+    "gems_blue_03",
+    "gems_teal_03",
+    "animals_gray_03",
+    "animals_orange_03",
+    "animals_gray_02"
+  ]
+}

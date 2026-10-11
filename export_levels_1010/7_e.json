@@ -1,0 +1,26 @@
+{
+  "width": 5,
+  "height": 7,
+  "cells": [
+      0,  0,  6,  3,  0,
+      0,  0,  0,  7,  3,
+      2,  0,  2,  6,  7,
+      4,  1,  4,  9, 11,
+      8,  0,  1,  5,  8,
+      0,  0,  0,  9, 10,
+      0,  0,  5, 10, 11
+  ],
+  "stickers": [
+    "gems_red_03",
+    "vegitables_green_07",
+    "toys_green_08",
+    "vegitables_purple_02",
+    "gems_blue_05",
+    "toys_red_16",
+    "toys_blue_07",
+    "gems_orange_01",
+    "toys_pink_10",
+    "toys_yellow_04",
+    "vegitables_yellow_01"
+  ]
+}

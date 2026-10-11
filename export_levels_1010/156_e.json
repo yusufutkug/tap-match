@@ -1,0 +1,34 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     18,  9,  5, 17, 18, 16,
+     15,  2,  0, 16, 14,  7,
+      9,  0,  0,  0, 17, 11,
+      0,  2,  1,  0,  7,  3,
+     13,  4,  0, 11,  3,  0,
+      6,  1,  0,  0,  0,  8,
+      5,  4,  6,  0, 10, 14,
+     12,  8, 12, 10, 13, 15
+  ],
+  "stickers": [
+    "carnival_green_01",
+    "flowers_green_02",
+    "fantasy_green_07",
+    "flowers_green_11",
+    "kitchen_red_03",
+    "christmas_red_09",
+    "clothes_green_02",
+    "fantasy_green_03",
+    "cinema_red_01",
+    "blocks_red_02",
+    "bags_red_01",
+    "casino_green_04",
+    "vehicles_red_02",
+    "toys_red_01",
+    "fairytale_red_08",
+    "toys_green_03",
+    "under_sea_green_01",
+    "cleaning_items_red_09"
+  ]
+}

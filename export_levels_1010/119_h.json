@@ -1,0 +1,41 @@
+{
+  "width": 9,
+  "height": 14,
+  "cells": [
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  6,  0,  0,  0,  0,
+      2, 12,  8, 10, 14, 12, 16, 18,  3,
+      0,  2,  5,  8, 19, 16, 15,  9,  0,
+      0,  5, 14, 10, 17,  3, 17, 13,  0,
+      0,  0, 18, 15, 13, 11, 19,  0,  0,
+      0,  0, 11,  9,  7,  4,  7,  0,  0,
+      0,  0,  0,  6,  4,  1,  0,  0,  0,
+      0,  0,  0,  0,  1,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0,  0,  0,  0,  0
+  ],
+  "stickers": [
+    "clothes_blue_09",
+    "clothes_blue_05",
+    "clothes_pink_02",
+    "countrylife_red_09",
+    "countrylife_white_03",
+    "cafe_brown_03",
+    "cafe_red_01",
+    "countrylife_orange_08",
+    "countrylife_red_08",
+    "clothes_green_03",
+    "countrylife_green_06",
+    "cafe_black_01",
+    "cafe_orange_10",
+    "clothes_orange_03",
+    "clothes_gray_01",
+    "countrylife_orange_14",
+    "clothes_brown_01",
+    "clothes_yellow_05",
+    "clothes_red_03"
+  ]
+}

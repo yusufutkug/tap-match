@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     22, 20, 17, 15, 19, 15,
+     23, 22, 13, 17, 12, 14,
+     21, 23, 19, 18, 11, 12,
+     18, 16, 14, 10,  9, 11,
+     21, 20, 16,  7, 10, 13,
+      8,  3,  4,  5,  7,  6,
+      3,  0,  1,  2,  0,  5,
+      8,  1,  2,  4,  6,  9
+  ],
+  "stickers": [
+    "bedroom_orange_03",
+    "bedroom_white_06",
+    "bedroom_green_01",
+    "bedroom_white_01",
+    "camping_red_03",
+    "camping_white_02",
+    "camping_green_06",
+    "bedroom_green_02",
+    "camping_brown_03",
+    "camping_red_02",
+    "camping_orange_09",
+    "camping_orange_05",
+    "bedroom_pink_03",
+    "bedroom_white_04",
+    "bedroom_pink_05",
+    "camping_green_07",
+    "camping_orange_11",
+    "camping_orange_03",
+    "bedroom_blue_08",
+    "camping_brown_05",
+    "camping_blue_02",
+    "bedroom_blue_04",
+    "bedroom_blue_07"
+  ]
+}

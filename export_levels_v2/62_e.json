@@ -1,0 +1,43 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     18, 13,  8,  6,  3,  0,
+     22, 19, 14, 10,  6,  3,
+     26, 20, 23, 22, 18,  8,
+     15, 11,  5,  2, 14, 10,
+     25,  4,  1,  0,  1, 13,
+     11,  9,  4,  2,  7, 19,
+     24, 15,  7,  5, 20, 23,
+     17, 12,  9, 12, 16, 25,
+     21, 17, 21, 16, 24, 26
+  ],
+  "stickers": [
+    "desserts_orange_10",
+    "camping_orange_10",
+    "desserts_red_07",
+    "camping_blue_01",
+    "vegitables_orange_04",
+    "camping_orange_03",
+    "desserts_brown_02",
+    "camping_green_08",
+    "camping_green_02",
+    "camping_red_04",
+    "vegitables_green_01",
+    "camping_orange_14",
+    "desserts_pink_01",
+    "camping_red_03",
+    "desserts_red_06",
+    "camping_orange_11",
+    "vegitables_purple_02",
+    "desserts_brown_05",
+    "desserts_red_04",
+    "camping_white_01",
+    "camping_white_02",
+    "camping_red_02",
+    "camping_blue_02",
+    "camping_green_05",
+    "camping_green_06",
+    "desserts_brown_09"
+  ]
+}

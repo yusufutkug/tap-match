@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     17, 13,  0,  0,  3,  9,
+     21, 17, 18,  3,  6, 18,
+     22, 21, 22,  6, 16, 13,
+     20, 15, 19,  9, 12, 19,
+     15, 11,  8, 12, 10, 14,
+     10,  8,  5,  4,  7, 20,
+     16,  5,  2,  1,  4,  7,
+     11,  2,  0,  0,  1, 14
+  ],
+  "stickers": [
+    "bedroom_orange_02",
+    "christmas_orange_05",
+    "vehicles_orange_01",
+    "cookie_words_orange_17",
+    "cafe_orange_08",
+    "circus_orange_06",
+    "desserts_orange_09",
+    "numbers_orange_10",
+    "desserts_orange_02",
+    "blocks_orange_04",
+    "sports_orange_08",
+    "cookie_words_orange_08",
+    "fruits_orange_01",
+    "circus_orange_05",
+    "sports_orange_01",
+    "fantasy_orange_02",
+    "desserts_orange_06",
+    "cat_words_orange_02",
+    "breakfast_orange_07",
+    "cafe_orange_10",
+    "blocks_orange_02",
+    "countrylife_orange_06"
+  ]
+}

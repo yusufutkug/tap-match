@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      7,  3, 13, 18, 19, 14,
+      4,  0,  9, 12,  0,  5,
+      1,  0,  1,  2,  0, 19,
+     18,  9,  6,  3, 22,  5,
+      4,  6, 10, 12, 11, 14,
+     22, 10, 13, 15, 17, 11,
+     21, 20, 15, 17, 20,  8,
+      8,  7, 21, 16,  2, 16
+  ],
+  "stickers": [
+    "cat_items_yellow_02",
+    "cat_items_blue_02",
+    "casino_blue_01",
+    "casino_gray_02",
+    "cat_items_teal_02",
+    "casino_red_06",
+    "casino_black_03",
+    "casino_black_01",
+    "casino_green_02",
+    "shapes_green_01",
+    "shapes_red_01",
+    "shapes_red_04",
+    "casino_green_01",
+    "cat_items_teal_03",
+    "casino_orange_04",
+    "casino_brown_01",
+    "shapes_red_05",
+    "cat_items_purple_02",
+    "cat_items_green_02",
+    "cat_items_orange_07",
+    "casino_orange_03",
+    "casino_red_01"
+  ]
+}

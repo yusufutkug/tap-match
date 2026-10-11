@@ -1,18 +1,33 @@
 {
-  "width": 8,
-  "height": 12,
+  "width": 6,
+  "height": 8,
   "cells": [
-      0,  0,  0,  0,  0,  0,  0,  0,
-      0,  0,  0,  1, 15,  0,  0,  0,
-      0,  0,  1,  5,  9, 14,  0,  0,
-      0,  5, 14, 19, 15, 19, 13,  0,
-      0,  9, 10, 16, 24, 22,  8,  0,
-      0, 27, 25, 22, 18, 13,  4,  0,
-     10, 11, 31, 16, 25, 18,  8,  4,
-     20, 24, 29, 27, 28, 32, 21, 12,
-      6, 11, 30, 31, 30, 28, 17,  7,
-     32, 20,  2, 26, 29, 23,  3, 12,
-      0,  2, 26, 23, 21, 17,  7,  0,
-      0,  0,  6,  0,  0,  3,  0,  0
+      0,  0,  0,  0,  0,  0,
+      0,  0,  3,  7,  0,  0,
+      0,  1,  9, 10, 11,  0,
+      1,  5, 10, 11, 12,  3,
+      5,  9, 12, 13, 14,  8,
+      2, 13, 14, 15, 16,  4,
+      6, 15, 17, 16, 17,  8,
+      0,  2,  6,  7,  4,  0
+  ],
+  "stickers": [
+    "under_sea_orange_04",
+    "carnival_yellow_01",
+    "fantasy_red_01",
+    "under_sea_orange_05",
+    "fantasy_yellow_01",
+    "fantasy_purple_01",
+    "fantasy_orange_06",
+    "carnival_green_02",
+    "carnival_green_03",
+    "carnival_blue_07",
+    "under_sea_red_02",
+    "under_sea_blue_02",
+    "carnival_red_04",
+    "fantasy_blue_07",
+    "carnival_green_05",
+    "fantasy_orange_05",
+    "fantasy_green_03"
   ]
 }

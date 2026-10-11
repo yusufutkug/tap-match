@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     23, 18, 19, 22, 20, 22,
+     15, 11, 15, 18, 19, 21,
+     23, 14, 12, 21, 13, 20,
+      8,  3,  8, 12,  6, 16,
+      4,  1,  5,  6, 10, 11,
+      1,  0,  3,  7,  0,  2,
+      4,  5,  9,  2, 10, 16,
+      9, 14, 17, 13,  7, 17
+  ],
+  "stickers": [
+    "vehicles_red_04",
+    "kitchen_red_03",
+    "vehicles_yellow_03",
+    "kitchen_red_02",
+    "vehicles_brown_01",
+    "kitchen_orange_02",
+    "kitchen_white_04",
+    "vehicles_red_05",
+    "vehicles_orange_01",
+    "vehicles_orange_02",
+    "vehicles_gray_01",
+    "kitchen_blue_01",
+    "vehicles_yellow_02",
+    "kitchen_white_03",
+    "kitchen_orange_01",
+    "kitchen_white_02",
+    "vehicles_white_03",
+    "kitchen_gray_04",
+    "vehicles_pink_01",
+    "vehicles_red_03",
+    "kitchen_red_01",
+    "vehicles_white_02",
+    "kitchen_white_01"
+  ]
+}

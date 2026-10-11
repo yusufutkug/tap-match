@@ -1,0 +1,37 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     18,  6, 21,  0,  5, 21,
+     19, 18, 16,  9,  0,  7,
+     15, 14, 12, 13,  3,  0,
+     13, 12, 10,  7,  5,  3,
+     15, 17, 14, 10, 16,  6,
+     17, 19, 11,  4,  2,  0,
+      8, 11,  2,  1,  0,  8,
+     20,  9, 20,  0,  1,  4
+  ],
+  "stickers": [
+    "animals_gray_01",
+    "cat_words_pink_01",
+    "animals_orange_01",
+    "shapes_orange_01",
+    "cat_words_red_02",
+    "cat_words_blue_02",
+    "animals_orange_05",
+    "cat_words_green_03",
+    "cat_words_green_02",
+    "animals_orange_04",
+    "shapes_teal_01",
+    "cat_words_pink_05",
+    "cat_words_green_05",
+    "animals_brown_01",
+    "animals_white_04",
+    "cat_words_orange_03",
+    "shapes_blue_01",
+    "animals_orange_06",
+    "shapes_red_05",
+    "cat_words_yellow_02",
+    "cat_words_blue_01"
+  ]
+}

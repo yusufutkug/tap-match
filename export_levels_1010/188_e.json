@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     16, 22, 20, 14, 18, 17,
+     12, 20, 18,  8, 11, 10,
+      9, 21, 22,  6,  5,  7,
+      6,  0,  1,  2,  0,  2,
+      1,  0,  4,  3,  0,  4,
+      9, 15, 12,  8,  3,  7,
+     21, 16, 19, 11,  5, 10,
+     19, 15, 13, 14, 17, 13
+  ],
+  "stickers": [
+    "bags_blue_01",
+    "bags_yellow_02",
+    "icons_red_04",
+    "icons_orange_01",
+    "bags_white_02",
+    "cookie_words_orange_02",
+    "bags_blue_03",
+    "icons_yellow_02",
+    "bags_blue_06",
+    "bags_blue_02",
+    "bags_red_06",
+    "icons_yellow_03",
+    "bags_teal_02",
+    "cookie_words_orange_22",
+    "bags_red_03",
+    "cookie_words_orange_12",
+    "cookie_words_pink_21",
+    "icons_purple_01",
+    "icons_blue_03",
+    "bags_yellow_04",
+    "icons_red_03",
+    "bags_pink_05"
+  ]
+}

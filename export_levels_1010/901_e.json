@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      4,  2,  0,  0,  2,  5,
+     21,  4, 16,  5, 18,  9,
+     22, 20, 17,  7, 20, 19,
+     17,  7, 13, 10, 13, 16,
+     22, 15, 14,  8, 10, 21,
+     11,  9, 12,  6, 14, 19,
+     12,  8,  6,  3, 15, 18,
+     11,  1,  0,  0,  3,  1
+  ],
+  "stickers": [
+    "under_sea_orange_01",
+    "animals_orange_05",
+    "under_sea_pink_02",
+    "animals_orange_04",
+    "animals_orange_06",
+    "animals_brown_01",
+    "animals_gray_03",
+    "animals_orange_01",
+    "under_sea_green_02",
+    "under_sea_yellow_01",
+    "under_sea_purple_04",
+    "under_sea_white_03",
+    "under_sea_pink_03",
+    "under_sea_orange_05",
+    "animals_orange_09",
+    "animals_orange_07",
+    "animals_orange_03",
+    "under_sea_blue_08",
+    "under_sea_blue_01",
+    "animals_white_03",
+    "under_sea_blue_07",
+    "animals_gray_01"
+  ]
+}

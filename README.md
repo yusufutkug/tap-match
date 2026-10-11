@@ -286,8 +286,14 @@ Etiket şeridi banda göre easy→veryhard. İlerleme/favori anahtarları
 `tam-6x8:id` biçiminde (klasik paketlerle çakışmaz).
 
 **Efor hedefli paketler** (`levels_efor.js`, `tools/gen_effort_levels.js`
-yazar): boyut başına 125 tam dolu level × 4 boyut (6x8, 7x10, 8x12,
-9x14) = 500 level; ana ekranda "Efor hedefli" bölümü. Üretim
+yazar): 1000 levellik funnel'ın hammaddesi — 100 decade × sabit boyut
+döngüsü (6x8 ×5, 7x10 ×3, 8x12 ×1, 9x14 ×1 → 500+300+100+100). Zorluk
+boyuttan gelir (easy/medium/hard/veryhard = 6x8/7x10/8x12/9x14); global
+sertlik ve DOLULUK RAMPASI concave eğriyle (hızlı artan sonra yavaşlayan:
+decade 0 ~%68 dolu → decade 35 ~%90 → decade 99 ~%98; boşluk bütçesi
+`symMask holeFrac` parametresi). 9x14 her decade ANLAMLI KALIP kullanır
+(`js/shapes.js MEANINGFUL` — kalp, kedi, yıldız, yonca, ay… 19 silüet;
+7 adımlı rotasyonla ardışık decade'ler farklı kalıp görür). Üretim
 iki katmanlıdır: iç katman (`generateFullLevel`) yapısal kaliteyi, dış
 katman EFOR EĞRİSİNİN ŞEKLİNİ ve YÜKSEKLİĞİNİ seçer — level başına 60
 aday üretilir, her adayı yerel + ışın + göz botları oynar. Aday hedefi
@@ -377,16 +383,28 @@ başlar; **JSON kopyala** çıktıyı panoya alır.
 | `tools/report_eye.js` | göz botu akış kalibrasyonu: efor paketlerinde şablon vadisi/tepesi ayrımıyla göz eforu ort/p90 ve hızlı-görüş payı (≤3 taş) — üretimdeki göz akış teriminin eşik/ağırlık dayanağı |
 | `tools/gen_levels.js` | paket üretimi (boyut başına döngü/rampa + doluluk hedefli çift sayısı + çok geçişli onarım → `levels/<boyut>/` + `levels_gen.js`; `TM_SIZES=6x8 node tools/gen_levels.js` ile kuru koşu) |
 | `tools/gen_shape_levels.js` | tam dolu şekil paketi üretimi (4 şekil × kadran bantları → `levels/tam-<boyut>/` + `levels_shapes.js`; `TM_SIZES=6x8` ile kuru koşu) |
-| `tools/gen_effort_levels.js` | efor-hedefli paket üretimi (4 boyut × 125 = 500): aday başına yerel+ışın+göz botu oynar, efor eğrisi hedef şablona (bel/dalga, onluk paritesi) RMSE ile seçilir; maske (dolu/symMask/dama) + açılış (entryN/frontMode) rotasyonu ve açılış imzası uzak-nokta seçimiyle çeşitlilik; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8` ile kuru koşu |
+| `tools/gen_effort_levels.js` | efor-hedefli paket üretimi (funnel hammaddesi: 500+300+100+100 = 1000): aday başına yerel+ışın+göz botu oynar, efor eğrisi hedef şablona (bel/dalga, decade paritesi) RMSE ile seçilir; concave sertlik + doluluk rampası (holeFrac), 9x14 anlamlı kalıp rotasyonu, symMask + açılış (entryN/frontMode) rotasyonu ve açılış imzası uzak-nokta seçimiyle çeşitlilik; Aşama B rehberli repairing mutasyonuyla şablona iter → `levels/efor-<boyut>/` + `levels_efor.js`; `TM_SIZES=6x8 TM_N=10` ile kuru koşu |
 | `tools/pack_io.js` | paket yazıcı/okuyucu: üretici çıktısını level başına json dosyalarına + `.js` sarmalayıcıya böler (`writePacks`), testler için geri okur (`readPack`) |
-| `tools/export_levels.js` | efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır → `export_levels/<n>_<e\|m\|h>.json` + `funnel.csv`; sıralama ölçülen efora dayalı (sweep effortMean yüzdeliği, testere-dişi hedef eğrisi, boyut DEĞİŞKEN — anti-seri: aynı boyut ≤2 art arda); hücre dizisi index 0 sol alt; -1 oyun dışı / 0 dot / 1+ sticker=çift id; veryhard → h. Yalnız yazılan aralık (`--offset K` → K+1..K+N) tazelenir, aralık dışı dosyalar ARŞİV; funnel.csv klasörün tamamından kurulur. Mevcut düzen 700 level: 1-500 çeşitlilik nesli (düz koşum), 501-700 dondurulmuş arşiv (501-600 göz-terimi öncesi, 601-700 göz-terimli 20'lik nesil) |
+| `tools/export_levels.js` | efor paketlerini dış motor formatına TEK FUNNEL YOLU olarak aktarır → `export_levels/<n>_<e\|m\|h>.json` + `funnel.csv` (1010 level: 1-4 öğretici `tutorial_levels/`den stickers dahil birebir kopya, 5-10 giriş rampası — küçük boyut 4x6→6x8 + düşük doluluk + saf akış, araç içinde sabit seedle üretilir — 11'den itibaren 100 decade × sabit boyut döngüsü 6x8·6x8·7x10·7x10·8x12·6x8·7x10·6x8·9x14·6x8). Decade dilimi ÜRETİM sırasından gelir (concave sertlik + doluluk rampası + kalıp rotasyonu birebir taşınır); dilim içinde pozisyonlar ölçülen EFORLA dizilir (efor = `js/flow.js playTime` "player" profili, tahmini OYUNCU saniyesi: 11.3 + 0.0444 × salience yükü, US oyuncu medyan kazanma süreleriyle kalibre — r² 0.91; "designer" profili tasarımcının kendi ölçümleri, ~2× hızlı, kıyas için durur; önceki sweep yükü effortMean × çift oyuncu süresiyle r 0.92, salience 0.95): en ucuz → pos 10 (büyük nefes), sonra pos 6 (mono/duo slotu), pos 1, 2, en pahalı → pos 8. Dış harf boyuttan: 8x12 → m (hard), 9x14 → h (very hard), diğerleri → e. Hücre dizisi index 0 sol alt; -1 oyun dışı / 0 dot / 1+ sticker=çift id. Tüm eski numaralı dosyalar silinir (arşiv yok), sonrasında `assign_stickers.js` yeniden koşulmalı |
+| `tools/gen_v2_levels.js` | v2 funnel: üretim + dış format TEK ADIMDA → `export_levels_v2/<n>_<t\|e\|m\|h\|vh>.json` + `funnel.csv` + `report.csv` (hedef/ölçülen/oyuncu sn, öğütme). Etiket dizisi 1-20 `t t t t h e m h e h e m h m h m m h m vh`, 21+ `m e h e vh m m h m vh` tekrar. Hedef = TASARIMCI saniyesi (`playTime` "designer" = sweep yükü/10), etiket başına start→plato churn biçimli (concave) rampa level 5→25: e 20→35 (6x8 ≤28 sn, üstü 6x9), m 40→55 (7x10), h 60→85 (8x12), vh 100→130 (9x14 dolu; 9x14 yalnız vh). Platolar boyutların ölçülen sert-reçete p90 tavanları. Kalıp yok, mono/duo slotu yok, ilk-boyut-yumuşak kuralı yok. Level başına 64 aday (reçete paleti hedefin boyut içi konumundan), skor = \|ölçülen−hedef\|/hedef + 0.6×öğütme; skor bandı içinden açılış imzası en uzak aday; sonra hedefe doğru mutasyon (dolu kalır, öğütme ≤%15'e çekilir). 200 level ≈ 4 dk; `TM_N`, `TM_KEEP=1` (devam), `TM_OUT`. `export_levels/`, `export_levels_1010/`, `old_export_levels/`'a yazması kilitli. Stickers: `TM_OUT=export_levels_v2 node tools/assign_stickers.js && TM_OUT=export_levels_v2 node tools/check_stickers.js` |
+| `tools/gen_v3_levels.js` + `tools/v3_gen_lib.js` | v3 funnel — **Tile Generator'lı** levellar, üretim + dış format tek adımda → `export_levels_v3/<n>_<t\|e\|m\|h\|vh>.json` (+ `TileGenerators: [{Cell, Direction, Tiles}]`) + `funnel.csv` + `report.csv` (hedef/ölçülen/oyuncu sn, öğütme, generator ve kuyruk sayısı, kalıp imzası). Etiket dizisi v2 ile aynı; eğri ilk istenen: e 20→40, m 40→60, h 60→120, vh 100→180 (tasarımcı sn, churn rampası 5→25). Boyutlar küçültüldü, 9x14 yok: e 6x8 (≤32)/6x9, m 7x10, h 7x10 (≤85)/8x12, vh 8x12 — generator'lı tavanlar (rastgele kalıp p50/p90/max) 6x8 31/43/57, 6x9 37/55/71, 7x10 63/100/124, 8x12 97/162/187. Generator "lazım oldukça": önce saf board (24 aday + mutasyon), hedefe %3 içinde değilse generator kalıpları (28 aday + 10 varyasyon turu + çift mutasyonu); level 6 kontrollü tanıtım (1 generator, kuyruk 2, hemen eşleşen). Kalıp eksenleri: yerleşim edge/corner/inner/mixed/facing, generator sayısı 1-6, kuyruk derinliği, gecikme near/mid/far/alt/random (basılan taşın eşi kaç hamle sonra görünür — oyuncu yalnız sayaç gördüğünden sürpriz/arama yükü), doldurma none/pairs/singles (boşalan hücreye yeni taş → çift sayısı board alanını aşar), senkron (bir çiftin iki taşı iki kuyrukta). İnşa "simüle-et-ve-çek": generator'ın kuyruğunun biteceği an simülasyonla bulunur, o anda boardda olan ve basılınca k hamle içinde eşleşebilecek bir taş kuyruğa çekilir; her adım `effortCurve(..., gens)` ile doğrulanır (monotonluk → tek greedy koşu çözümü kanıtlar). 200 level ≈ 6 dk. `TM_N`, `TM_KEEP=1`, `TM_OUT`; eski klasörlere yazması kilitli. Stickers: `TM_OUT=export_levels_v3 node tools/assign_stickers.js && TM_OUT=export_levels_v3 node tools/check_stickers.js` (ikisi de kuyruktaki taşları çift sayımına katar, `TileGenerators` alanını korur) |
+| `tools/assign_stickers.js` | sticker tarif motoru — funnel levellarına sid basar (`TM_OUT=<klasör>` ile başka funnel; dosya harfleri t/e/m/h/vh) (`stickers[i]` = cells'teki i+1 kimliğinin sid'i; 1-4 öğreticide elle atananlar korunur, 5-10 giriş tarifi en geniş ayrışma + kategori+renk tekilliği, 11+ decade/pozisyon matematiği 10 kaydırmayla). Geometriden ayrı geçit: tanıtım takvimi (38 kategori decade'lere yayılır, yeni kategori pos 1/2'de ağırlıklı tanıtılır), pos 6 her decade MONO/DUO renk levelı (2 mono + 1 duo rotasyonu; pos 10 her 4. decade ekstra mono), favori kategoriler periyodik ağırlık, ayrışma rampası (erken decade geniş renk yelpazesi + sıkı benzerlik eşiği d<0.23, geç 0.19), uyumluluk yasakları (gems↔shapes, icons↔shapes/gems, fairytale↔fruits) + `similar_pairs.json` benzerlik verisi. Deterministik |
+| `tools/check_stickers.js` | sticker atama denetçisi: benzersizlik, katalog varlığı, yasaklı kategori çiftleri, benzerlik eşikleri, mono/duo renk sözleşmesi, kapsama özeti |
+| `tools/gen_sticker_map.js` | `sticker_manager/catalog.json` → `stickers_map.js` (sid → görsel yolu; oyun file:// ile açıldığından script-tag sarmalayıcı) |
+| `tools/export_stickers.js` | sticker paketini dış motora aktarır → `export_stickers/<sid>.png` (1286) + `stickers.json` manifesti (sid/kategori/renk); level dosyaları sid'le referans verdiğinden dosya adı = sid, ek harita gerekmez. Funnel'ın kullandığı her sid'in pakette olduğunu doğrular |
+| `sticker_manager/` | sticker kütüphanesi + yönetim aracı (kendi README'si var): 1286 sticker, 38 kategori, kalıcı sid kimlikleri; `similar.py` benzerlik ön-hesabı → `similar_pairs.json` (24×24 RMS, d<0.23 çiftler) |
+| `tutorial_levels/` | elle yazılmış 4 öğretici level (dış format + elle seçilmiş stickers — her level TEK tatlı/jenerik kategori: fruits, toys, flowers, under_sea; level içinde her çift farklı renk, siluetler ayrık) |
+| `tools/editor/` | Electron level editörü: funnel'ı efor eğrisiyle listeler, sticker'lı levelları oyunun lab kancasıyla oynatır, manuel level düzenleme |
 
 ## Çalıştırma
 
 - Oyun: `index.html`'i tarayıcıda aç (build gerekmez, `file://` çalışır).
 - Lab: `lab.html`'i aç — üret, incele, oyna.
-- Test: `node tools/test_board.js` · `node tools/test_flow.js` · `node tools/test_generator.js`
+- Test: `node tools/test_board.js` · `node tools/test_flow.js` · `node tools/test_generator.js` · `node tools/check_stickers.js`
 - Paket yenile: `node tools/gen_levels.js` · `node tools/gen_shape_levels.js` · `node tools/gen_effort_levels.js` (hepsi `levels/` altına level başına json + toplu `.js` sarmalayıcı yazar)
+- Funnel yenile (sıra önemli): `node tools/gen_effort_levels.js` (~20 dk) → `node tools/export_levels.js` → `node tools/assign_stickers.js` → `node tools/check_stickers.js`
+- Developer teslimi: `export_levels/` (level jsonları + `funnel.csv`) + `node tools/export_stickers.js` çıktısı `export_stickers/` (png'ler + manifest)
+- Sticker haritası (katalog değiştiyse): `node tools/gen_sticker_map.js` · benzerlik verisi: `python3 sticker_manager/similar.py`
 
 ## Level JSON formatı
 
@@ -428,3 +446,16 @@ Elle yazılmış öğretici levellar (`levels.js`) eski geniş biçimi korur
 ```json
 { "id": 1, "name": "Koridor", "rows": 4, "cols": 4, "pairs": [[[0,0],[0,3]]], "seed": 11 }
 ```
+
+**Dış format** (`export_levels/`, `tutorial_levels/`) sticker taşır:
+
+```json
+{ "width": 6, "height": 8, "cells": [0, 1, 2, 1, "..."], "stickers": ["fruits_red_01", "gems_blue_03"] }
+```
+
+`cells` index 0 sol alt, 0 = dot, n ≥ 1 = çift kimliği; `stickers[n-1]` o
+çiftin kalıcı sticker kimliğidir (sid — `sticker_manager/README.md`).
+Oyun sid'i `stickers_map.js` üzerinden görsele çözer
+(`sticker_manager/library/`); sid haritada yoksa tema yüzüne düşülür.
+`stickers` alanını `tools/assign_stickers.js` basar; elle yalnız
+`tutorial_levels/` düzenlenir.

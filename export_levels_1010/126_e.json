@@ -1,0 +1,34 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     14, 13, 16,  6, 17,  9,
+     12,  8, 10, 11, 15, 16,
+     14,  7,  8, 10, 11, 12,
+      6,  2,  7, 15, 17,  9,
+      1,  0,  1,  5,  0, 13,
+      4,  0,  0,  0,  0,  4,
+      0,  2,  0,  0,  3,  0,
+     18,  0,  5, 18,  0,  3
+  ],
+  "stickers": [
+    "gems_blue_01",
+    "sports_orange_04",
+    "cleaning_items_blue_09",
+    "animals_orange_08",
+    "under_sea_orange_03",
+    "cleaning_items_blue_06",
+    "art_tools_orange_05",
+    "clothes_blue_09",
+    "animals_orange_02",
+    "school_blue_09",
+    "clothes_blue_06",
+    "music_blue_02",
+    "circus_blue_03",
+    "camping_orange_01",
+    "breakfast_orange_05",
+    "carnival_blue_03",
+    "desserts_orange_06",
+    "countrylife_orange_14"
+  ]
+}

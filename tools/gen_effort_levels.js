@@ -19,13 +19,14 @@
 // Hafızalı + karışım tutarlılık bandıdır: şablondan BAND'den fazla kaçan
 // aday, bant içi aday varken seçilmez.
 //
-// Paket düzeni: boyut başına PACK_N level, ONLUK PARİTESİYLE şablon —
-// çift onluk (1-10, 21-30, ...) "bel" (ortada zirve, sonda rahatlama),
-// tek onluk (11-20, 31-40, ...) "dalga" (iki tepe; kesme hattı iki keşif
-// fazı verir). spanBias bilinçli düşük (uzun koridor üretimden az gelsin),
-// cornerP ve düğüm yüksek (zorluk köşe/kilitten — düğüm hissi). Etiket
-// şeridi her onlukta reçete sertleşmesiyle: 3 easy, 3 medium, 2 hard,
-// 2 veryhard.
+// Paket düzeni (1000'lik funnel, bkz. PACK_PLAN): 100 decade × sabit boyut
+// döngüsü; boyut başına perDecade level. Şablon DECADE PARİTESİYLE —
+// çift decade "bel" (ortada zirve, sonda rahatlama), tek decade "dalga"
+// (iki tepe; kesme hattı iki keşif fazı verir). spanBias bilinçli düşük
+// (uzun koridor üretimden az gelsin), cornerP ve düğüm yüksek (zorluk
+// köşe/kilitten — düğüm hissi). Etiket boyuttan (PACK_PLAN.label); global
+// sertlik concave rampayla (hızlı artan sonra yavaşlayan), doluluk rampası
+// boşluk bütçesinden (holeFracOf), 9x14 anlamlı kalıp rotasyonundan oynar.
 //
 // ÇEŞİTLİLİK (oyuncu isteği: "başlangıç kalıplarını olabildiğince
 // çeşitlendir; derinlik aynı kalsın"):
@@ -50,11 +51,39 @@ const { isAdjacentCollinear } = require("../js/board.js");
 const { effortCurve, shapeScore, CURVE_TEMPLATES, templateAt,
         spanOf, isCollinear } = require("../js/flow.js");
 
-// boyut merdiveni: 4 basamak (funnel 1-500 bu boyutlarda çeşitlenir)
-const ALL_SIZES = ["6x8", "7x10", "8x12", "9x14"];
-const PACK_N = 125; // boyut başına level (4 × 125 = 500)
+// Funnel düzeni: 100 decade × 10 pozisyonluk sabit boyut döngüsü
+//   6x8 6x8 7x10 7x10 8x12 6x8 7x10 6x8 9x14 6x8
+// → boyut başına level sayısı ve decade başına grup boyu buradan gelir.
+// Zorluk boyuttan: 6x8 easy, 7x10 medium, 8x12 hard, 9x14 veryhard
+// (dış şema: hard→m, veryhard→h, diğerleri→e — tools/export_levels.js).
+const DECADES = 100;
+const PACK_PLAN = {
+  "6x8": { perDecade: 5, label: "easy" },
+  "7x10": { perDecade: 3, label: "medium" },
+  "8x12": { perDecade: 1, label: "hard" },
+  "9x14": { perDecade: 1, label: "veryhard" },
+};
+const ALL_SIZES = Object.keys(PACK_PLAN);
 const SIZES = process.env.TM_SIZES ? process.env.TM_SIZES.split(",") : ALL_SIZES;
 const DRY = !!process.env.TM_SIZES;
+// hızlı deneme: TM_N=12 → boyut başına yalnız ilk 12 level (kuru koşu)
+const N_CAP = process.env.TM_N ? parseInt(process.env.TM_N, 10) : null;
+
+// Global zorluk tabanı: hızlı artan sonra yavaşlayan (concave) eğri —
+// funnel'ın ilk ~20 decade'i hızla sertleşir, sonrası yavaş tırmanır.
+// Testere onluk içi boyut döngüsünden gelir (export testere ofsetlemez,
+// boyut-pozisyon deseni kendisi testeredir).
+const concave = (d) => {
+  const t = DECADES > 1 ? d / (DECADES - 1) : 1;
+  return 1 - (1 - t) * (1 - t);
+};
+
+// Doluluk rampası: indeks arttıkça doluluk artar. Boşluk bütçesi (symMask
+// holeFrac) concave eğriyle daralır: decade 0 → ~%68 dolu, decade ~35 →
+// ~%90, decade 99 → ~%98. 9x14 anlamlı kalıp kullanır (doluluk kalıbın
+// kendi alanıdır), rampa oraya uygulanmaz.
+const HOLE_MAX = 0.32, HOLE_MIN = 0.02;
+const holeFracOf = (d) => HOLE_MIN + (HOLE_MAX - HOLE_MIN) * (1 - concave(d));
 
 const CAND = 60;     // level başına aday tavanı (best-of-N, Aşama A)
 const ACCEPT = 0.10; // erken kabul eşiği (leader — hedef fiilen oturdu)
@@ -73,53 +102,56 @@ const EYE_W = 0.25;  // vadi yavaş-payının (1 − hızlıPay) leader ağırl�
 // (Kalibrasyon: 12x18'de 432 eval 0.366→0.279 getirdi ve tırmanış doymadı.)
 const mutBudget = (rows, cols) => Math.min(2000, Math.max(150, 8 * rows * cols));
 
-const LABELS = ["easy", "easy", "easy", "medium", "medium",
-                "medium", "hard", "hard", "veryhard", "veryhard"];
+// Maske rotasyonu: simetrik prosedürel boşluklar (4 simetri türü, motif
+// aileleri js/generator.js symMask'te). Boşluk bütçesi doluluk rampasından
+// (holeFracOf) gelir — geç decade'lerde maske fiilen "dolu"ya yaklaşır,
+// ayrı bir "dolu" türüne gerek kalmaz. Dama kaldırıldı (sabit %50 boşluk
+// doluluk sözleşmesini kırar).
+const MASK_ROT = ["sym-V", "sym-P", "sym-H", "sym-Q", "sym-V",
+                  "sym-Q", "sym-H", "sym-P"];
 
-// Maske rotasyonu (onluk içi pozisyona göre): çoğunluk simetrik boşluklu,
-// ~üçte bir dolu. Dama bel onluklarının 9. pozisyonunda, iki onlukta bir —
-// yalnız desen alanı çift kalan boyutlarda (6x8, 8x12; 7x10/9x14'te dama
-// 35/63 taş verir, parite onarımı tek hücre silip simetriyi bozardı).
-const MASK_ROT = ["dolu", "sym-V", "sym-P", "sym-Q", "dolu",
-                  "sym-P", "sym-V", "dolu", "sym-Q", "sym-V"];
-function maskKindOf(tplId, d, i, rows, cols) {
-  const damaOk = ((rows * cols) / 2) % 2 === 0;
-  if (tplId === "bel" && i === 9 && d % 4 === 0 && damaOk) return "dama";
-  return MASK_ROT[(i + d) % 10]; // onluklar arası faz kayması
-}
+// 9x14 anlamlı kalıp rotasyonu: TM_SHAPES.MEANINGFUL havuzu (19 kalıp),
+// 7 adımlı yürüyüş (19 ile aralarında asal → 19 decade'de tüm havuz döner,
+// ardışık decade'ler farklı kalıp görür).
+const shapeOf = (d) => TM_SHAPES.MEANINGFUL[(d * 7) % TM_SHAPES.MEANINGFUL.length];
 
-// Reçete matrisi (i = onluk içi 0..9 sertleşme, d = onluk indeksi 0..):
-// cornerP/spanBias/knots/waistOpen ("derinlik") ÖNCEKİ NESİLLE AYNI —
-// çeşitlilik maske + açılış eksenlerinden gelir: entryN ve frontMode
-// farklı fazlarla döner (tam korelasyon olmasın diye katsayılar farklı),
-// frontBias beşte bir yumuşar (disiplinden küçük sapmalar).
-function recipeOf(tplId, d, i, rows, cols) {
+// Reçete (d = decade 0..99, j = decade içi grup sırası 0..perDecade-1):
+// sertlik concave global rampayla (c) tırmanır, j küçük bir grup-içi
+// kademe ekler (export decade grubunu ölçülen efora göre pozisyonlara
+// dizer — üretim niyeti + export sıralaması aynı yöne bakar). Çeşitlilik
+// maske + açılış eksenlerinden: entryN ve frontMode farklı fazlarla döner,
+// frontBias beşte bir yumuşar.
+function recipeOf(tplId, d, j, rows, cols) {
+  const c = concave(d);
   const maxE = rows * cols >= 120 ? 4 : 3; // 9x14'te 4 cepheye izin
+  const isBig = rows * cols >= 120;        // 9x14: anlamlı kalıp
   const base = {
-    maskKind: maskKindOf(tplId, d, i, rows, cols),
-    entryN: 1 + (i + d) % maxE,
-    frontMode: ["bolge", "yilan", "cepheler"][(i + 2 * d) % 3],
-    frontBias: i % 5 === 4 ? 0.85 : 1.0,
+    maskKind: isBig ? "shape:" + shapeOf(d) : MASK_ROT[(d + 3 * j) % MASK_ROT.length],
+    holeFrac: holeFracOf(d),
+    entryN: 1 + (d + j) % maxE,
+    frontMode: ["bolge", "yilan", "cepheler"][(j + 2 * d) % 3],
+    frontBias: (d + j) % 5 === 4 ? 0.85 : 1.0,
   };
   if (tplId === "bel") {
     return {
       ...base, cut: null,
-      cornerP: 0.55 + 0.03 * i, spanBias: 0.30 + 0.02 * i,
-      knots: i < 4 ? 3 : 4, waistOpen: i < 6 ? 3 : 2,
+      cornerP: 0.52 + 0.28 * c + 0.02 * j, spanBias: 0.28 + 0.20 * c,
+      knots: c < 0.45 ? 3 : 4, waistOpen: c < 0.65 ? 3 : 2,
     };
   }
   return {
-    ...base, cut: i % 2 === 0 ? "dikey" : "yatay",
-    // dama + kesme hattı bilinmedik bölge: dalga onluklarında dama yok
-    maskKind: base.maskKind === "dama" ? "sym-V" : base.maskKind,
-    cornerP: 0.55 + 0.025 * i, spanBias: 0.32 + 0.02 * i,
-    knots: Math.min(4, 3 + Math.floor(i / 4)), waistOpen: null,
+    ...base, cut: d % 2 === 0 ? "dikey" : "yatay",
+    cornerP: 0.52 + 0.26 * c + 0.02 * j, spanBias: 0.30 + 0.20 * c,
+    knots: Math.min(4, 3 + Math.round(c)), waistOpen: null,
   };
 }
 
 // maske adları (level name alanı yalnız konsol/inceleme içindir)
-const MASK_NAMES = { dolu: "Dolu", dama: "Satranç",
-  "sym-V": "Simetrik·V", "sym-P": "Simetrik·P", "sym-Q": "Simetrik·Q" };
+const MASK_NAMES = { "sym-V": "Simetrik·V", "sym-H": "Simetrik·H",
+  "sym-P": "Simetrik·P", "sym-Q": "Simetrik·Q" };
+const maskName = (kind) => kind.startsWith("shape:")
+  ? TM_SHAPES.nameOf(kind.slice(6))
+  : (MASK_NAMES[kind] || kind);
 
 function hashSeed(str) {
   let h = 2166136261 >>> 0;
@@ -132,16 +164,19 @@ function hashSeed(str) {
 
 // Tek aday: maske türünden maske üretilir (sym maskeleri aday seedine
 // bağlı — her aday farklı boşluk yerleşimi dener, havuz maskede de
-// çeşitlenir). Kesme tutmazsa fallback: diğer yön → dolu+dikey; maske
-// inşayı tıkarsa dolu.
+// çeşitlenir; boşluk bütçesi rec.holeFrac ile doluluk rampasından gelir).
+// "shape:<id>" anlamlı kalıptır (9x14) — kalıp her adayda sabittir, kesme
+// tutmazsa önce kesmesiz kalıp, en son dolu denenir (kalıp asıl kimliktir,
+// kolay terk edilmez).
 function genCandidate(rows, cols, rec, seed) {
   const maskFrom = (kind) =>
     kind === "dolu" ? null
-    : kind === "dama" ? TM_SHAPES.maskFor("satranc", rows, cols)
-    : symMask(rows, cols, (seed ^ 0x5bd1e995) >>> 0, kind.slice(4));
+    : kind.startsWith("shape:") ? TM_SHAPES.maskFor(kind.slice(6), rows, cols)
+    : symMask(rows, cols, (seed ^ 0x5bd1e995) >>> 0, kind.slice(4), rec.holeFrac);
   const tries = rec.cut
     ? [{ kind: rec.maskKind, cut: rec.cut },
        { kind: rec.maskKind, cut: rec.cut === "dikey" ? "yatay" : "dikey" },
+       { kind: rec.maskKind, cut: null },
        { kind: "dolu", cut: "dikey" }]
     : [{ kind: rec.maskKind, cut: null },
        { kind: "dolu", cut: null }];
@@ -346,16 +381,19 @@ const DIV_BAND = 0.05;
 
 function buildPack(sizeStr) {
   const [cols, rows] = sizeStr.split("x").map(Number);
+  const plan = PACK_PLAN[sizeStr];
+  const packN = Math.min(plan.perDecade * DECADES,
+    N_CAP || plan.perDecade * DECADES);
   const levels = [];
   const stats = { bel: [], dalga: [], before: [], efor: [], grind: [],
                   goz: [], sigd: [], bandOut: 0 };
   const chosenSigs = []; // paket içinde seçilmiş levellerin açılış imzaları
-  for (let id = 1; id <= PACK_N; id++) {
-    const d = Math.floor((id - 1) / 10); // onluk indeksi
-    const tplId = d % 2 === 0 ? "bel" : "dalga"; // onluk paritesi
+  for (let id = 1; id <= packN; id++) {
+    const d = Math.floor((id - 1) / plan.perDecade); // funnel decade 0..99
+    const j = (id - 1) % plan.perDecade;             // decade içi grup sırası
+    const tplId = d % 2 === 0 ? "bel" : "dalga";     // decade paritesi
     const tpl = CURVE_TEMPLATES[tplId];
-    const i = (id - 1) % 10;
-    const rec = recipeOf(tplId, d, i, rows, cols);
+    const rec = recipeOf(tplId, d, j, rows, cols);
     // Aşama A: aday havuzu — efor tabanı havuzdan türediği için (medyan)
     // erken çıkış yok, tüm adaylar toplanır
     const pool = [];
@@ -412,12 +450,14 @@ function buildPack(sizeStr) {
     stats.goz.push(ref.vfs);
     levels.push({
       id,
-      name: MASK_NAMES[best.g.maskKind] + " · " + tplId,
+      name: maskName(best.g.maskKind) + " · " + tplId,
       rows, cols,
       pairs: ref.pairs,
       seed: lv.seed,
       meta: {
-        label: LABELS[i],
+        label: plan.label,
+        decade: d,
+        fill: +((ref.pairs.length * 2) / (rows * cols)).toFixed(3),
         template: tplId,
         mask: best.g.maskKind,
         cut: best.g.cut,

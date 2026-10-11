@@ -1328,48 +1328,68 @@ function generateCandidates(opts) {
 }
 
 // Simetrik prosedürel maske — "kalıpların anlam ifade etmesi gerekmiyor,
-// simetrik görünüm yeter; genel olarak dolu" (oyuncu tercihi). Dolu
-// boarddan başlar, 1-2 tohum boşluk bloğu (1x1..2x2) yerleştirir ve
-// simetriye göre yansıtır:
-//   "V" dikey ayna · "P" nokta (180°) · "Q" çift ayna (V+H)
-// Parite garantisi: tohum bloğu yansıtılan eksenlere göre KESİN YARI
-// DÜZLEME kısıtlanır (V → sol yarı, P → üst yarı, Q → sol üst çeyrek);
-// blok eksene hiç değmediği için görüntüleri ayrıktır → her hücre çift
-// (Q'da dört) kez silinir, silinen sayı her boyut paritesinde çifttir ve
-// generateFullLevel'ın simetri bozan kenar-kırpma onarımı hiç tetiklenmez.
-// (Tek kolonlu/satırlı orta eksene oturan tohum orbit-1 kalırdı — tek
-// silme, parite onarımı simetriyi bozardı; kısıt bunu yapısal engeller.)
-// Boşluk bütçesi alanın ~%10'u — dolu his korunur; bütçeyi aşan tohum
-// geri alınır. En az bir tohum garanti (tap edilecek boş hücre şart).
-// Deterministik: seed → maske.
-function symMask(rows, cols, seed, type) {
+// simetrik görünüm yeter" (oyuncu tercihi). Dolu boarddan başlar, motif
+// biçimli tohum boşlukları yerleştirir ve simetriye göre yansıtır:
+//   "V" dikey ayna · "H" yatay ayna · "P" nokta (180°) · "Q" çift ayna (V+H)
+// Tohumlar MOTİF ailelerinden gelir (rastgele blob değil — "tasarlanmış"
+// görünen boşluklar): blok (1x1..2x2), şerit (1×L yatay/dikey), elmas
+// (içi boş baklava), artı, çapraz merdiven, köşe girintisi (L). Motif
+// seçimi ve yerleşimi seed'e bağlı deterministiktir.
+// Parite garantisi: tohum hücreleri yansıtılan eksenlere göre KESİN YARI
+// DÜZLEME kısıtlanır (V → sol yarı, H → üst yarı, P → üst yarı, Q → sol
+// üst çeyrek); hücre eksene hiç değmediği için görüntüleri ayrıktır →
+// her hücre çift (Q'da dört) kez silinir, silinen sayı her boyut
+// paritesinde çifttir ve generateFullLevel'ın simetri bozan kenar-kırpma
+// onarımı hiç tetiklenmez.
+// Boşluk bütçesi PARAMETREDİR (holeFrac, varsayılan 0.10 — eski davranış):
+// doluluk rampası bunu üretim tarafından sürer (funnel başı ferah ~0.35,
+// sonu dolu ~0.02). Bütçeyi aşan motif geri alınır; en az bir tohum
+// garanti (tap edilecek boş hücre şart). Deterministik: seed → maske.
+function symMask(rows, cols, seed, type, holeFrac) {
   const rng = mulberry32(seed >>> 0);
-  const t = type || ["V", "P", "Q"][Math.floor(rng() * 3)];
-  const budget = Math.max(4, Math.round(rows * cols * 0.10));
+  const t = type || ["V", "H", "P", "Q"][Math.floor(rng() * 4)];
+  const frac = typeof holeFrac === "number" ? holeFrac : 0.10;
+  const budget = Math.max(2, Math.round(rows * cols * frac));
   let holes = new Set();
   const put = (set, r, c) => {
     const pts = t === "V" ? [[r, c], [r, cols - 1 - c]]
+      : t === "H" ? [[r, c], [rows - 1 - r, c]]
       : t === "P" ? [[r, c], [rows - 1 - r, cols - 1 - c]]
       : [[r, c], [r, cols - 1 - c], [rows - 1 - r, c], [rows - 1 - r, cols - 1 - c]];
     for (const [rr, cc] of pts) set.add(rr * cols + cc);
   };
-  // tohum bölgesi: yansıtılan eksene göre kesin yarı düzlem
-  const rMax = (h) => (t === "P" || t === "Q" ? Math.floor(rows / 2) : rows) - h;
-  const cMax = (w) => (t === "V" || t === "Q" ? Math.floor(cols / 2) : cols) - w;
-  const nSeeds = 1 + Math.floor(rng() * 2);
-  for (let s = 0; s < nSeeds; s++) {
-    const h = 1 + Math.floor(rng() * 2), w = 1 + Math.floor(rng() * 2);
-    if (rMax(h) < 0 || cMax(w) < 0) continue; // board yarısına sığmayan blok
-    const r0 = Math.floor(rng() * (rMax(h) + 1));
-    const c0 = Math.floor(rng() * (cMax(w) + 1));
+  // tohum bölgesi: yansıtılan eksenlere göre kesin yarı düzlem
+  const rHalf = t === "H" || t === "P" || t === "Q";
+  const cHalf = t === "V" || t === "Q";
+  const rMax = (h) => (rHalf ? Math.floor(rows / 2) : rows) - h;
+  const cMax = (w) => (cHalf ? Math.floor(cols / 2) : cols) - w;
+
+  // Motif aileleri: [dr, dc] ofset listesi (+ kapladığı h×w). Aile seed'le
+  // seçilir; büyük bütçede aynı maskede birden çok motif türü karışabilir.
+  const MOTIFS = [
+    { h: 1, w: 1, pts: [[0, 0]] },                                  // nokta
+    { h: 2, w: 2, pts: [[0, 0], [0, 1], [1, 0], [1, 1]] },          // blok
+    { h: 1, w: 3, pts: [[0, 0], [0, 1], [0, 2]] },                  // yatay şerit
+    { h: 3, w: 1, pts: [[0, 0], [1, 0], [2, 0]] },                  // dikey şerit
+    { h: 1, w: 4, pts: [[0, 0], [0, 1], [0, 2], [0, 3]] },          // uzun şerit
+    { h: 3, w: 3, pts: [[0, 1], [1, 0], [1, 2], [2, 1]] },          // elmas (içi dolu kalır)
+    { h: 3, w: 3, pts: [[0, 1], [1, 0], [1, 1], [1, 2], [2, 1]] },  // artı
+    { h: 3, w: 3, pts: [[0, 0], [1, 1], [2, 2]] },                  // çapraz merdiven
+    { h: 2, w: 2, pts: [[0, 0], [0, 1], [1, 0]] },                  // köşe (L)
+  ];
+  // deneme sırası: seed'li karışık motif dizisi, bütçe dolana dek gezilir
+  const tries = 3 + Math.floor(rng() * 3) + Math.floor(budget / 4);
+  for (let s = 0; s < tries && holes.size < budget; s++) {
+    const m = MOTIFS[Math.floor(rng() * MOTIFS.length)];
+    if (rMax(m.h) < 0 || cMax(m.w) < 0) continue; // board yarısına sığmıyor
+    const r0 = Math.floor(rng() * (rMax(m.h) + 1));
+    const c0 = Math.floor(rng() * (cMax(m.w) + 1));
     const next = new Set(holes);
-    for (let r = r0; r < r0 + h; r++) {
-      for (let c = c0; c < c0 + w; c++) put(next, r, c);
-    }
+    for (const [dr, dc] of m.pts) put(next, r0 + dr, c0 + dc);
     if (next.size <= budget) holes = next;
   }
   if (!holes.size) {
-    // tüm tohumlar bütçeyi aştı/sığmadı: tek hücrelik tohum her zaman sığar
+    // tüm motifler bütçeyi aştı/sığmadı: tek hücrelik tohum her zaman sığar
     put(holes, Math.floor(rng() * (rMax(1) + 1)), Math.floor(rng() * (cMax(1) + 1)));
   }
   const mask = Array.from({ length: rows }, (_, r) =>

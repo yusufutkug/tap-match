@@ -2,13 +2,33 @@
   "width": 6,
   "height": 8,
   "cells": [
-     17, 23, 14, 12,  2,  0,
-     15, 17, 19, 14, 20,  9,
-     13, 15, 16,  7,  4,  2,
-      8, 13,  6,  0,  1, 11,
-     18,  5,  3,  1,  3,  4,
-      8, 20, 19,  7,  5,  9,
-      6, 21, 11, 22, 18, 10,
-     16, 22, 21, 23, 10, 12
+      0,  3, 10,  4, 14,  0,
+      3, 18, 14,  6,  5, 18,
+     16,  4,  0,  0, 15, 17,
+     10, 16,  0,  0, 13, 15,
+      8,  1,  0,  0,  8, 13,
+      2,  7,  0,  0,  7, 11,
+      9, 17, 12,  1, 11,  5,
+      0,  2,  9,  6, 12,  0
+  ],
+  "stickers": [
+    "gems_blue_04",
+    "gems_orange_01",
+    "cookie_words_pink_09",
+    "gems_blue_03",
+    "cookie_words_pink_21",
+    "gems_blue_05",
+    "gems_red_02",
+    "cookie_words_orange_05",
+    "gems_green_02",
+    "cookie_words_pink_19",
+    "gems_teal_03",
+    "gems_yellow_01",
+    "cookie_words_orange_09",
+    "cookie_words_pink_13",
+    "cookie_words_pink_25",
+    "gems_white_01",
+    "cookie_words_orange_13",
+    "cookie_words_pink_08"
   ]
 }

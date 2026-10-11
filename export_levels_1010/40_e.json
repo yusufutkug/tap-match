@@ -1,0 +1,33 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     14, 11, 14, 15, 16, 17,
+     12,  4, 12, 13, 15, 16,
+     11,  5,  8,  9, 13, 17,
+      6,  0,  3,  8,  0, 10,
+      0,  3,  0,  0,  4,  0,
+      1,  0,  6,  9,  0,  7,
+      0,  1,  5, 10,  2,  0,
+      0,  0,  7,  2,  0,  0
+  ],
+  "stickers": [
+    "flowers_red_07",
+    "gems_blue_05",
+    "flowers_purple_03",
+    "flowers_green_01",
+    "gems_teal_03",
+    "flowers_blue_04",
+    "gems_yellow_01",
+    "flowers_orange_06",
+    "flowers_green_10",
+    "gems_pink_03",
+    "gems_blue_03",
+    "flowers_white_02",
+    "flowers_red_05",
+    "gems_yellow_03",
+    "gems_green_03",
+    "flowers_red_02",
+    "gems_white_01"
+  ]
+}

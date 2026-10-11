@@ -1,0 +1,34 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      4,  0,  0,  0,  0,  8,
+     10,  0,  7,  3,  0,  3,
+      6,  5, 10,  7,  4, 18,
+     15, 11, 18, 17, 12,  8,
+     11,  9, 15,  2,  5, 16,
+     13,  1,  9, 13,  2, 17,
+     14,  0, 14,  6,  0, 16,
+      1,  0,  0,  0,  0, 12
+  ],
+  "stickers": [
+    "desserts_red_01",
+    "desserts_red_02",
+    "desserts_green_02",
+    "desserts_orange_03",
+    "desserts_orange_08",
+    "desserts_orange_02",
+    "desserts_brown_02",
+    "desserts_brown_04",
+    "flowers_blue_02",
+    "flowers_yellow_01",
+    "desserts_green_01",
+    "desserts_pink_02",
+    "desserts_red_06",
+    "desserts_red_04",
+    "desserts_orange_06",
+    "flowers_yellow_05",
+    "flowers_green_10",
+    "desserts_brown_06"
+  ]
+}

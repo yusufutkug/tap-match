@@ -1,0 +1,34 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      3,  8, 12, 13,  6,  7,
+      0,  0,  1,  2,  0,  0,
+      0,  0,  0,  0,  0,  0,
+      3,  0,  7,  6,  0,  4,
+      5,  1,  5,  2,  4, 18,
+      8, 10, 11, 13, 14, 15,
+     10, 12,  9, 14, 18, 17,
+     16, 11, 16,  9, 17, 15
+  ],
+  "stickers": [
+    "cinema_orange_02",
+    "cinema_white_02",
+    "cinema_yellow_02",
+    "cinema_yellow_03",
+    "cinema_red_02",
+    "cinema_blue_03",
+    "cinema_orange_01",
+    "cinema_yellow_01",
+    "cinema_white_03",
+    "cinema_red_05",
+    "cinema_white_01",
+    "cinema_orange_07",
+    "cinema_blue_01",
+    "cinema_blue_02",
+    "cinema_gray_02",
+    "cinema_gray_03",
+    "cinema_red_03",
+    "cinema_brown_01"
+  ]
+}

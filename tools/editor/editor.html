@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tap Match — Level Editör</title>
+  <link rel="stylesheet" href="editor.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Tap Match <span>level editör</span></h1>
+    <div class="filters">
+      <div class="diff-toggles">
+        <button class="dtoggle on" data-diff="e">easy</button>
+        <button class="dtoggle on" data-diff="m">medium</button>
+        <button class="dtoggle on" data-diff="h">hard</button>
+      </div>
+      <select id="sizeFilter">
+        <option value="all">tüm boyutlar</option>
+      </select>
+      <input id="search" type="number" min="1" placeholder="level no ↵" />
+      <button id="btnNew" class="ebtn">✏️ Yeni level</button>
+    </div>
+    <div id="status"></div>
+  </header>
+
+  <main>
+    <section id="grid"></section>
+
+    <aside id="side">
+      <div class="panel">
+        <h2>Funnel efor eğrisi
+          <small>renkli = level yüzdeliği · gri = testere hedefi</small>
+        </h2>
+        <canvas id="funnelChart"></canvas>
+      </div>
+      <div class="panel" id="infoPanel">
+        <div class="placeholder">Bir level seç — ok tuşlarıyla funnel'da gezinebilirsin,
+          çift tıkla direkt oyna.</div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ── manuel level editörü (edit.js) ── -->
+  <div id="editOverlay" hidden>
+    <header class="edit-bar">
+      <h2 id="editTitle">yeni level</h2>
+      <label>genişlik <input id="edW" type="number" min="3" max="14" /></label>
+      <label>yükseklik <input id="edH" type="number" min="3" max="20" /></label>
+      <button id="edUndo" class="ebtn" title="geri al (⌘Z)">↩︎</button>
+      <button id="edRedo" class="ebtn" title="yinele (⇧⌘Z)">↪︎</button>
+      <button id="edClear" class="ebtn">temizle</button>
+      <span class="spacer"></span>
+      <button id="edPlay" class="ebtn">▶ dene</button>
+      <label>no <input id="edNo" type="number" min="1" /></label>
+      <select id="edDiff">
+        <option value="e">easy</option>
+        <option value="m">medium</option>
+        <option value="h">hard</option>
+      </select>
+      <button id="edSave" class="ebtn primary">kaydet</button>
+      <button id="edClose" class="ebtn" title="kapat (Esc)">✕</button>
+    </header>
+    <div class="edit-main">
+      <div class="edit-board-wrap"><canvas id="edBoard"></canvas></div>
+      <aside class="edit-side">
+        <div id="edStatus" class="ed-status"></div>
+        <div id="edStats"></div>
+        <canvas id="edCurve"></canvas>
+        <div class="edit-help">
+          <b>sol tık</b> boş hücre: çiftin ilk taşı → ikinci tık eşini koyar<br />
+          <b>sol tık</b> taş: çifti seç · <b>sürükle</b>: taşı taşı<br />
+          <b>sağ tık</b> taş: çifti sil · boşluk: yerleştirmeyi iptal et<br />
+          <b>⌫</b> seçili çifti sil · <b>Esc</b> iptal / kapat · <b>⌘Z</b> geri al
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="../../stickers_map.js"></script>
+  <script src="../../js/board.js"></script>
+  <script src="../../js/flow.js"></script>
+  <script src="editor.js"></script>
+  <script src="edit.js"></script>
+</body>
+</html>

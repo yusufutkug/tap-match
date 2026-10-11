@@ -1,0 +1,39 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+      4,  8,  3,  8,  2, 10,
+      1,  0,  5,  2,  0,  6,
+     13,  3,  6,  7,  5,  4,
+     17, 18,  7, 11, 16, 14,
+     12,  9,  1,  9, 11, 12,
+     13, 15, 17, 20, 19, 14,
+     22, 10, 23, 21, 18, 16,
+     15, 20, 22, 23, 21, 19
+  ],
+  "stickers": [
+    "cleaning_items_yellow_05",
+    "circus_red_04",
+    "cleaning_items_blue_02",
+    "fairytale_green_02",
+    "fairytale_yellow_02",
+    "cleaning_items_yellow_01",
+    "circus_blue_05",
+    "fairytale_orange_03",
+    "fairytale_blue_03",
+    "fairytale_blue_04",
+    "circus_orange_05",
+    "circus_orange_03",
+    "fairytale_green_01",
+    "circus_white_02",
+    "cleaning_items_green_07",
+    "fairytale_blue_06",
+    "cleaning_items_green_06",
+    "fairytale_orange_01",
+    "cleaning_items_red_01",
+    "circus_red_11",
+    "circus_pink_01",
+    "cleaning_items_teal_01",
+    "fairytale_yellow_01"
+  ]
+}
