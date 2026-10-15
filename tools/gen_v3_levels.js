@@ -43,6 +43,25 @@
 // Skor = |ölçülen − hedef| / hedef + GRIND_W × öğütme + çeşitlilik cezası
 // (aynı etikette son 3 levelın kalıp imzası).
 //
+// Düzenlemeler (tasarımcı, Eki 2026, ikinci tur):
+//   tanıtım      level 5 SAF (generator yasak); 6 = tanıtım-1 (1 generator,
+//                kenar, kuyruk 2, hemen eşleşir); 7 = tanıtım-2 (2 generator,
+//                kuyruk 3-4); 8+ "lazım oldukça".
+//   boyut        ilk 8x12 level 20 (ilk vh). Öncesinde h 7x10'da kalır,
+//                generator'la zorlanır (7x10 generator tavanı 124 sn).
+//   hizalı taban SERT alt sınır: açılış boardunda iki taşı da görünen
+//                çiftlerin hizalı payı collFloor(no) altına inemez (5 → %45,
+//                50 → %35, 100 → %25, 150+ → %15; aralar doğrusal). Tabanın
+//                üstü serbest (çeşitlilik), skorda hizalıya çekim yok; süre
+//                hedefi yumuşak kalır. cornerP paleti tabana göre kayar.
+//   akış         generator-only akış yumuşak cezalı: spawn hamle payı > %50
+//                ve en uzun ardışık spawn serisi > 6 hamle skorda cezalanır
+//                (board ↔ generator git-gel tercih edilir); singles kalıbı
+//                havuzda seyreltildi.
+//   boşluk       açılış boşluğu ortada iki bitişik hücre (yön level seed'e
+//                göre yatay/dikey); generator.js'nin "merkez + sağ alt köşe"
+//                parite onarımı hiç tetiklenmez.
+//
 // Çıktı: dış format + TileGenerators [{ Cell, Direction, Tiles }] (Cell
 // index 0 sol alt; Direction 0 yukarı 1 aşağı 2 sol 3 sağ; Tiles 1 tabanlı
 // çift kimlikleri üretim sırasıyla; generator hücresi cells'te 0),
@@ -61,7 +80,7 @@ const TUT_DIR = path.join(ROOT, "tutorial_levels");
 const N = parseInt(process.env.TM_N || "200", 10);
 const KEEP = !!process.env.TM_KEEP;
 
-for (const guarded of ["export_levels", "export_levels_1010", "old_export_levels", "export_levels_v2"]) {
+for (const guarded of ["export_levels", "export_levels_1010", "old_export_levels", "export_levels_v2", "export_levels_v3_old"]) {
   if (OUT === path.resolve(ROOT, guarded)) throw new Error("TM_OUT korunan klasöre işaret ediyor: " + guarded);
 }
 
@@ -85,9 +104,11 @@ const SIZE_CAP = {
   "7x10": { cols: 7, rows: 10, lo: 18, mid: 38, hi: 58, gMid: 63, gHi: 100, gMax: 124 },
   "8x12": { cols: 8, rows: 12, lo: 26, mid: 58, hi: 88, gMid: 97, gHi: 162, gMax: 187 },
 };
-const sizeOf = (label, target) =>
+const FIRST_8x12 = 20;   // ilk 8x12 (ilk vh); öncesinde h 7x10'da zorlanır
+const sizeOf = (label, target, no) =>
   label === "e" ? (target <= 32 ? "6x8" : "6x9")
   : label === "m" ? "7x10"
+  : no < FIRST_8x12 ? "7x10"
   : label === "h" ? (target <= 85 ? "7x10" : "8x12")
   : "8x12";
 
@@ -99,15 +120,53 @@ const GRIND_W_PURE = 0.6, GRIND_OK_PURE = 0.15;
 const GRIND_W_GEN = 0.4, GRIND_OK_GEN = 0.25; // basım eşleşmeleri ölçüden çıkarılır (grindShare)
 const DONE_REL = 0.03;
 const DIV_PEN = 0.04;    // aynı kalıp imzası (etiket içinde son 3 level) cezası
-const INTRO_LEVEL = 6;   // generator tanıtım levelı (ilk e)
+const PURE_ONLY = new Set([5]);     // generator yasak (öğreticilerden sonra ilk gerçek level)
+const INTRO_GEN = { 6: 1, 7: 2 };   // tanıtım levelları: level → generator sayısı
 const mutBudget = (rows, cols) => Math.min(400, Math.max(120, 3 * rows * cols));
 
-// v2 reçete paleti (saf board)
-function recipeOf(cap, target, cand) {
+// hizalı taban (sert alt sınır): açılış boardundaki tam çiftlerin hizalı
+// payı. Kırılma noktaları arası doğrusal, uçlarda sabit.
+const COLL_FLOOR_PTS = [[5, 0.45], [50, 0.35], [100, 0.25], [150, 0.15]];
+function collFloor(no) {
+  const P = COLL_FLOOR_PTS;
+  if (no <= P[0][0]) return P[0][1];
+  for (let i = 1; i < P.length; i++) {
+    if (no <= P[i][0]) {
+      const [a, fa] = P[i - 1], [b, fb] = P[i];
+      return fa + (fb - fa) * (no - a) / (b - a);
+    }
+  }
+  return P[P.length - 1][1];
+}
+const RESCUE_CP = [0.25, 0.1]; // taban tutmazsa: köşe payı düşük kurtarma reçeteleri
+
+// akış cezası (yumuşak): generator-only akış. Eşik altı serbest; eşik üstü
+// "bitti" sayılmaz → kalıp varyasyonu akış düzelene dek sürer.
+// Seri asıl ölçü (git-gel = kısa seriler); pay yapısal olarak kuyruk/çift
+// oranı, yüksek hedeflerde %50-60 kaçınılmaz → eşik %60.
+const FLOW_W = 0.2, FLOW_STREAK_OK = 6, FLOW_SHARE_OK = 0.6;
+// generator sayısı tavanı: tanıtımdan sonra kademeli (8-9: 3, 10-14: 4,
+// 15-19: 5, 20+: 6)
+const genCap = (no) => no < 10 ? 3 : no < 15 ? 4 : no < 20 ? 5 : 6;
+
+// açılış boşluğu: ortada iki bitişik hücre (yön level'a göre)
+function centerMask(rows, cols, no) {
+  const mask = Array.from({ length: rows }, () => Array(cols).fill(true));
+  const r = rows >> 1, c = cols >> 1;
+  mask[r][c] = false;
+  if (hashSeed("v3-hole:" + no) % 2 === 0) mask[r][c - 1] = false; else mask[r - 1][c] = false;
+  return mask;
+}
+
+// v2 reçete paleti (saf board). cornerP paleti hizalı tabana göre kayar
+// (taban yüksekken köşe payı düşük); cpOverride kurtarma için.
+function recipeOf(cap, target, cand, floor, cpOverride) {
   const h = Math.max(0, Math.min(1, (target - cap.lo) / (cap.hi - cap.lo)));
   const knotPool = h < 0.35 ? [0, 2, 3, 4] : h < 0.6 ? [3, 4, 6, 8] : [6, 8, 10, 14];
   const sbPool = h < 0.6 ? [0.3, 0.6, 0.9] : [0.3, 0.3, 0.6, 0.9];
-  const cpPool = [0.6, 0.8, 1.0];
+  const cl = (x) => Math.max(0.2, Math.min(1, x));
+  const cpPool = cpOverride !== undefined ? [cpOverride]
+    : [cl(1 - floor - 0.2), cl(1 - floor - 0.05), cl(1 - floor + 0.1)];
   const fmPool = ["bolge", "yilan", "cepheler"];
   const cutPool = [null, "dikey", "yatay", null];
   return {
@@ -122,23 +181,26 @@ function recipeOf(cap, target, cand) {
 }
 
 // Kalıp havuzu: hg = hedefin generator tavanı içindeki konumu
-// (0 = saf p50, 1 = generator p90). intro: ilk görünüm yumuşak.
+// (0 = saf p50, 1 = generator p90). introN: tanıtım levelı (1 ya da 2
+// generator, kısa kuyruk, hemen eşleşen taşlar, doldurma yok).
 const PLACEMENTS = ["edge", "corner", "inner", "mixed", "facing"];
-function specOf(cap, target, cand, rng, intro) {
+function specOf(cap, target, cand, rng, introN, gMax) {
   const hg = Math.max(0, Math.min(1.2, (target - cap.mid) / (cap.gHi - cap.mid)));
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  if (intro) {
-    return { placement: pick(["edge", "corner"]), genN: 1 + (cand % 2), queueLen: 2 + (cand % 2),
+  if (introN) {
+    return { placement: pick(["edge", "corner"]), genN: introN, queueLen: introN === 1 ? 2 : 3 + (cand % 2),
              pick: "near", refill: "none", refillFrac: 1, syncN: 0, queueMax: 4 };
   }
-  const genN = hg < 0.3 ? pick([1, 2, 2]) : hg < 0.6 ? pick([2, 3, 3]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6]);
-  const queueLen = hg < 0.3 ? pick([2, 3, 4]) : hg < 0.6 ? pick([4, 6, 8]) : pick([8, 12, 16]);
+  const genN = Math.min(gMax, hg < 0.3 ? pick([1, 2, 2]) : hg < 0.6 ? pick([2, 3, 3]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6]));
+  const queueLen = hg < 0.3 ? pick([2, 3, 4]) : hg < 0.6 ? pick([4, 6, 8]) : pick([6, 8, 12]);
   const pk = hg < 0.3 ? pick(["near", "near", "mid", "alt"])
     : hg < 0.6 ? pick(["near", "mid", "alt", "random", "far"])
-    : pick(["mid", "far", "alt", "random", "random"]);
+    : pick(["mid", "far", "far", "alt", "random"]); // far: basılan taşın eşi gömülü → arada board oynanır
+  // singles seyrek: her basılan taşın eşini kuyruğa atar → generator-only
+  // zincir (akış cezasıyla birlikte git-gel akışı korur)
   const refill = hg < 0.3 ? pick(["none", "none", "pairs"])
-    : hg < 0.6 ? pick(["none", "pairs", "singles"])
-    : pick(["singles", "singles", "pairs"]);
+    : hg < 0.6 ? pick(["none", "pairs", "pairs", "singles"])
+    : pick(["pairs", "pairs", "singles", "none"]);
   const placement = PLACEMENTS[(cand + Math.floor(rng() * 2)) % PLACEMENTS.length];
   const syncN = genN >= 2 ? (hg < 0.5 ? pick([0, 0, 1]) : pick([0, 1, 2])) : 0;
   return { placement, genN: placement === "facing" ? Math.max(2, genN) : genN, queueLen, pick: pk,
@@ -147,11 +209,11 @@ function specOf(cap, target, cand, rng, intro) {
 const specSig = (s) => s ? s.placement + "|" + s.genN + "|" + s.pick + "|" + s.refill : "pure";
 
 // Kalıp varyasyonu (iyileştirme turu): bir ekseni oynat
-function varySpec(spec, below, rng) {
+function varySpec(spec, below, rng, gMax) {
   const s = { ...spec };
   const r = rng();
   if (r < 0.3) s.queueLen = Math.max(1, s.queueLen + (below ? 2 : -2));
-  else if (r < 0.5) s.genN = Math.max(s.placement === "facing" ? 2 : 1, Math.min(6, s.genN + (below ? 1 : -1)));
+  else if (r < 0.5) s.genN = Math.max(s.placement === "facing" ? 2 : 1, Math.min(gMax, s.genN + (below ? 1 : -1)));
   else if (r < 0.7) s.refill = below ? (s.refill === "none" ? "pairs" : "singles") : (s.refill === "singles" ? "pairs" : "none");
   else if (r < 0.85) s.pick = below ? (s.pick === "near" ? "mid" : "far") : (s.pick === "far" ? "mid" : "near");
   else s.placement = PLACEMENTS[Math.floor(rng() * PLACEMENTS.length)];
@@ -174,6 +236,26 @@ function grindShare(ecS, pairs, rows, cols, gens) {
   for (let t = 0; t < L; t++) if (isLong[t] && ((t > 0 && isLong[t - 1]) || (t + 1 < L && isLong[t + 1]))) n++;
   return n / L;
 }
+// açılış boardunda iki taşı da görünen çiftlerin hizalı payı (oyuncunun
+// açılışta okuduğu board; kuyruktaki taşlar sayılmaz)
+function boardCollShare(pairs) {
+  let n = 0, coll = 0;
+  for (const p of pairs) if (p.length === 2) { n++; if (isCollinear(p)) coll++; }
+  return n ? coll / n : 0;
+}
+// akış: spawn hamlesi = eşleşen çiftlerin hepsi başlangıçta kuyruktaydı.
+// spawnShare = pay, maxStreak = en uzun ardışık spawn-only seri.
+function flowStats(ecS, gens) {
+  if (!gens || !gens.length) return { spawnShare: 0, maxStreak: 0 };
+  const queued = new Set();
+  for (const g of gens) for (const pid of g.queue) queued.add(pid);
+  let n = 0, best = 0, cur = 0;
+  for (const mv of ecS.moves) {
+    if (mv.pairIds.every((pid) => queued.has(pid))) { n++; cur++; if (cur > best) best = cur; }
+    else cur = 0;
+  }
+  return { spawnShare: n / Math.max(1, ecS.moves.length), maxStreak: best };
+}
 function measure(lv, rows, cols, target, recentSigs, spec) {
   const gens = lv.generators || null;
   const ecS = effortCurve(lv.pairs, rows, cols, null, "sweep", gens);
@@ -183,9 +265,15 @@ function measure(lv, rows, cols, target, recentSigs, spec) {
   const gw = gens ? GRIND_W_GEN : GRIND_W_PURE;
   const div = recentSigs.includes(specSig(spec)) ? DIV_PEN : 0;
   const relErr = Math.abs(sec - target) / target;
-  return { sec, grind, ecS, relErr, key: relErr + gw * grind + div };
+  const coll = boardCollShare(lv.pairs);
+  const { spawnShare, maxStreak } = flowStats(ecS, gens);
+  const flowPen = FLOW_W * (Math.max(0, maxStreak - FLOW_STREAK_OK) / FLOW_STREAK_OK +
+                            Math.max(0, spawnShare - FLOW_SHARE_OK) / 0.25);
+  return { sec, grind, ecS, relErr, coll, spawnShare, maxStreak, flowPen,
+           key: relErr + gw * grind + div + flowPen };
 }
-const isDone = (m, gens) => m.relErr <= DONE_REL && m.grind <= (gens ? GRIND_OK_GEN : GRIND_OK_PURE);
+const isDone = (m, gens) => m.relErr <= DONE_REL && m.grind <= (gens ? GRIND_OK_GEN : GRIND_OK_PURE) && m.flowPen === 0;
+const floorOk = (m, floor) => m.coll >= floor - 1e-9;
 
 // ── çift mutasyonu (yalnız boarddaki tam çiftler; generator/ön hücreleri sabit) ──
 function mutateOnce(lv, rows, cols, rng, guide) {
@@ -218,14 +306,14 @@ function guidePairs(ecS, below) {
   for (let i = Math.max(0, idx - 2); i <= Math.min(L - 1, idx + 2); i++) ids.push(...ecS.moves[i].pairIds);
   return ids;
 }
-function mutate(cur, rows, cols, target, recentSigs, rng) {
+function mutate(cur, rows, cols, target, recentSigs, rng, floor) {
   let accepted = 0;
   const budget = mutBudget(rows, cols);
   for (let e = 0; e < budget && !isDone(cur.m, cur.lv.generators); e++) {
     const next = mutateOnce(cur.lv, rows, cols, rng, guidePairs(cur.m.ecS, cur.m.sec < target));
     if (!next) continue;
     const nm = measure(next, rows, cols, target, recentSigs, cur.spec);
-    if (!nm || nm.key >= cur.m.key - 1e-9) continue;
+    if (!nm || !floorOk(nm, floor) || nm.key >= cur.m.key - 1e-9) continue;
     if (next.generators && generatorIssues({ rows, cols, pairs: next.pairs, generators: next.generators }).length) continue;
     cur = { ...cur, lv: next, m: nm };
     accepted++;
@@ -297,9 +385,11 @@ const t0 = Date.now();
 for (let no = 5; no <= N; no++) {
   const label = labelOf(no);
   const target = targetOf(no, label);
-  const sizeKey = sizeOf(label, target);
+  const sizeKey = sizeOf(label, target, no);
   const cap = SIZE_CAP[sizeKey];
   const { rows, cols } = cap;
+  const floor = collFloor(no);
+  const mask = centerMask(rows, cols, no);
   const recentSigs = recentByLabel[label].slice(-3);
   if (KEEP && existing.has(no)) {
     const ext = JSON.parse(fs.readFileSync(path.join(OUT, existing.get(no)), "utf8"));
@@ -309,69 +399,76 @@ for (let no = 5; no <= N; no++) {
     const gens = lv.generators || [];
     report.push({ no, label, size: ext.width + "x" + ext.height, pairs: lv.pairs.length, target, sec: m ? m.sec : NaN,
                   player: pt ? pt.playerSeconds : NaN, grind: m ? m.grind : NaN, gens: gens.length,
-                  queued: gens.reduce((a, g) => a + g.queue.length, 0), spec: "(keep)", mut: 0 });
+                  queued: gens.reduce((a, g) => a + g.queue.length, 0), spec: "(keep)", mut: 0,
+                  floor, coll: m ? m.coll : NaN, spawn: m ? m.spawnShare : NaN, streak: m ? m.maxStreak : NaN, rescue: "" });
     continue;
   }
   const tl = Date.now();
   const rngL = mulberry32(hashSeed("v3:" + no));
+  const pureOnly = PURE_ONLY.has(no);
+  const introN = INTRO_GEN[no] || 0;
   const pool = [];
-  // Aşama A1: saf adaylar
-  for (let cand = 0; cand < CAND_PURE; cand++) {
-    const rec = recipeOf(cap, target, cand);
-    const lv = buildLevel(rows, cols, rec, null, hashSeed("v3p:" + no + ":" + cand));
-    if (!lv) continue;
+  let rescue = "";
+  const tryPure = (cand, cpOverride) => {
+    const rec = recipeOf(cap, target, cand, floor, cpOverride);
+    const lv = buildLevel(rows, cols, rec, null, hashSeed("v3p:" + no + ":" + cand), mask);
+    if (!lv) return;
     const m = measure(lv, rows, cols, target, recentSigs, null);
-    if (!m) continue;
+    if (!m || !floorOk(m, floor)) return;
     pool.push({ lv, m, rec, spec: null, cand });
-  }
+  };
+  const tryGen = (cand, cpOverride) => {
+    // taban reçete: saf paletin sert ucu (hedef saf tavanı aşıyorsa)
+    const rec = recipeOf(cap, Math.min(target, cap.hi), cand, floor, cpOverride);
+    const spec = specOf(cap, target, cand, rngL, introN, genCap(no));
+    const lv = buildLevel(rows, cols, rec, spec, hashSeed("v3g:" + no + ":" + cand), mask);
+    if (!lv) return;
+    const m = measure(lv, rows, cols, target, recentSigs, spec);
+    if (!m || !floorOk(m, floor)) return;
+    pool.push({ lv, m, rec, spec, cand });
+  };
+  // Aşama A1: saf adaylar (tanıtım levelları hariç; orada saf yarışmaz)
+  if (!introN) for (let cand = 0; cand < CAND_PURE; cand++) tryPure(cand);
   // saf en iyi: hedefe en yakın (öğütme mutasyonda düzelir; "lazım oldukça"
   // kuralı için yakınlık esas)
   pool.sort((a, b) => a.m.relErr - b.m.relErr || a.m.key - b.m.key);
   let pureBest = pool[0];
   // saf aday hedefe %8 içindeyse mutasyonla itilir — tutarsa generator
-  // gerekmez ("lazım oldukça")
-  if (pureBest && !isDone(pureBest.m, null) && pureBest.m.relErr <= 0.08) {
-    const pm = mutate(pureBest, rows, cols, target, recentSigs, mulberry32(hashSeed("v3-pmut:" + no)));
-    if (isDone(pm.m, null)) { pureBest = pm; pool[0] = pm; }
+  // gerekmez ("lazım oldukça"); saf-yalnız levelda her hâlükârda itilir
+  if (pureBest && !isDone(pureBest.m, null) && (pureOnly || pureBest.m.relErr <= 0.08)) {
+    const pm = mutate(pureBest, rows, cols, target, recentSigs, mulberry32(hashSeed("v3-pmut:" + no)), floor);
+    if (pureOnly || isDone(pm.m, null)) { pureBest = pm; pool[0] = pm; }
   }
-  // tanıtım: ilk e levelı (öğreticilerden sonra, no 6) generator'ı
-  // kontrollü tanıtır — 1 generator, kısa kuyruk, hemen eşleşen taşlar.
-  // Saf board yetse de kullanılır; sonrası "lazım oldukça".
-  const intro = no === INTRO_LEVEL;
-  const pureOk = !intro && pureBest && isDone(pureBest.m, null);
+  const pureOk = pureOnly || (!introN && pureBest && isDone(pureBest.m, null));
   // Aşama A2: generator'lı adaylar
-  if (!pureOk) {
-    if (intro) pool.length = 0; // saf adaylar yarışmasın
-    for (let cand = 0; cand < CAND_GEN; cand++) {
-      // taban reçete: saf paletin sert ucu (hedef saf tavanı aşıyorsa)
-      const rec = recipeOf(cap, Math.min(target, cap.hi), cand);
-      const spec = specOf(cap, target, cand, rngL, intro);
-      const lv = buildLevel(rows, cols, rec, spec, hashSeed("v3g:" + no + ":" + cand));
-      if (!lv) continue;
-      const m = measure(lv, rows, cols, target, recentSigs, spec);
-      if (!m) continue;
-      pool.push({ lv, m, rec, spec, cand });
-    }
+  if (!pureOk) for (let cand = 0; cand < CAND_GEN; cand++) tryGen(cand);
+  // kurtarma: hizalı tabanı tutan aday yoksa köşe payı düşük reçetelerle
+  // yeniden dene (taban sert; süre yumuşak)
+  for (let ri = 0; ri < RESCUE_CP.length && !pool.length; ri++) {
+    rescue = "cp" + RESCUE_CP[ri];
+    if (!introN) for (let cand = 0; cand < CAND_PURE; cand++) tryPure(100 * (ri + 1) + cand, RESCUE_CP[ri]);
+    if (!pureOnly && !(pool.length && isDone(pool[0].m, null)))
+      for (let cand = 0; cand < CAND_GEN; cand++) tryGen(100 * (ri + 1) + cand, RESCUE_CP[ri]);
   }
-  if (!pool.length) throw new Error("aday bulunamadı: level " + no);
+  if (!pool.length) throw new Error("hizalı tabanı (" + floor.toFixed(2) + ") tutan aday bulunamadı: level " + no);
   pool.sort((a, b) => a.m.key - b.m.key || a.cand - b.cand);
   let best = pool[0];
   // Aşama B: kalıp/reçete varyasyonu (generator'lı ise)
   let varied = 0;
-  if (best.spec && !intro && !isDone(best.m, best.lv.generators)) {
+  if (best.spec && !introN && !isDone(best.m, best.lv.generators)) {
     for (let r = 0; r < REFINE_ROUNDS && !isDone(best.m, best.lv.generators); r++) {
-      const spec = varySpec(best.spec, best.m.sec < target, rngL);
-      const rec = recipeOf(cap, Math.min(target, cap.hi), best.cand + r + 1);
-      const lv = buildLevel(rows, cols, rec, spec, hashSeed("v3r:" + no + ":" + r));
+      const spec = varySpec(best.spec, best.m.sec < target, rngL, genCap(no));
+      const rec = recipeOf(cap, Math.min(target, cap.hi), best.cand + r + 1, floor, best.rec.cornerP);
+      const lv = buildLevel(rows, cols, rec, spec, hashSeed("v3r:" + no + ":" + r), mask);
       if (!lv) continue;
       const m = measure(lv, rows, cols, target, recentSigs, spec);
-      if (!m || m.key >= best.m.key) continue;
+      if (!m || !floorOk(m, floor) || m.key >= best.m.key) continue;
       best = { lv, m, rec, spec, cand: best.cand };
       varied++;
     }
   }
   // Aşama C: çift mutasyonu
-  const ref = mutate(best, rows, cols, target, recentSigs, mulberry32(hashSeed("v3-mut:" + no)));
+  const ref = mutate(best, rows, cols, target, recentSigs, mulberry32(hashSeed("v3-mut:" + no)), floor);
   const lv = ref.lv;
   const gens = lv.generators || [];
   const ext = extOf(lv, rows, cols);
@@ -387,25 +484,30 @@ for (let no = 5; no <= N; no++) {
   writeExt(no, label, ext, null);
   report.push({ no, label, size: sizeKey, pairs: lv.pairs.length, target, sec: ref.m.sec,
                 player: pt ? pt.playerSeconds : NaN, grind: ref.m.grind, gens: gens.length, queued,
-                spec: specSig(ref.spec), mut: ref.accepted });
+                spec: specSig(ref.spec), mut: ref.accepted,
+                floor, coll: ref.m.coll, spawn: ref.m.spawnShare, streak: ref.m.maxStreak, rescue });
   console.log(
     String(no).padStart(3) + " " + label.padEnd(2) + " " + sizeKey.padEnd(5) +
     " çift " + String(lv.pairs.length).padEnd(3) +
     " hedef " + target.toFixed(0).padStart(3) + " ölçülen " + ref.m.sec.toFixed(0).padStart(3) +
     (pureBest ? " (saf " + pureBest.m.sec.toFixed(0) + ")" : "") +
     " öğütme %" + String(Math.round(100 * ref.m.grind)).padStart(2) +
+    " hizalı %" + String(Math.round(100 * ref.m.coll)).padStart(2) + "/" + Math.round(100 * floor) +
+    " spawn %" + String(Math.round(100 * ref.m.spawnShare)).padStart(2) + " seri " + String(ref.m.maxStreak).padEnd(2) +
     " oyuncu~" + (pt ? pt.playerSeconds.toFixed(0) : "?") +
     " gen " + gens.length + " kuyruk " + String(queued).padEnd(3) + specSig(ref.spec).padEnd(24) +
-    " var " + varied + " mut " + String(ref.accepted).padEnd(3) + ((Date.now() - tl) / 1000).toFixed(1) + "s");
+    " var " + varied + " mut " + String(ref.accepted).padEnd(3) + (rescue ? " KURTARMA " + rescue + " " : "") +
+    ((Date.now() - tl) / 1000).toFixed(1) + "s");
 }
 
 const all = fs.readdirSync(OUT).filter((f) => FILE_RE.test(f)).map((f) => f.replace(".json", ""))
   .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 fs.writeFileSync(path.join(OUT, "funnel.csv"), all.join(",") + "\n");
 fs.writeFileSync(path.join(OUT, "report.csv"),
-  "no,label,size,pairs,target_sec,measured_sec,player_sec,grind,gens,queued,spec,mut\n" +
+  "no,label,size,pairs,target_sec,measured_sec,player_sec,grind,gens,queued,spec,mut,coll_floor,coll_share,spawn_share,max_streak,rescue\n" +
   report.map((r) => [r.no, r.label, r.size, r.pairs, r.target.toFixed(1), r.sec.toFixed(1), r.player.toFixed(0),
-    r.grind.toFixed(3), r.gens, r.queued, r.spec, r.mut].join(",")).join("\n") + "\n");
+    r.grind.toFixed(3), r.gens, r.queued, r.spec, r.mut, r.floor.toFixed(3), r.coll.toFixed(3), r.spawn.toFixed(3),
+    r.streak, r.rescue].join(",")).join("\n") + "\n");
 
 const byLabel = {};
 for (const r of report) (byLabel[r.label] = byLabel[r.label] || []).push(r);
@@ -420,4 +522,9 @@ for (const l of ["e", "m", "h", "vh"]) {
     " RMSE " + rmse.toFixed(1) + " sn, en kötü " + Math.max(...miss.map(Math.abs)).toFixed(0) + " sn" +
     (plateau.length ? "; plato ort " + (plateau.reduce((a, r) => a + r.sec, 0) / plateau.length).toFixed(0) + " / hedef " + CURVE[l][1] : ""));
 }
+const genR = report.filter((r) => r.gens > 0);
+console.log("  hizalı taban ihlali " + report.filter((r) => r.coll < r.floor - 1e-9).length +
+  ", kurtarma " + report.filter((r) => r.rescue).length +
+  "; generator'lı: spawn payı >%50 olan " + genR.filter((r) => r.spawn > FLOW_SHARE_OK).length +
+  ", seri >" + FLOW_STREAK_OK + " olan " + genR.filter((r) => r.streak > FLOW_STREAK_OK).length + " / " + genR.length);
 console.log("yazıldı: " + path.relative(ROOT, OUT) + "/ (" + all.length + " dosya) + funnel.csv + report.csv");

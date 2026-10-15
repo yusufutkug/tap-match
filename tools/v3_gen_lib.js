@@ -235,6 +235,9 @@ function applySpec(base, rows, cols, spec, rng) {
   const genCells = new Set(gens.map((g) => K(g.r, g.c)));
   // başlangıç ön hücreleri (tıpa) çekilemez
   gens.forEach((g) => { const [fr, fc] = frontOf(g); genCells.add(K(fr, fc)); });
+  // board köşeleri çekilemez: açılışta tek başına boş köşe (tasarımcı
+  // istemiyor — boşluk ortada kalsın)
+  const isCorner = (t) => (t[0] === 0 || t[0] === rows - 1) && (t[1] === 0 || t[1] === cols - 1);
 
   // generator gi'ye eklenecek taşın BASILACAĞI an: ekleme konumundan önceki
   // kuyruk taşının eşleştiği hamle (kuyruk başıysa tıpanın eşleşmesi); o
@@ -310,7 +313,7 @@ function applySpec(base, rows, cols, spec, rng) {
       if (p.some((t) => genCells.has(K(t[0], t[1])))) continue;
       if (vis0 && vis0.has(pid)) continue;
       const pullIdx = p.findIndex((t) => !(t[0] === mate[0] && t[1] === mate[1]));
-      if (pullIdx < 0) continue;
+      if (pullIdx < 0 || isCorner(p[pullIdx])) continue;
       cand.push({ pid, pullIdx });
     }
     if (!cand.length && vis0) { // gecikmeli aday yok → hemen eşleşenlerden
@@ -319,7 +322,7 @@ function applySpec(base, rows, cols, spec, rng) {
         if (gone.has(pid) || p.length !== 2) continue;
         if (p.some((t) => genCells.has(K(t[0], t[1])))) continue;
         const pullIdx = p.findIndex((t) => !(t[0] === mate[0] && t[1] === mate[1]));
-        if (pullIdx >= 0) cand.push({ pid, pullIdx });
+        if (pullIdx >= 0 && !isCorner(p[pullIdx])) cand.push({ pid, pullIdx });
       }
     }
     if (!cand.length) { if (process.env.V3_DEBUG) console.error("pull nocand gi", gi, "tBreak", tBreak, "/", ec.order.length); return false; }
@@ -419,7 +422,7 @@ function applySpec(base, rows, cols, spec, rng) {
       const pool = [];
       pairs.forEach((p, pid) => {
         if (gone.has(pid) || p.length !== 2) return;
-        if (p.some((t) => genCells.has(K(t[0], t[1])))) return;
+        if (p.some((t) => genCells.has(K(t[0], t[1])) || isCorner(t))) return;
         pool.push(pid);
       });
       if (!pool.length) break;
@@ -498,9 +501,11 @@ function basePure(rows, cols, rec, seed, mask) {
 // Tam inşa: generator yerleşimi → generator hücreleri maskeli saf taban →
 // kalıp (kuyruklar) → yapısal doğrulama. null = başarısız.
 // spec.mode "pull" (varsayılan: maskeli) | "dense" (dolu boarda yerleşim).
-function buildLevel(rows, cols, rec, spec, seed) {
+// mask (isteğe bağlı): saf tabanın açılış boşlukları (mask[r][c] false =
+// boş hücre). Verilmezse generator.js'nin onarımı (merkez + sağ alt köşe).
+function buildLevel(rows, cols, rec, spec, seed, mask) {
   if (!spec) {
-    const base = basePure(rows, cols, rec, seed);
+    const base = basePure(rows, cols, rec, seed, mask);
     return base ? { pairs: base.pairs, generators: null, maskArea: base.maskArea } : null;
   }
   // Not: generator.js'de maske deliği DUVAR değil tap edilebilir boşluktur;
@@ -508,7 +513,7 @@ function buildLevel(rows, cols, rec, spec, seed) {
   // dolu taban + puanlı yerleşim + doğrulama.
   const rng = mulberry32((seed ^ 0x9e3779b9) >>> 0);
   for (let t = 0; t < 3; t++) {
-    const base = basePure(rows, cols, rec, seed + t * 7919);
+    const base = basePure(rows, cols, rec, seed + t * 7919, mask);
     if (!base) continue;
     const lv = applySpec(base, rows, cols, spec, rng);
     if (!lv) continue;
