@@ -1,0 +1,52 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     21, 15, 25,  0,  0, 18,
+     24,  4,  6,  5,  9,  0,
+     22, 17,  3,  2, 14, 24,
+     19,  1,  0, 28, 17, 23,
+     18, 11,  0,  0,  6,  0,
+      7,  3,  0, 27,  2,  5,
+     16, 13,  4, 10,  7, 12,
+     20,  1,  8, 13, 10,  0,
+     22, 19, 26,  0,  0, 23
+  ],
+  "stickers": [
+    "cinema_red_10",
+    "halloween_orange_05",
+    "camping_white_03",
+    "space_purple_01",
+    "space_yellow_02",
+    "space_purple_03",
+    "cinema_orange_08",
+    "cinema_white_04",
+    "space_red_01",
+    "camping_green_13",
+    "space_gray_01",
+    "halloween_orange_01",
+    "space_blue_01",
+    "cinema_gray_01",
+    "halloween_red_01",
+    "halloween_white_03",
+    "cinema_green_02",
+    "halloween_purple_06",
+    "cinema_pink_02",
+    "camping_red_09",
+    "space_white_01",
+    "camping_red_10",
+    "halloween_green_04",
+    "halloween_purple_05",
+    "halloween_gray_02",
+    "camping_blue_04",
+    "space_white_02",
+    "camping_yellow_03"
+  ],
+  "TileGenerators": [
+    {"Cell":47,"Direction":2,"Tiles":[14,25,20]},
+    {"Cell":11,"Direction":2,"Tiles":[15,26,21]},
+    {"Cell":3,"Direction":0,"Tiles":[11,12]},
+    {"Cell":51,"Direction":1,"Tiles":[9,16]},
+    {"Cell":29,"Direction":2,"Tiles":[27,28,8]}
+  ]
+}

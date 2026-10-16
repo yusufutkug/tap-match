@@ -1,0 +1,52 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     16,  0, 12, 15,  0, 23,
+     13,  0,  0,  0,  0, 20,
+     28,  0,  3, 16,  0, 29,
+      0,  3,  1, 10,  2,  0,
+      4,  0,  0,  0,  0,  8,
+     21,  0,  0,  0,  0,  2,
+     17,  5,  1,  5, 19, 22,
+     27, 24,  4, 11, 25, 26,
+     22, 18,  7,  9, 11, 14
+  ],
+  "stickers": [
+    "breakfast_orange_25",
+    "cold_drink_purple_03",
+    "breakfast_red_01",
+    "breakfast_orange_02",
+    "breakfast_blue_05",
+    "cookie_words_pink_23",
+    "music_red_10",
+    "cookie_words_pink_18",
+    "breakfast_white_04",
+    "cookie_words_orange_19",
+    "breakfast_purple_01",
+    "music_orange_08",
+    "music_teal_03",
+    "breakfast_pink_02",
+    "breakfast_orange_13",
+    "breakfast_orange_18",
+    "breakfast_yellow_06",
+    "cookie_words_orange_12",
+    "cookie_words_pink_06",
+    "cookie_words_pink_25",
+    "music_pink_02",
+    "cookie_words_orange_09",
+    "cookie_words_orange_06",
+    "music_red_11",
+    "cookie_words_orange_21",
+    "cookie_words_orange_04",
+    "cookie_words_orange_02",
+    "breakfast_blue_06",
+    "breakfast_white_06"
+  ],
+  "TileGenerators": [
+    {"Cell":13,"Direction":3,"Tiles":[18,17,10,24,27,13]},
+    {"Cell":16,"Direction":2,"Tiles":[19,15,23,25,26,6]},
+    {"Cell":18,"Direction":3,"Tiles":[7,9,20,28,8]},
+    {"Cell":23,"Direction":2,"Tiles":[14,12,21,29,6]}
+  ]
+}

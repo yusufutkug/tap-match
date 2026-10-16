@@ -1,0 +1,45 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     23, 22, 10, 21, 18, 14,
+     15, 12,  8,  5, 10, 12,
+     20, 24,  5,  2, 24, 14,
+     16, 19,  0,  0, 15, 17,
+      0, 13,  0,  0,  6,  0,
+      7,  4,  0,  0,  2,  4,
+      3,  1,  0,  0,  1,  6,
+      7,  9, 20, 23,  3, 21,
+      9, 11, 13, 16, 19, 22
+  ],
+  "stickers": [
+    "christmas_orange_05",
+    "cold_drink_green_04",
+    "cold_drink_red_03",
+    "christmas_green_06",
+    "christmas_orange_02",
+    "christmas_red_07",
+    "cold_drink_yellow_02",
+    "christmas_red_01",
+    "cold_drink_purple_01",
+    "cold_drink_red_06",
+    "numbers_yellow_09",
+    "cold_drink_blue_03",
+    "cold_drink_white_02",
+    "christmas_orange_01",
+    "cold_drink_green_05",
+    "christmas_red_02",
+    "christmas_red_06",
+    "christmas_red_03",
+    "cold_drink_brown_02",
+    "christmas_green_03",
+    "cold_drink_green_03",
+    "cold_drink_pink_02",
+    "christmas_red_13",
+    "christmas_white_02"
+  ],
+  "TileGenerators": [
+    {"Cell":29,"Direction":2,"Tiles":[17,18]},
+    {"Cell":24,"Direction":3,"Tiles":[8,11]}
+  ]
+}

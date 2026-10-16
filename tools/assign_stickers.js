@@ -99,7 +99,7 @@ const FAVS = ["fruits", "flowers", "animals", "candy", "toys", "under_sea"];
 
 const DECADES = 100;
 const concave = (d) => {
-  const t = DECADES > 1 ? d / (DECADES - 1) : 1;
+  const t = Math.min(1, DECADES > 1 ? d / (DECADES - 1) : 1); // 1000+ level: rampa sonunda sabit
   return 1 - (1 - t) * (1 - t);
 };
 

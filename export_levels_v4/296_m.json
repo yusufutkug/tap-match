@@ -1,0 +1,52 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     22, 24, 28, 29, 16, 19,
+     14, 23, 26, 27, 14, 12,
+     15, 11, 10,  7, 16,  9,
+      9,  7,  5,  2,  3,  5,
+     13,  2,  0,  0,  1, 12,
+      0,  8,  0,  0,  3,  0,
+      8,  6,  4,  1,  4,  6,
+     15, 17, 22, 10, 20, 18,
+     17, 19,  0,  0, 25, 21
+  ],
+  "stickers": [
+    "monsters_pink_01",
+    "monsters_purple_03",
+    "bedroom_yellow_05",
+    "bedroom_green_04",
+    "dinosaurs_orange_01",
+    "bedroom_pink_10",
+    "bedroom_purple_02",
+    "bedroom_orange_08",
+    "monsters_white_02",
+    "monsters_yellow_02",
+    "dinosaurs_orange_02",
+    "dinosaurs_green_02",
+    "dinosaurs_blue_06",
+    "monsters_white_01",
+    "monsters_red_03",
+    "bedroom_red_05",
+    "bedroom_red_06",
+    "bedroom_green_05",
+    "monsters_green_03",
+    "dinosaurs_orange_04",
+    "dinosaurs_blue_01",
+    "dinosaurs_green_07",
+    "dinosaurs_green_01",
+    "dinosaurs_orange_05",
+    "monsters_pink_03",
+    "dinosaurs_green_03",
+    "bedroom_blue_09",
+    "bedroom_yellow_06",
+    "bedroom_yellow_03"
+  ],
+  "TileGenerators": [
+    {"Cell":51,"Direction":1,"Tiles":[25,24]},
+    {"Cell":50,"Direction":1,"Tiles":[21,23]},
+    {"Cell":35,"Direction":2,"Tiles":[20,27,29,13]},
+    {"Cell":30,"Direction":3,"Tiles":[18,26,28,11]}
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+      0, 23, 24, 20, 22,  0,
+     23, 21, 18, 26, 11, 22,
+     25, 19, 17, 14, 16, 18,
+     15,  2, 15, 20, 13, 16,
+     26,  9,  2,  8, 10,  3,
+     12,  0,  9,  6,  0, 11,
+      7, 27, 12, 17, 27, 13,
+      5, 19,  0,  0,  3,  6,
+      0,  1,  0,  0,  1,  0
+  ],
+  "stickers": [
+    "monsters_orange_02",
+    "dinosaurs_white_02",
+    "dinosaurs_blue_04",
+    "monsters_green_04",
+    "toys_blue_01",
+    "animals_red_01",
+    "toys_yellow_18",
+    "monsters_purple_01",
+    "toys_red_19",
+    "dinosaurs_orange_01",
+    "toys_red_05",
+    "monsters_yellow_03",
+    "dinosaurs_orange_07",
+    "toys_yellow_17",
+    "toys_yellow_19",
+    "monsters_purple_02",
+    "animals_gray_06",
+    "toys_yellow_21",
+    "monsters_white_02",
+    "toys_green_09",
+    "animals_orange_24",
+    "toys_red_11",
+    "dinosaurs_blue_05",
+    "toys_red_18",
+    "toys_red_16",
+    "toys_pink_01",
+    "toys_yellow_22"
+  ],
+  "TileGenerators": [
+    {"Cell":48,"Direction":3,"Tiles":[8,21,4]},
+    {"Cell":53,"Direction":2,"Tiles":[7,14,4]},
+    {"Cell":0,"Direction":3,"Tiles":[10,25]},
+    {"Cell":5,"Direction":2,"Tiles":[5,24]}
+  ]
+}

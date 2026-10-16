@@ -1,0 +1,48 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     20, 16, 13, 20, 21, 17,
+     16, 13,  9, 18, 17, 14,
+     18, 14,  8,  6,  8, 10,
+     22, 23,  4,  3, 10, 21,
+      0,  7,  2,  1, 22,  0,
+      5,  2,  0,  0,  5,  7,
+     15,  0,  0,  0,  0, 19,
+      0,  9,  0,  0,  1,  0,
+     11,  0, 24, 25,  0, 12
+  ],
+  "stickers": [
+    "hats_pink_04",
+    "clothes_pink_06",
+    "hats_white_04",
+    "clothes_red_11",
+    "hats_gray_01",
+    "clothes_red_10",
+    "clothes_blue_02",
+    "hats_red_02",
+    "hats_red_10",
+    "hats_blue_09",
+    "hats_red_04",
+    "clothes_green_03",
+    "hats_yellow_05",
+    "hats_yellow_01",
+    "clothes_green_02",
+    "clothes_red_03",
+    "clothes_pink_01",
+    "hats_blue_03",
+    "hats_green_03",
+    "clothes_blue_01",
+    "hats_yellow_04",
+    "hats_white_01",
+    "clothes_blue_03",
+    "clothes_red_04",
+    "clothes_yellow_04"
+  ],
+  "TileGenerators": [
+    {"Cell":24,"Direction":3,"Tiles":[3,24,19]},
+    {"Cell":29,"Direction":2,"Tiles":[4,25,23]},
+    {"Cell":47,"Direction":2,"Tiles":[11,6]},
+    {"Cell":42,"Direction":3,"Tiles":[15,12]}
+  ]
+}

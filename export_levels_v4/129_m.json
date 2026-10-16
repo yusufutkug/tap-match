@@ -2,16 +2,16 @@
   "width": 7,
   "height": 10,
   "cells": [
-     19, 17, 15, 11, 15, 22, 13,
-     22, 21,  6,  8, 17, 25, 29,
-     25, 34,  5,  4, 19, 34, 21,
-     13,  9,  3,  1,  7, 10, 12,
-     10,  6, 36,  0, 36,  3,  7,
-     32, 30, 35,  0, 35,  2,  5,
-     31,  0,  2,  1, 31,  0, 27,
-     30, 33, 18,  4, 28, 33, 24,
-     27, 23, 16,  8, 26, 24, 20,
-     23, 20, 14, 11, 14, 16, 18
+     32, 29, 20, 25, 31, 32, 26,
+     22, 20, 18, 22, 24, 27, 23,
+     13, 27, 16, 24, 29, 30, 21,
+      0, 15, 14, 11, 31, 28,  0,
+     15, 12,  9,  8, 30, 26, 17,
+     23,  8,  6,  5,  6, 12, 14,
+     28, 33,  9,  4, 13, 33, 10,
+     19, 18,  2,  1, 17, 10,  7,
+      0,  3, 35,  0, 35,  1,  0,
+      7, 34, 36,  0, 36, 34,  4
   ],
   "stickers": [
     "animals_white_12",
@@ -23,8 +23,8 @@
     "animals_orange_13",
     "sports_yellow_02",
     "animals_pink_01",
+    "landmarks_red_01",
     "landmarks_orange_11",
-    "weather_yellow_01",
     "art_tools_yellow_05",
     "animals_gray_01",
     "animals_gray_02",
@@ -36,12 +36,12 @@
     "weather_red_05",
     "animals_white_03",
     "art_tools_green_03",
-    "weather_red_01",
+    "weather_yellow_01",
     "art_tools_blue_02",
     "art_tools_yellow_06",
     "art_tools_orange_07",
-    "art_tools_red_07",
     "weather_gray_01",
+    "weather_red_01",
     "art_tools_blue_06",
     "art_tools_red_08",
     "weather_yellow_03",
@@ -49,10 +49,12 @@
     "landmarks_orange_14",
     "weather_pink_01",
     "landmarks_orange_08",
-    "landmarks_red_01"
+    "weather_red_02"
   ],
   "TileGenerators": [
-    {"Cell":43,"Direction":3,"Tiles":[12,29,28]},
-    {"Cell":47,"Direction":2,"Tiles":[9,26,32]}
+    {"Cell":56,"Direction":3,"Tiles":[5,11]},
+    {"Cell":62,"Direction":2,"Tiles":[2,3]},
+    {"Cell":21,"Direction":3,"Tiles":[16,25]},
+    {"Cell":27,"Direction":2,"Tiles":[21,19]}
   ]
 }

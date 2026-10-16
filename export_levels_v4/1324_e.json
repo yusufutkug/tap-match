@@ -1,0 +1,49 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     24, 21, 24, 25, 22, 25,
+     26, 18, 21, 23, 19, 26,
+     20,  0, 18, 19,  0, 10,
+     17, 13, 16, 11, 14, 12,
+     11, 14,  8,  7,  8, 10,
+      0,  5, 15,  6, 17,  0,
+      0,  3,  1,  4, 13,  0,
+      2,  1,  0,  0,  3,  6,
+      5,  2,  0,  0,  7,  9
+  ],
+  "stickers": [
+    "shapes_blue_07",
+    "shapes_orange_08",
+    "countrylife_pink_02",
+    "countrylife_yellow_08",
+    "shapes_purple_04",
+    "countrylife_yellow_09",
+    "countrylife_pink_01",
+    "shapes_red_05",
+    "shapes_red_01",
+    "countrylife_orange_18",
+    "countrylife_orange_17",
+    "shapes_orange_04",
+    "shapes_teal_03",
+    "shapes_yellow_05",
+    "shapes_blue_05",
+    "shapes_teal_01",
+    "shapes_green_01",
+    "countrylife_yellow_07",
+    "shapes_green_06",
+    "countrylife_yellow_04",
+    "countrylife_red_12",
+    "countrylife_red_11",
+    "countrylife_yellow_06",
+    "shapes_purple_01",
+    "countrylife_green_06",
+    "countrylife_green_02"
+  ],
+  "TileGenerators": [
+    {"Cell":30,"Direction":3,"Tiles":[23,9]},
+    {"Cell":35,"Direction":2,"Tiles":[22,12]},
+    {"Cell":36,"Direction":3,"Tiles":[15,4]},
+    {"Cell":41,"Direction":2,"Tiles":[16,20]}
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     11, 25, 20, 23, 25, 17,
+     27, 28, 18, 19, 28,  3,
+     24, 21, 16, 22, 24, 14,
+      0, 16, 14,  4,  8,  0,
+      0, 18, 15,  9,  7,  0,
+     11,  0,  8,  7,  0, 10,
+     13, 12,  9,  6,  2,  6,
+      3,  5,  4,  2,  1, 19,
+      1, 26,  0,  0, 26, 27
+  ],
+  "stickers": [
+    "cleaning_items_pink_02",
+    "kitchen_red_08",
+    "kitchen_purple_01",
+    "space_green_01",
+    "kitchen_yellow_03",
+    "space_orange_01",
+    "space_gray_01",
+    "space_purple_01",
+    "kitchen_white_09",
+    "kitchen_yellow_05",
+    "space_red_01",
+    "space_white_01",
+    "kitchen_yellow_04",
+    "kitchen_red_07",
+    "space_green_03",
+    "space_purple_04",
+    "space_purple_03",
+    "kitchen_white_07",
+    "space_red_02",
+    "kitchen_blue_04",
+    "kitchen_pink_03",
+    "space_green_04",
+    "kitchen_pink_02",
+    "breakfast_orange_27",
+    "space_green_02",
+    "space_white_02",
+    "kitchen_green_03",
+    "kitchen_white_08"
+  ],
+  "TileGenerators": [
+    {"Cell":29,"Direction":2,"Tiles":[15,10,12]},
+    {"Cell":24,"Direction":3,"Tiles":[23,5,21]},
+    {"Cell":23,"Direction":2,"Tiles":[22,13]},
+    {"Cell":18,"Direction":3,"Tiles":[17,20]}
+  ]
+}

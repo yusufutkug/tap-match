@@ -1,0 +1,50 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     22, 19, 22, 24, 20, 23,
+     20, 17,  4, 25, 23, 21,
+      4, 13, 17, 16, 21, 18,
+      0,  0, 24, 11,  0,  0,
+      9,  7,  5,  7,  9, 11,
+     12,  8,  0,  0, 15, 14,
+     10,  0,  1,  2,  0, 19,
+      0,  1,  0,  0,  3,  0,
+      6, 25, 27, 26,  2, 16
+  ],
+  "stickers": [
+    "school_blue_16",
+    "school_red_06",
+    "numbers_orange_10",
+    "school_red_07",
+    "numbers_green_10",
+    "school_blue_18",
+    "numbers_yellow_08",
+    "icons_red_05",
+    "school_blue_09",
+    "icons_teal_01",
+    "school_blue_05",
+    "icons_green_06",
+    "icons_yellow_02",
+    "school_yellow_11",
+    "school_blue_14",
+    "school_yellow_08",
+    "icons_red_07",
+    "icons_blue_07",
+    "school_orange_06",
+    "icons_green_04",
+    "numbers_pink_07",
+    "school_red_10",
+    "school_yellow_12",
+    "icons_yellow_08",
+    "icons_yellow_05",
+    "school_yellow_09",
+    "icons_red_04"
+  ],
+  "TileGenerators": [
+    {"Cell":40,"Direction":2,"Tiles":[5,14,13]},
+    {"Cell":37,"Direction":3,"Tiles":[3,15,6]},
+    {"Cell":47,"Direction":2,"Tiles":[18,27,12]},
+    {"Cell":42,"Direction":3,"Tiles":[10,26,8]}
+  ]
+}

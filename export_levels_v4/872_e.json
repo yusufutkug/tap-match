@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     18, 17, 13, 11, 13, 15,
+     20, 18, 19, 10, 15, 17,
+     21, 19, 21,  8, 14, 16,
+     22, 20,  9,  7,  9, 22,
+     16, 14, 12,  5, 10, 12,
+      6,  4,  6,  3,  5, 11,
+      4,  2,  8,  1,  3,  7,
+      2,  0,  0,  0,  0,  1
+  ],
+  "stickers": [
+    "bedroom_red_05",
+    "shapes_green_06",
+    "breakfast_green_01",
+    "cat_words_green_03",
+    "toys_green_10",
+    "school_green_03",
+    "cold_drink_red_03",
+    "school_red_10",
+    "animals_green_01",
+    "school_green_02",
+    "toys_red_04",
+    "desserts_green_05",
+    "music_red_12",
+    "fantasy_red_09",
+    "flowers_red_06",
+    "vegetables_green_34",
+    "hats_green_02",
+    "school_green_05",
+    "cinema_red_07",
+    "camping_red_06",
+    "hats_red_04",
+    "world_cuisine_red_02"
+  ]
+}

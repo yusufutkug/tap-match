@@ -1,0 +1,48 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     14, 16,  0,  0, 12, 18,
+     25,  0,  6,  8,  0, 25,
+      9, 11,  2,  3, 14, 21,
+      7,  9,  0,  0,  5, 15,
+      0,  1,  0,  0,  4,  0,
+      6,  3,  0,  0, 19, 22,
+     18, 22,  0,  0, 23, 20,
+     24, 23,  1,  2, 20, 24,
+     17, 13,  8,  5, 10, 13
+  ],
+  "stickers": [
+    "world_cuisine_orange_24",
+    "world_cuisine_orange_11",
+    "world_cuisine_orange_06",
+    "world_cuisine_black_01",
+    "carnival_red_03",
+    "carnival_purple_03",
+    "dinosaurs_orange_01",
+    "carnival_blue_05",
+    "world_cuisine_orange_26",
+    "world_cuisine_white_01",
+    "carnival_yellow_04",
+    "carnival_green_05",
+    "world_cuisine_red_04",
+    "world_cuisine_orange_01",
+    "carnival_pink_02",
+    "world_cuisine_orange_14",
+    "carnival_blue_08",
+    "carnival_pink_04",
+    "world_cuisine_orange_10",
+    "carnival_green_06",
+    "world_cuisine_red_02",
+    "world_cuisine_orange_18",
+    "carnival_red_05",
+    "carnival_yellow_01",
+    "world_cuisine_white_05"
+  ],
+  "TileGenerators": [
+    {"Cell":3,"Direction":0,"Tiles":[19,15,10]},
+    {"Cell":2,"Direction":0,"Tiles":[11,16,12]},
+    {"Cell":29,"Direction":2,"Tiles":[21,7]},
+    {"Cell":24,"Direction":3,"Tiles":[17,4]}
+  ]
+}

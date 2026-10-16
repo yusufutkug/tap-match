@@ -1,0 +1,38 @@
+{
+  "width": 6,
+  "height": 8,
+  "cells": [
+     12, 10,  8,  7,  8, 10,
+     16, 12, 14,  6, 16, 15,
+     22, 14, 17,  5,  6, 18,
+     19, 17, 20,  4, 19, 21,
+     21, 20, 15,  3,  4, 11,
+     22,  9, 18,  2,  3,  5,
+     13, 11, 13,  1,  7,  9,
+      2,  0,  0,  0,  0,  1
+  ],
+  "stickers": [
+    "cookie_words_pink_09",
+    "halloween_pink_01",
+    "toys_pink_08",
+    "robots_pink_01",
+    "under_sea_pink_04",
+    "baby_items_pink_01",
+    "breakfast_pink_03",
+    "animals_pink_01",
+    "hats_pink_04",
+    "cookie_words_pink_16",
+    "cookie_words_pink_15",
+    "toys_pink_09",
+    "art_tools_pink_01",
+    "kitchen_pink_02",
+    "art_tools_pink_02",
+    "monsters_pink_01",
+    "icons_pink_04",
+    "cookie_words_pink_01",
+    "baby_items_pink_06",
+    "cookie_words_pink_12",
+    "cookie_words_pink_14",
+    "toys_pink_02"
+  ]
+}

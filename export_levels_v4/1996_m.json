@@ -1,0 +1,51 @@
+{
+  "width": 6,
+  "height": 9,
+  "cells": [
+     16, 14, 12, 11, 12, 20,
+      9, 16,  9,  4, 18, 26,
+      0, 22, 24,  8, 13,  0,
+     22, 25, 23,  6, 10, 15,
+     24,  0, 21, 10,  0, 26,
+     27, 21, 19,  3,  6,  3,
+      0, 15, 13,  2,  8,  0,
+     27,  7,  5,  1,  2, 14,
+      4, 28,  0,  0, 28,  1
+  ],
+  "stickers": [
+    "candy_green_02",
+    "candy_orange_01",
+    "under_sea_green_01",
+    "under_sea_orange_05",
+    "candy_teal_01",
+    "under_sea_blue_03",
+    "under_sea_blue_08",
+    "candy_brown_01",
+    "candy_blue_01",
+    "under_sea_red_02",
+    "under_sea_blue_01",
+    "candy_pink_03",
+    "under_sea_orange_02",
+    "candy_red_01",
+    "candy_orange_03",
+    "candy_pink_06",
+    "under_sea_purple_03",
+    "candy_purple_01",
+    "under_sea_pink_04",
+    "under_sea_white_02",
+    "under_sea_orange_03",
+    "candy_yellow_01",
+    "under_sea_blue_09",
+    "candy_pink_05",
+    "under_sea_purple_04",
+    "candy_red_03",
+    "under_sea_white_03",
+    "candy_pink_01"
+  ],
+  "TileGenerators": [
+    {"Cell":12,"Direction":3,"Tiles":[18,7,20]},
+    {"Cell":17,"Direction":2,"Tiles":[19,25,17]},
+    {"Cell":36,"Direction":3,"Tiles":[11,17]},
+    {"Cell":41,"Direction":2,"Tiles":[23,5]}
+  ]
+}

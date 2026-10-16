@@ -32,7 +32,7 @@ const FORBIDDEN = [
 const MONO_COLORS = ["red", "blue", "green", "yellow", "pink", "orange"];
 const DECADES = 100;
 const concave = (d) => {
-  const t = DECADES > 1 ? d / (DECADES - 1) : 1;
+  const t = Math.min(1, DECADES > 1 ? d / (DECADES - 1) : 1);
   return 1 - (1 - t) * (1 - t);
 };
 

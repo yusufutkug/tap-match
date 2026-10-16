@@ -48,6 +48,8 @@ const ROOT = path.join(__dirname, "..");
 const OUT = path.resolve(ROOT, process.env.TM_OUT || "export_levels_v4");
 const TUT_DIR = path.join(ROOT, "tutorial_levels");
 const N = parseInt(process.env.TM_N || "200", 10);
+// TM_FROM: bu leveldan başla (paralel parça üretimi; <FROM dosyalarına dokunulmaz)
+const FROM = Math.max(5, parseInt(process.env.TM_FROM || "5", 10));
 const KEEP = !!process.env.TM_KEEP;
 
 for (const guarded of ["export_levels", "export_levels_1010", "old_export_levels", "export_levels_v2",
@@ -69,7 +71,8 @@ const PURE_HEAD = new Set([5, 6, 7, 8]);       // generator yasak
 // (saf aday yarışmaz — "lazım oldukça" kaldırıldı, Eki 2026).
 const GEN_MIN = { 11: 1, 12: 1, 13: 2 };
 const GEN_MAX_OVERRIDE = {};
-const genMin = (no) => GEN_MIN[no] || (no >= 14 ? 2 : 0);
+// taban 2 → 3 (agresiflik ≥ 1/4, ~level 540) → 4 (≥ 2/3, ~level 1350)
+const genMin = (no) => GEN_MIN[no] || (no >= 14 ? (agg(no) >= 2 / 3 ? 4 : agg(no) >= 0.25 ? 3 : 2) : 0);
 const genRequired = (no) => !PURE_HEAD.has(no) && !INTRO[no];
 // mono slot: 11+ her onluğun ilk e levelı (tanıtım / zorunlu generator
 // levelları hariç) → saf, 6x8
@@ -83,14 +86,26 @@ const MONO = new Set();
 }
 const isPure = (no) => PURE_HEAD.has(no) || MONO.has(no);
 
-// zorluk bir tık yukarı (Eki 2026; fark generator kullanımıyla kapanır)
+// zorluk bir tık yukarı (Eki 2026; fark generator kullanımıyla kapanır).
+// 2000 levellik funnel: 30'dan sonra plato değil ÇOK AZ eğimli doğrusal
+// artış (LONG_START → LONG_END arasında CURVE[1] → CURVE_END); fark
+// generator agresifliğiyle kapanır (aşağıda agg()).
 const CURVE = { e: [20, 38], m: [38, 56], h: [55, 88], vh: [75, 120] };
+const CURVE_END = { e: 46, m: 66, h: 102, vh: 140 };
 const RAMP_START = 5, RAMP_END = 30;
+const LONG_START = 50, LONG_END = 2000;
 const ramp = (no) => {
   const t = Math.max(0, Math.min(1, (no - RAMP_START) / (RAMP_END - RAMP_START)));
   return 1 - (1 - t) * (1 - t);
 };
-const targetOf = (no, label) => { const [a, b] = CURVE[label]; return a + (b - a) * ramp(no); };
+const longT = (no) => Math.max(0, Math.min(1, (no - LONG_START) / (LONG_END - LONG_START)));
+const targetOf = (no, label) => {
+  const [a, b] = CURVE[label];
+  return a + (b - a) * ramp(no) + (CURVE_END[label] - b) * longT(no);
+};
+// generator agresifliği 0..1 (50 → 2000): sayı tabanı/tavanı, kuyruk
+// çarpanı ve generator-ağırlıklı kalıplar bununla büyür
+const agg = (no) => longT(no);
 
 // boyut tavanları (tasarımcı sn; ortada boşluklu maske ile ölçüldü, Eki 2026):
 // saf lo p10 / mid p50 / hi p90; generator'lı gMid (orta kalıp p50) / gHi
@@ -147,8 +162,8 @@ const OPEN_RELAX = [0, 0.05, 0.10, 0.15]; // tutmazsa kademeli gevşeme
 const FLOW_W = 0.2, FLOW_SAME_OK = 4, FLOW_SHARE_OK = 0.8;
 // generator sayısı: az generator = zayıf mekanik → taban 2 (13+), tavan
 // boyutla sınırlı (küçük boardda yer yok)
-const genCap = (no) => GEN_MAX_OVERRIDE[no] || (no <= 13 ? 2 : no <= 20 ? 4 : no <= 40 ? 5 : 6);
-const SIZE_GEN_CAP = { "5x7": 2, "6x8": 4, "6x9": 4, "7x10": 6 };
+const genCap = (no) => GEN_MAX_OVERRIDE[no] || (no <= 13 ? 2 : no <= 20 ? 4 : no <= 40 ? 5 : agg(no) >= 0.5 ? 8 : agg(no) >= 0.2 ? 7 : 6);
+const SIZE_GEN_CAP = { "5x7": 2, "6x8": 4, "6x9": 5, "7x10": 8 };
 // alt satır: tasarımcı "altı bomboş level olmaz" → alt satırda (ekran altı)
 // boş hücre sert tavan 2 (eksen şeridi), her boş hücre yumuşak cezalı
 const BOTTOM_EMPTY_CAP = 2, BOTTOM_W = 0.03;
@@ -229,12 +244,15 @@ function recipeOf(cap, target, cand, floor, cpOverride) {
 
 // Kalıp havuzu (v3); erken levellarda doldurma "pairs" zorunlu
 const PLACEMENTS = ["edge", "corner", "inner", "mixed", "facing"];
-function specOf(cap, target, cand, rng, gMax, early, gMin = 1, symOpts = null, rows = cap.rows, cols = cap.cols) {
+function specOf(cap, target, cand, rng, gMax, early, gMin = 1, symOpts = null, rows = cap.rows, cols = cap.cols, a = 0) {
   const hg = Math.max(0, Math.min(1.2, (target - cap.mid) / (cap.gHi - cap.mid)));
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  // generator kullanımı güçlü: sayı ve kuyruk yukarı (Eki 2026)
-  const genN = Math.max(gMin, Math.min(gMax, hg < 0.3 ? pick([2, 2, 3]) : hg < 0.6 ? pick([2, 3, 4]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6])));
-  const queueLen = hg < 0.3 ? pick([4, 5, 6]) : hg < 0.6 ? pick([6, 8, 10]) : pick([8, 10, 14]);
+  // generator kullanımı güçlü: sayı ve kuyruk yukarı (Eki 2026); uzun
+  // funnel'da agresiflik a (0..1) sayıya +0..2, kuyruğa ×1..1.6 ekler
+  const gBonus = a >= 2 / 3 ? 2 : a >= 1 / 3 ? 1 : 0;
+  const genN = Math.max(gMin, Math.min(gMax, gBonus + (hg < 0.3 ? pick([2, 2, 3]) : hg < 0.6 ? pick([2, 3, 4]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6]))));
+  const qMul = 1 + 0.6 * a;
+  const queueLen = Math.round(qMul * (hg < 0.3 ? pick([4, 5, 6]) : hg < 0.6 ? pick([6, 8, 10]) : pick([8, 10, 14])));
   const pk = hg < 0.3 ? pick(["near", "near", "mid", "alt"])
     : hg < 0.6 ? pick(["near", "mid", "alt", "random", "far"])
     : pick(["mid", "far", "far", "alt", "random"]);
@@ -499,11 +517,11 @@ function verifyExt(ext) {
 
 fs.mkdirSync(OUT, { recursive: true });
 // yalnız üretilecek aralık silinir (TM_N=50 → 51+ dokunulmaz, funnel.csv hepsini listeler)
-if (!KEEP) for (const f of fs.readdirSync(OUT)) { const m = f.match(FILE_RE); if (m && parseInt(m[1], 10) <= N) fs.unlinkSync(path.join(OUT, f)); }
+if (!KEEP) for (const f of fs.readdirSync(OUT)) { const m = f.match(FILE_RE); const k = m && parseInt(m[1], 10); if (m && k <= N && k >= FROM) fs.unlinkSync(path.join(OUT, f)); }
 const existing = new Map();
 for (const f of fs.readdirSync(OUT)) { const m = f.match(FILE_RE); if (m) existing.set(parseInt(m[1], 10), f); }
 
-for (let i = 1; i <= Math.min(4, N); i++) {
+for (let i = 1; i <= Math.min(4, N) && FROM <= 5; i++) {
   if (KEEP && existing.has(i)) continue;
   const t = JSON.parse(fs.readFileSync(path.join(TUT_DIR, i + "_t.json"), "utf8"));
   writeExt(i, "t", { width: t.width, height: t.height, cells: t.cells }, t.stickers);
@@ -531,7 +549,7 @@ const logRow = (r, tl) => console.log(
   " oyuncu~" + r.player.toFixed(0) + " gen " + r.gens + " kuyruk " + String(r.queued).padEnd(3) + r.spec.padEnd(24) +
   " mut " + String(r.mut).padEnd(3) + (r.note ? " [" + r.note + "] " : "") + ((Date.now() - tl) / 1000).toFixed(1) + "s");
 
-for (let no = 5; no <= N; no++) {
+for (let no = FROM; no <= N; no++) {
   const label = labelOf(no);
   let target = targetOf(no, label);
   const floor = collFloor(no);
@@ -587,8 +605,9 @@ for (let no = 5; no <= N; no++) {
   const rngL = mulberry32(hashSeed("v4:" + no));
   const pure = isPure(no);
   const early = no <= 30;
-  const gMax = Math.min(genCap(no), SIZE_GEN_CAP[sizeKey] || 6);
-  const gMin = Math.min(gMax, Math.max(1, genMin(no)));
+  let gMax = Math.min(genCap(no), SIZE_GEN_CAP[sizeKey] || 6);
+  let gMin = Math.min(gMax, Math.max(1, genMin(no)));
+  let aggL = agg(no); // kurtarmada düşürülür
   const needGen = !pure && genRequired(no); // saf aday havuza girmez
   // tanıtım-2: dolu temiz boardda 1 generator, kuyruk 5, near/mid dönüşümlü
   // ("alt"), doldurma yok; saf aday yarışmaz
@@ -620,7 +639,7 @@ for (let no = 5; no <= N; no++) {
       ? { placement: "edge", genN: 1, queueLen: 5, pick: cand % 3 === 2 ? "near" : "alt",
           refill: "none", refillFrac: 1, syncN: 0, queueMax: 5, tidy: true, keepColl: true,
           sym: symOpts.find((x) => symHasAxisCell(x, rows, cols)) || null }
-      : specOf(cap, target, cand, rngL, gMax, early, gMin, symOpts, rows, cols);
+      : specOf(cap, target, cand, rngL, gMax, early, gMin, symOpts, rows, cols, aggL);
     if (!spec) return;
     const lg = buildLevel(rows, cols, recG, spec, hashSeed("v4g:" + no + ":" + cand), mk);
     if (lg) { const m = measure(lg, rows, cols, target, recentSigs, spec, no); if (m) all.push({ lv: lg, m, rec: recG, spec, cand, mi }); }
@@ -647,6 +666,14 @@ for (let no = 5; no <= N; no++) {
   for (let ri = 0; ri < RESCUE_CP.length && !pool.length; ri++) {
     note += (note ? "," : "") + "cp" + RESCUE_CP[ri];
     for (let mi = 0; mi < nMasks; mi++) for (let cand = 0; cand < nCand; cand++) build(100 * (ri + 1) + cand, RESCUE_CP[ri], mi, !pure);
+    selectPool();
+  }
+  // generator kurtarması: küçük boardda çok generator / uzun kuyruk hiç
+  // kurulamadı (ör. 6x9'da 5 gen) → agresifliği ve sayıyı kademeli düşür
+  for (let gi = 0; gi < 3 && !pool.length && !pure && !introGen; gi++) {
+    aggL = 0; gMax = Math.max(2, gMax - 1 - gi); gMin = Math.min(gMin, Math.max(1, 2 - gi));
+    note += (note ? "," : "") + "gen↓" + gMax;
+    for (let mi = 0; mi < nMasks; mi++) for (let cand = 0; cand < nCand; cand++) build(400 + 100 * gi + cand, undefined, mi, true);
     selectPool();
   }
   if (pool.length && relax) note += (note ? "," : "") + "açık-" + Math.round(100 * relax);
