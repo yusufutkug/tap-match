@@ -64,10 +64,13 @@ const PURE_HEAD = new Set([5, 6, 7, 8]);       // generator yasak
 // generator takvimi: tanıtımdan sonra mekanik KESİLMEZ — 11-13 zorunlu
 // (1 → 1-2 → 2 generator), 14-30 arasında saf yalnız mono slotu; "lazım
 // oldukça" (saf aday süreyi tutuyorsa generator koyma) yalnız 30+'da.
+// 14+: her generator'lı levelda en az 2 generator (akış generator'lar
+// arasında gidip gelsin); generator mono dışında her levelda ZORUNLU
+// (saf aday yarışmaz — "lazım oldukça" kaldırıldı, Eki 2026).
 const GEN_MIN = { 11: 1, 12: 1, 13: 2 };
 const GEN_MAX_OVERRIDE = {};
-const genMin = (no) => GEN_MIN[no] || 0;
-const genRequired = (no) => no <= 30 && !PURE_HEAD.has(no) && !INTRO[no];
+const genMin = (no) => GEN_MIN[no] || (no >= 14 ? 2 : 0);
+const genRequired = (no) => !PURE_HEAD.has(no) && !INTRO[no];
 // mono slot: 11+ her onluğun ilk e levelı (tanıtım / zorunlu generator
 // levelları hariç) → saf, 6x8
 const MONO = new Set();
@@ -80,7 +83,8 @@ const MONO = new Set();
 }
 const isPure = (no) => PURE_HEAD.has(no) || MONO.has(no);
 
-const CURVE = { e: [20, 35], m: [35, 50], h: [50, 80], vh: [70, 110] };
+// zorluk bir tık yukarı (Eki 2026; fark generator kullanımıyla kapanır)
+const CURVE = { e: [20, 38], m: [38, 56], h: [55, 88], vh: [75, 120] };
 const RAMP_START = 5, RAMP_END = 30;
 const ramp = (no) => {
   const t = Math.max(0, Math.min(1, (no - RAMP_START) / (RAMP_END - RAMP_START)));
@@ -135,9 +139,19 @@ const COMPS_W = 0.04; // yumuşak: 1 bileşen ötesi her bileşen
 const openFloor = (no) => no <= 20 ? 0.25 : no <= 30 ? 0.20 : 0;
 const OPEN_RELAX = [0, 0.05, 0.10, 0.15]; // tutmazsa kademeli gevşeme
 
-// akış cezası (yumuşak; v3 ile aynı)
-const FLOW_W = 0.2, FLOW_STREAK_OK = 6, FLOW_SHARE_OK = 0.6;
-const genCap = (no) => GEN_MAX_OVERRIDE[no] || (no <= 20 ? 2 : no <= 30 ? 3 : no <= 60 ? 4 : 5);
+// akış cezası (yumuşak). Tasarımcı (Eki 2026): "oyunun generator'dan
+// dönmesi" şikâyeti TEK generator üzerinden dönen akış içindi; birden çok
+// generator arasında gidip gelen, arada boarda paslayan akış makbul →
+// ceza artık aynı generator'ın kesintisiz serisine (FLOW_SAME_OK) ve çok
+// yüksek toplam spawn payına (FLOW_SHARE_OK %80).
+const FLOW_W = 0.2, FLOW_SAME_OK = 4, FLOW_SHARE_OK = 0.8;
+// generator sayısı: az generator = zayıf mekanik → taban 2 (13+), tavan
+// boyutla sınırlı (küçük boardda yer yok)
+const genCap = (no) => GEN_MAX_OVERRIDE[no] || (no <= 13 ? 2 : no <= 20 ? 4 : no <= 40 ? 5 : 6);
+const SIZE_GEN_CAP = { "5x7": 2, "6x8": 4, "6x9": 4, "7x10": 6 };
+// alt satır: tasarımcı "altı bomboş level olmaz" → alt satırda (ekran altı)
+// boş hücre sert tavan 2 (eksen şeridi), her boş hücre yumuşak cezalı
+const BOTTOM_EMPTY_CAP = 2, BOTTOM_W = 0.03;
 
 // ── açılış boşluğu: tek dışbükey bölge ──
 // Şekil: center (ortada dikdörtgen) · top / bottom (kenar çentiği, ortalı) ·
@@ -165,7 +179,7 @@ function holeMasks(rows, cols, no, label) {
     if (n < minCells || n > maxCells || (area - n) % 2 || (cols - hc) % 2) continue;
     if (hr > 1 && hc > 1 && hr * 2 < hc) continue; // çok yatık şerit değil
     shapes.push({ kind: "center", hr, hc });
-    if (hr >= 2 || hc >= 3) { shapes.push({ kind: "top", hr, hc }); shapes.push({ kind: "bottom", hr, hc }); }
+    if (hr >= 2 || hc >= 3) shapes.push({ kind: "top", hr, hc }); // alt çentik yok ("altı boş level olmaz")
   }
   for (let a = 1; a <= 2; a++) { // artı: kol uzunluğu a → 4a+1 hücre
     const n = 4 * a + 1;
@@ -218,17 +232,19 @@ const PLACEMENTS = ["edge", "corner", "inner", "mixed", "facing"];
 function specOf(cap, target, cand, rng, gMax, early, gMin = 1, symOpts = null, rows = cap.rows, cols = cap.cols) {
   const hg = Math.max(0, Math.min(1.2, (target - cap.mid) / (cap.gHi - cap.mid)));
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  const genN = Math.max(gMin, Math.min(gMax, hg < 0.3 ? pick([1, 2, 2]) : hg < 0.6 ? pick([2, 3, 3]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6])));
-  const queueLen = hg < 0.3 ? pick([2, 3, 4]) : hg < 0.6 ? pick([4, 6, 8]) : pick([6, 8, 12]);
+  // generator kullanımı güçlü: sayı ve kuyruk yukarı (Eki 2026)
+  const genN = Math.max(gMin, Math.min(gMax, hg < 0.3 ? pick([2, 2, 3]) : hg < 0.6 ? pick([2, 3, 4]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6])));
+  const queueLen = hg < 0.3 ? pick([4, 5, 6]) : hg < 0.6 ? pick([6, 8, 10]) : pick([8, 10, 14]);
   const pk = hg < 0.3 ? pick(["near", "near", "mid", "alt"])
     : hg < 0.6 ? pick(["near", "mid", "alt", "random", "far"])
     : pick(["mid", "far", "far", "alt", "random"]);
-  // erken: doldurma yok (doldurma boşluğu böler; ölçüm: none ile bileşen
-  // ≤2 payı 6x8'de 15/24, pairs ile 6/24). tidy: çekimler blob'a komşu.
-  const refill = early ? "none"
-    : hg < 0.3 ? pick(["none", "none", "pairs"])
-    : hg < 0.6 ? pick(["none", "pairs", "pairs", "singles"])
-    : pick(["pairs", "pairs", "singles", "none"]);
+  // erken: "pairs" doldurma yok (boşluğu böler; ölçüm: none ile bileşen ≤2
+  // payı 6x8'de 15/24, pairs ile 6/24); "singles" kuyruğu derinleştirir ve
+  // tidy ile blob kenarına koyar → erken de serbest. tidy: çekimler blob'a komşu.
+  const refill = early ? pick(["none", "singles", "singles"])
+    : hg < 0.3 ? pick(["none", "singles", "pairs"])
+    : hg < 0.6 ? pick(["singles", "pairs", "pairs", "singles"])
+    : pick(["pairs", "singles", "singles", "pairs"]);
   let placement = PLACEMENTS[(cand + Math.floor(rng() * 2)) % PLACEMENTS.length];
   if (placement === "facing" && gMax < 2) placement = "edge";
   const syncN = genN >= 2 ? (hg < 0.5 ? pick([0, 0, 1]) : pick([0, 1, 2])) : 0;
@@ -290,16 +306,31 @@ function boardCollShare(pairs) {
   for (const p of pairs) if (p.length === 2) { n++; if (isCollinear(p)) coll++; }
   return n ? coll / n : 0;
 }
+// spawnShare: generator taşıyla biten hamle payı; maxStreak: aynı TEK
+// generator'ın kesintisiz hamle serisi (iki generator arasında gidip gelme
+// seri saymaz — tasarımcı tercihi)
 function flowStats(ecS, gens) {
   if (!gens || !gens.length) return { spawnShare: 0, maxStreak: 0 };
-  const queued = new Set();
-  for (const g of gens) for (const pid of g.queue) queued.add(pid);
-  let n = 0, best = 0, cur = 0;
+  const genOf = new Map();
+  gens.forEach((g, gi) => { for (const pid of g.queue) genOf.set(pid, gi); });
+  let n = 0, best = 0, cur = 0, curGen = -1;
   for (const mv of ecS.moves) {
-    if (mv.pairIds.every((pid) => queued.has(pid))) { n++; cur++; if (cur > best) best = cur; }
-    else cur = 0;
+    const gis = mv.pairIds.filter((pid) => genOf.has(pid)).map((pid) => genOf.get(pid));
+    if (gis.length) n++;
+    const single = gis.length && gis.every((x) => x === gis[0]) ? gis[0] : -1;
+    if (single >= 0 && single === curGen) { cur++; }
+    else if (single >= 0) { curGen = single; cur = 1; }
+    else { curGen = -1; cur = 0; }
+    if (cur > best) best = cur;
   }
   return { spawnShare: n / Math.max(1, ecS.moves.length), maxStreak: best };
+}
+// alt satırdaki (ekran altı = iç r rows-1) boş hücre sayısı (generator hariç)
+function bottomEmpties(lv, rows, cols) {
+  const filled = new Set();
+  for (const p of lv.pairs) for (const [r, c] of p) if (r === rows - 1) filled.add(c);
+  for (const g of lv.generators || []) if (g.r === rows - 1) filled.add(g.c);
+  return cols - filled.size;
 }
 // açılış: boş hücre bileşenleri (generator hücresi boş sayılmaz) ve
 // oynanabilir çift payı (board + generator duvarlarıyla)
@@ -335,20 +366,23 @@ function measure(lv, rows, cols, target, recentSigs, spec, no) {
   const relErr = Math.abs(sec - target) / target;
   const coll = boardCollShare(lv.pairs);
   const { spawnShare, maxStreak } = flowStats(ecS, gens);
-  const flowPen = FLOW_W * (Math.max(0, maxStreak - FLOW_STREAK_OK) / FLOW_STREAK_OK +
-                            Math.max(0, spawnShare - FLOW_SHARE_OK) / 0.25);
+  const flowPen = FLOW_W * (Math.max(0, maxStreak - FLOW_SAME_OK) / FLOW_SAME_OK +
+                            Math.max(0, spawnShare - FLOW_SHARE_OK) / 0.2);
   const op = openingStats(lv, rows, cols);
   const compsPen = COMPS_W * Math.max(0, op.comps - 1);
   const syms = levelSyms(lv, rows, cols).join("");
+  const bottom = bottomEmpties(lv, rows, cols);
   return { sec, grind, ecS, relErr, coll, spawnShare, maxStreak, flowPen, comps: op.comps, openShare: op.openShare,
-           empties: op.empties, hasGens: !!(gens && gens.length), syms, key: relErr + gw * grind + div + flowPen + compsPen };
+           empties: op.empties, hasGens: !!(gens && gens.length), syms, bottom,
+           key: relErr + gw * grind + div + flowPen + compsPen + BOTTOM_W * bottom };
 }
 const isDone = (m, gens) => m.relErr <= DONE_REL && m.grind <= (gens ? GRIND_OK_GEN : GRIND_OK_PURE) && m.flowPen === 0;
 // sert kısıtlar: hizalı taban, boş bileşen tavanı, açık çift tabanı (relax
-// ile), silüet simetrisi (needSym; tutmazsa son çare gevşer → not "asim")
+// ile), silüet simetrisi (needSym; tutmazsa son çare gevşer → not "asim"),
+// alt satır boşluğu tavanı
 const hardOk = (m, floor, no, relax, needSym = true) =>
   m.coll >= floor - 1e-9 && m.comps <= compsCap(no, m.hasGens) && m.openShare >= openFloor(no) - relax - 1e-9 &&
-  (!needSym || m.syms.length > 0);
+  (!needSym || m.syms.length > 0) && m.bottom <= BOTTOM_EMPTY_CAP;
 
 // ── çift mutasyonu (v3) ──
 function mutateOnce(lv, rows, cols, rng, guide) {
@@ -464,7 +498,8 @@ function verifyExt(ext) {
 }
 
 fs.mkdirSync(OUT, { recursive: true });
-if (!KEEP) for (const f of fs.readdirSync(OUT)) if (FILE_RE.test(f)) fs.unlinkSync(path.join(OUT, f));
+// yalnız üretilecek aralık silinir (TM_N=50 → 51+ dokunulmaz, funnel.csv hepsini listeler)
+if (!KEEP) for (const f of fs.readdirSync(OUT)) { const m = f.match(FILE_RE); if (m && parseInt(m[1], 10) <= N) fs.unlinkSync(path.join(OUT, f)); }
 const existing = new Map();
 for (const f of fs.readdirSync(OUT)) { const m = f.match(FILE_RE); if (m) existing.set(parseInt(m[1], 10), f); }
 
@@ -483,7 +518,7 @@ const row = (no, label, sizeKey, lv, m, pt, spec, mut, extra) => ({
   queued: (lv.generators || []).reduce((a, g) => a + g.queue.length, 0), spec: specSig(spec), mut,
   floor: extra.floor, coll: m ? m.coll : NaN, spawn: m ? m.spawnShare : NaN, streak: m ? m.maxStreak : NaN,
   comps: m ? m.comps : NaN, open: m ? m.openShare : NaN, empties: m ? m.empties : NaN, sym: m ? (m.syms || "-") : "-",
-  note: extra.note || "",
+  bottom: m ? m.bottom : NaN, note: extra.note || "",
 });
 const logRow = (r, tl) => console.log(
   String(r.no).padStart(3) + " " + r.label.padEnd(2) + " " + r.size.padEnd(5) + " çift " + String(r.pairs).padEnd(3) +
@@ -492,7 +527,7 @@ const logRow = (r, tl) => console.log(
   " hizalı %" + String(Math.round(100 * r.coll)).padStart(2) + "/" + Math.round(100 * r.floor) +
   " açık %" + String(Math.round(100 * r.open)).padStart(2) + " boş " + String(r.empties).padEnd(2) + "/" + r.comps +
   " spawn %" + String(Math.round(100 * r.spawn)).padStart(2) + " seri " + String(r.streak).padEnd(2) +
-  " sim " + (r.sym || "-").padEnd(3) +
+  " sim " + (r.sym || "-").padEnd(3) + " alt " + r.bottom +
   " oyuncu~" + r.player.toFixed(0) + " gen " + r.gens + " kuyruk " + String(r.queued).padEnd(3) + r.spec.padEnd(24) +
   " mut " + String(r.mut).padEnd(3) + (r.note ? " [" + r.note + "] " : "") + ((Date.now() - tl) / 1000).toFixed(1) + "s");
 
@@ -534,14 +569,26 @@ for (let no = 5; no <= N; no++) {
   if (INTRO[no] === 2) {
     const ax = masks.filter((mk) => maskSyms(mk, rows, cols).some((s) => symHasAxisCell(s, rows, cols)));
     if (ax.length) masks = ax;
+    else { // eksen-simetrik yoksa: tam ortalanmış dikdörtgenler (V+H aynası)
+      masks = [];
+      for (const hr of [3, 5, 1, 4, 2]) for (const hc of [2, 4, 3, 1]) {
+        if (masks.length >= 3) break;
+        if ((rows - hr) % 2 || (cols - hc) % 2 || (rows * cols - hr * hc) % 2 || hr > rows - 2 || hc > cols - 2) continue;
+        const mk = Array.from({ length: rows }, () => Array(cols).fill(true));
+        const r0 = (rows - hr) / 2, c0 = (cols - hc) / 2;
+        for (let r = r0; r < r0 + hr; r++) for (let c = c0; c < c0 + hc; c++) mk[r][c] = false;
+        masks.push(mk);
+        if (masks.length >= 3) break;
+      }
+    }
   }
   let mask = masks[0];
   const recentSigs = recentByLabel[label].slice(-3);
   const rngL = mulberry32(hashSeed("v4:" + no));
   const pure = isPure(no);
   const early = no <= 30;
-  const gMax = genCap(no);
-  const gMin = Math.max(1, genMin(no));
+  const gMax = Math.min(genCap(no), SIZE_GEN_CAP[sizeKey] || 6);
+  const gMin = Math.min(gMax, Math.max(1, genMin(no)));
   const needGen = !pure && genRequired(no); // saf aday havuza girmez
   // tanıtım-2: dolu temiz boardda 1 generator, kuyruk 5, near/mid dönüşümlü
   // ("alt"), doldurma yok; saf aday yarışmaz
@@ -579,7 +626,9 @@ for (let no = 5; no <= N; no++) {
     if (lg) { const m = measure(lg, rows, cols, target, recentSigs, spec, no); if (m) all.push({ lv: lg, m, rec: recG, spec, cand, mi }); }
   };
   const nMasks = early ? Math.min(3, masks.length) : 1;
-  const nCand = introGen ? 48 : early ? 20 : CAND_PURE;
+  // erken: sert kısıtlar (hizalı taban + bileşen tavanı) güçlü generator
+  // kalıplarını çok eliyor → daha geniş aday havuzu
+  const nCand = introGen ? 48 : early ? 36 : CAND_PURE;
   for (let mi = 0; mi < nMasks; mi++) for (let cand = 0; cand < nCand; cand++) build(cand, undefined, mi, !pure);
   // kısıt seçimi: en küçük gevşemeyle geçen adaylar (önce simetrik; simetri
   // tutmazsa asimetrik — not "asim")
@@ -620,7 +669,8 @@ for (let no = 5; no <= N; no++) {
   if (!best) best = pool.sort((a, b) => a.m.key - b.m.key)[0];
   mask = masks[best.mi];
   if (best.spec && !introGen && !isDone(best.m, best.lv.generators)) {
-    for (let r = 0; r < REFINE_ROUNDS && !isDone(best.m, best.lv.generators); r++) {
+    const rounds = best.m.relErr > 0.2 ? 3 * REFINE_ROUNDS : REFINE_ROUNDS; // hedeften uzaksa ısrar
+    for (let r = 0; r < rounds && !isDone(best.m, best.lv.generators); r++) {
       const spec = varySpec(best.spec, best.m.sec < target, rngL, gMax, early, gMin, maskSyms(mask, rows, cols), rows, cols);
       if (!spec) continue;
       const rec = recipeOf(cap, Math.min(target, cap.hi), best.cand + r + 1, floor, best.rec.cornerP);
@@ -651,10 +701,10 @@ const all = fs.readdirSync(OUT).filter((f) => FILE_RE.test(f)).map((f) => f.repl
   .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 fs.writeFileSync(path.join(OUT, "funnel.csv"), all.join(",") + "\n");
 fs.writeFileSync(path.join(OUT, "report.csv"),
-  "no,label,size,pairs,target_sec,measured_sec,player_sec,grind,gens,queued,spec,mut,coll_floor,coll_share,spawn_share,max_streak,empty_comps,open_share,empties,sym,note\n" +
+  "no,label,size,pairs,target_sec,measured_sec,player_sec,grind,gens,queued,spec,mut,coll_floor,coll_share,spawn_share,max_streak,empty_comps,open_share,empties,sym,bottom_empty,note\n" +
   report.map((r) => [r.no, r.label, r.size, r.pairs, r.target.toFixed(1), r.sec.toFixed(1), r.player.toFixed(0),
     r.grind.toFixed(3), r.gens, r.queued, r.spec, r.mut, r.floor.toFixed(3), r.coll.toFixed(3), r.spawn.toFixed(3),
-    r.streak, r.comps, r.open.toFixed(3), r.empties, r.sym, r.note].join(",")).join("\n") + "\n");
+    r.streak, r.comps, r.open.toFixed(3), r.empties, r.sym, r.bottom, r.note].join(",")).join("\n") + "\n");
 
 const byLabel = {};
 for (const r of report) (byLabel[r.label] = byLabel[r.label] || []).push(r);
@@ -676,6 +726,8 @@ console.log("  hizalı taban ihlali " + report.filter((r) => r.coll < r.floor - 
   "; kurtarma " + report.filter((r) => /cp0/.test(r.note)).length +
   "; asimetrik " + report.filter((r) => r.sym === "-" || r.sym === "").length +
   "; ≤30 boş bileşen>tavan " + report.filter((r) => r.no <= 30 && r.comps > compsCap(r.no, r.gens > 0)).length +
-  "; generator'lı: spawn >%60 " + genR.filter((r) => r.spawn > FLOW_SHARE_OK).length +
-  ", seri >" + FLOW_STREAK_OK + " " + genR.filter((r) => r.streak > FLOW_STREAK_OK).length + " / " + genR.length);
+  "; alt satır boş>" + BOTTOM_EMPTY_CAP + " " + report.filter((r) => r.bottom > BOTTOM_EMPTY_CAP).length +
+  "; generator'lı: spawn >%" + Math.round(100 * FLOW_SHARE_OK) + " " + genR.filter((r) => r.spawn > FLOW_SHARE_OK).length +
+  ", tek-gen seri >" + FLOW_SAME_OK + " " + genR.filter((r) => r.streak > FLOW_SAME_OK).length + " / " + genR.length +
+  ", ort kuyruk/level " + (genR.reduce((a, r) => a + r.queued, 0) / Math.max(1, genR.length)).toFixed(1));
 console.log("yazıldı: " + path.relative(ROOT, OUT) + "/ (" + all.length + " dosya) + funnel.csv + report.csv");
