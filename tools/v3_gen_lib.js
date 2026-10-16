@@ -238,6 +238,27 @@ function applySpec(base, rows, cols, spec, rng) {
   // board köşeleri çekilemez: açılışta tek başına boş köşe (tasarımcı
   // istemiyor — boşluk ortada kalsın)
   const isCorner = (t) => (t[0] === 0 || t[0] === rows - 1) && (t[1] === 0 || t[1] === cols - 1);
+  // tidy (spec.tidy): çekilecek taş, açılış boşluğuna (maske deliği + önceki
+  // çekimler) komşu hücrelerden tercih edilir → boşluk tek blob olarak
+  // büyür, dağınık tekil delikler oluşmaz ("parçalı diziliş" yasağı).
+  const emptyAdj = (t) => {
+    let n = 0;
+    for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+      const r = t[0] + dr, c = t[1] + dc;
+      if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
+      if (!cellOf.has(K(r, c)) && !genCells.has(K(r, c))) n++;
+    }
+    return n;
+  };
+  // keepColl (spec.keepColl): çekim hizasız (köşe) çiftlerden tercih edilir —
+  // ön hücreden eşleşebilen taşlar çoğunlukla hizalı çiftlerdir, hepsini
+  // çekmek açılış boardunun hizalı payını çökertir (hizalı taban kısıtı).
+  const tidyOrder = (cand, cellOfCand) => {
+    if (!spec.tidy && !spec.keepColl) return shuffle(cand, rng);
+    const score = (c) => (spec.tidy ? emptyAdj(cellOfCand(c)) : 0) +
+      (spec.keepColl && pairs[c.pid].length === 2 && !isCollinear(pairs[c.pid]) ? 1.5 : 0);
+    return shuffle(cand, rng).map((c) => [c, score(c)]).sort((a, b) => b[1] - a[1]).map((x) => x[0]);
+  };
 
   // generator gi'ye eklenecek taşın BASILACAĞI an: ekleme konumundan önceki
   // kuyruk taşının eşleştiği hamle (kuyruk başıysa tıpanın eşleşmesi); o
@@ -326,7 +347,7 @@ function applySpec(base, rows, cols, spec, rng) {
       }
     }
     if (!cand.length) { if (process.env.V3_DEBUG) console.error("pull nocand gi", gi, "tBreak", tBreak, "/", ec.order.length); return false; }
-    cand = shuffle(cand, rng);
+    cand = tidyOrder(cand, (c) => pairs[c.pid][c.pullIdx]);
     for (const c of cand.slice(0, 6)) {
       const snap = snapshot(gens);
       const t = pairs[c.pid][c.pullIdx];
@@ -368,7 +389,10 @@ function applySpec(base, rows, cols, spec, rng) {
         r += dr; c += dc;
       }
     }
-    const cand = shuffle([...candSet], rng);
+    // tidy: blob kenarındaki hücreler önce (az boş komşu) → boşluk bölünmez
+    const cand = spec.tidy
+      ? shuffle([...candSet], rng).map((k) => [k, emptyAdj(RC(k))]).sort((a, b) => a[1] - b[1]).map((x) => x[0])
+      : shuffle([...candSet], rng);
     if (!cand.length) return false;
     for (const kk of cand.slice(0, 5)) {
       const snap = snapshot(gens);
@@ -444,6 +468,8 @@ function applySpec(base, rows, cols, spec, rng) {
       if (!cellOf.has(k) && !genCells.has(k)) empties.push(k);
     }
     empties = shuffle(empties, rng).slice(0, Math.floor(empties.length * frac));
+    // tidy: blob kenarından içe doğru doldur (boşluk bölünmesin)
+    if (spec.tidy) empties = empties.map((k) => [k, emptyAdj(RC(k))]).sort((a, b) => a[1] - b[1]).map((x) => x[0]);
     let failures = 0;
     while (empties.length >= 2 && failures < 6) {
       const a = empties.shift();

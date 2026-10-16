@@ -18,6 +18,10 @@
 //              1 duo); pos 10 her 4. decade ekstra mono (en ucuz slot —
 //              "kesin kolay"). Yalnız güvenli renkler (120+ sticker) ve
 //              ≤24 çift — daha büyük board normal karışıma düşer.
+//              Etiketli funnel'larda (vh harfi var: v3/v4) pozisyon yerine
+//              ETİKET: her decade'in (11+) generator'sız ilk e levelı mono/
+//              duo (≤32 çift) — döngü "m e h e vh …" olduğundan pos 6 hep
+//              m/7x10'a düşüyordu ve mono hiç çıkmıyordu.
 //   akış       tema kategorileri decade + pozisyonla döner; favori
 //              kategoriler (FAVS) periyodik ağırlık kazanır — "güzel
 //              stickerlar bazen karışır bazen artar".
@@ -148,7 +152,9 @@ function introRecipe(no, pairsN) {
 }
 
 // fNo (1..N, döngü-içi numara) → { simThr, maxPerColor, temaKats, ... }
-function recipeOf(fNo, pairsN) {
+// monoMode: "pos" (1010 funnel: pos 6 / pos 10) | "label" (etiketli funnel:
+// slot seçimi dışarıda, forceMono ile gelir)
+function recipeOf(fNo, pairsN, forceMono) {
   const no = fNo; // döngü içi numara (tanıtım/favori fazları buna bağlı)
   const d = Math.floor((no - 1) / 10);
   const pos = ((no - 1) % 10) + 1;
@@ -164,8 +170,10 @@ function recipeOf(fNo, pairsN) {
   // Yeni funnel'da pos 6 ve pos 10 zaten 6x8'dir; daha büyük bir board
   // aynı indekse düşerse (eski funnel içe aktarımı) tek renk havuzu
   // benzerlik eşiğiyle dolmaz, normal karışım kullanılır.
-  if ((pos === 6 || (pos === 10 && d % 4 === 3)) && pairsN <= 24) {
-    const kind = pos === 6 && d % 3 === 2 ? "duo" : "mono";
+  const monoSlot = MONO_MODE === "label" ? !!forceMono
+    : (pos === 6 || (pos === 10 && d % 4 === 3)) && pairsN <= 24;
+  if (monoSlot) {
+    const kind = (MONO_MODE === "label" || pos === 6) && d % 3 === 2 ? "duo" : "mono";
     const colors = kind === "mono"
       ? [MONO_COLORS[d % MONO_COLORS.length]]
       : DUO_COLORS[Math.floor(d / 3) % DUO_COLORS.length];
@@ -291,6 +299,25 @@ const files = fs.readdirSync(OUT)
   .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 if (!files.length) throw new Error(path.basename(OUT) + " boş — önce tools/export_levels.js (veya gen_v2_levels.js)");
 
+// mono slot modu: etiketli funnel (vh harfi var) → her decade'in (11+)
+// generator'sız ilk e levelı (≤32 çift); yoksa eski pozisyon kuralı.
+const MONO_MODE = files.some((f) => /_vh\.json$/.test(f)) ? "label" : "pos";
+const monoSet = new Set();
+if (MONO_MODE === "label") {
+  const seen = new Set();
+  for (const f of files) {
+    const no = parseInt(f, 10);
+    if (no < CYCLE_START) continue;
+    const d = Math.floor((no - 1) / 10);
+    if (seen.has(d) || !/_e\.json$/.test(f)) continue;
+    const j = JSON.parse(fs.readFileSync(path.join(OUT, f), "utf8"));
+    const pairsN = Math.max(0, ...j.cells);
+    if (j.TileGenerators && j.TileGenerators.length) continue;
+    if (pairsN > 32) continue;
+    seen.add(d); monoSet.add(no);
+  }
+}
+
 const recentUse = new Map(); // sid → son kullanım level no (yakınlık cezası)
 const stats = { mono: [], duo: [], intro: [], skipped: 0 };
 for (const f of files) {
@@ -310,7 +337,7 @@ for (const f of files) {
   // tutturamaz; normal decade-0 karışımı kullanılır.
   const rec = no < CYCLE_START && pairsN <= 24
     ? introRecipe(no, pairsN)
-    : recipeOf(Math.max(1, no - CYCLE_START + 1), pairsN);
+    : recipeOf(Math.max(1, no - CYCLE_START + 1), pairsN, monoSet.has(no));
   const sids = pickStickers(no, pairsN, rec, recentUse);
   sids.forEach((s) => recentUse.set(s, no));
   // yakınlık cezası pencere dışına çıkanları temizle (son 3 level)

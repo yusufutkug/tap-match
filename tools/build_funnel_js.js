@@ -14,6 +14,7 @@ const path = require("path");
 
 const ROOT = path.join(__dirname, "..");
 const PACKS = [
+  { dir: "export_levels_v4", size: "v4", name: "Küçük board funnel v4" },
   { dir: "export_levels_v3", size: "v3", name: "Generator funnel v3" },
 ];
 

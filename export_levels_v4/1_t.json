@@ -1,0 +1,17 @@
+{
+  "width": 5,
+  "height": 3,
+  "cells": [
+     6, 3, 0, 3, 5,
+     2, 1, 0, 1, 2,
+     6, 4, 0, 4, 5
+  ],
+  "stickers": [
+    "fruits_red_01",
+    "fruits_yellow_01",
+    "fruits_orange_01",
+    "fruits_green_01",
+    "fruits_purple_01",
+    "fruits_blue_01"
+  ]
+}

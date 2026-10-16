@@ -6,7 +6,8 @@
 //   2. yasaklı kategori çiftleri aynı levelda buluşmaz
 //   3. level içi benzerlik: d < 0.19 çift asla; erken decade'lerde
 //      (concave < 0.33) d < 0.23 de yasak (ayrışma rampası sözleşmesi)
-//   4. mono/duo slotları (pos 6; pos 10 her 4. decade; yalnız ≤24 çift)
+//   4. mono/duo slotları (pos 6; pos 10 her 4. decade; yalnız ≤24 çift —
+//      etiketli funnel'da (v3/v4) her decade'in generator'sız ilk e levelı)
 //      renk sözleşmesine uyar
 //   5. kapsama özeti: kategori/renk dağılımı, hiç kullanılmayan sticker sayısı
 
@@ -43,6 +44,23 @@ let errors = 0;
 const err = (msg) => { errors++; if (errors <= 30) console.log("HATA " + msg); };
 const used = new Map();
 
+// mono slot modu (assign_stickers ile aynı): etiketli funnel (vh var) →
+// her decade'in (11+) generator'sız ilk e levelı (≤32 çift); yoksa pos kuralı.
+const MONO_MODE = files.some((f) => /_vh\.json$/.test(f)) ? "label" : "pos";
+const monoSet = new Set();
+if (MONO_MODE === "label") {
+  const seen = new Set();
+  for (const f of files) {
+    const no = parseInt(f, 10);
+    if (no < 11) continue;
+    const d = Math.floor((no - 1) / 10);
+    if (seen.has(d) || !/_e\.json$/.test(f)) continue;
+    const j = JSON.parse(fs.readFileSync(path.join(OUT, f), "utf8"));
+    if ((j.TileGenerators && j.TileGenerators.length) || Math.max(0, ...j.cells) > 32) continue;
+    seen.add(d); monoSet.add(no);
+  }
+}
+
 for (const f of files) {
   const no = parseInt(f, 10);
   // funnel düzeni: 1-4 öğretici, 5-10 giriş, 11+ ana döngü (10 kaydırma).
@@ -74,7 +92,8 @@ for (const f of files) {
   // 0.19 onlar için de mutlak yasak). Öğreticiler (1-4) elle seçilmiştir,
   // yalnız 0.19 tabanı denetlenir.
   // mono sözleşmesi yalnız küçük boardda (assign_stickers ile aynı sınır)
-  const isMonoSlot = inCycle && pairsN <= 24 && (pos === 6 || (pos === 10 && d % 4 === 3));
+  const isMonoSlot = MONO_MODE === "label" ? monoSet.has(no)
+    : inCycle && pairsN <= 24 && (pos === 6 || (pos === 10 && d % 4 === 3));
   const thr = no <= 4 ? 0.19 : !isMonoSlot && concave(d) < 0.33 ? 0.23 : 0.19;
   const list = j.stickers;
   for (let i = 0; i < list.length; i++) {
@@ -89,7 +108,7 @@ for (const f of files) {
   }
   // mono/duo sözleşmesi
   if (isMonoSlot) {
-    const kind = pos === 6 && d % 3 === 2 ? "duo" : "mono";
+    const kind = (MONO_MODE === "label" || pos === 6) && d % 3 === 2 ? "duo" : "mono";
     const n = colors.size;
     if (kind === "mono" && n !== 1) err(f + ": mono slot " + n + " renk");
     if (kind === "duo" && n !== 2) err(f + ": duo slot " + n + " renk");

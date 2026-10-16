@@ -1,0 +1,29 @@
+{
+  "width": 5,
+  "height": 7,
+  "cells": [
+     10,  0, 11,  0, 10,
+      8,  0,  9,  0,  8,
+      4,  0,  0,  0,  5,
+      6,  0,  7,  0,  6,
+      4,  0,  0,  0,  5,
+      1,  0,  1,  0,  2,
+      3,  0,  0,  0,  3
+  ],
+  "stickers": [
+    "toys_green_08",
+    "flowers_white_12",
+    "flowers_blue_01",
+    "toys_blue_08",
+    "toys_red_04",
+    "flowers_yellow_02",
+    "toys_pink_01",
+    "flowers_pink_01",
+    "flowers_green_09",
+    "flowers_orange_07",
+    "toys_yellow_07"
+  ],
+  "TileGenerators": [
+    {"Cell":32,"Direction":1,"Tiles":[2,7,9,11]}
+  ]
+}
