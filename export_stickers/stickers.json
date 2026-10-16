@@ -1,9 +1,15 @@
 {
- "count": 1286,
+ "count": 1124,
  "stickers": [
   {
-   "sid": "animals_brown_01",
-   "file": "animals_brown_01.png",
+   "sid": "animals_brown_03",
+   "file": "animals_brown_03.png",
+   "category": "animals",
+   "color": "brown"
+  },
+  {
+   "sid": "animals_brown_04",
+   "file": "animals_brown_04.png",
    "category": "animals",
    "color": "brown"
   },
@@ -20,16 +26,28 @@
    "color": "gray"
   },
   {
-   "sid": "animals_gray_03",
-   "file": "animals_gray_03.png",
+   "sid": "animals_gray_04",
+   "file": "animals_gray_04.png",
    "category": "animals",
    "color": "gray"
   },
   {
-   "sid": "animals_orange_01",
-   "file": "animals_orange_01.png",
+   "sid": "animals_gray_06",
+   "file": "animals_gray_06.png",
    "category": "animals",
-   "color": "orange"
+   "color": "gray"
+  },
+  {
+   "sid": "animals_gray_08",
+   "file": "animals_gray_08.png",
+   "category": "animals",
+   "color": "gray"
+  },
+  {
+   "sid": "animals_green_01",
+   "file": "animals_green_01.png",
+   "category": "animals",
+   "color": "green"
   },
   {
    "sid": "animals_orange_02",
@@ -50,50 +68,92 @@
    "color": "orange"
   },
   {
-   "sid": "animals_orange_05",
-   "file": "animals_orange_05.png",
-   "category": "animals",
-   "color": "orange"
-  },
-  {
-   "sid": "animals_orange_06",
-   "file": "animals_orange_06.png",
-   "category": "animals",
-   "color": "orange"
-  },
-  {
-   "sid": "animals_orange_07",
-   "file": "animals_orange_07.png",
-   "category": "animals",
-   "color": "orange"
-  },
-  {
-   "sid": "animals_orange_08",
-   "file": "animals_orange_08.png",
-   "category": "animals",
-   "color": "orange"
-  },
-  {
    "sid": "animals_orange_09",
    "file": "animals_orange_09.png",
    "category": "animals",
    "color": "orange"
   },
   {
-   "sid": "animals_orange_10",
-   "file": "animals_orange_10.png",
+   "sid": "animals_orange_13",
+   "file": "animals_orange_13.png",
    "category": "animals",
    "color": "orange"
   },
   {
-   "sid": "animals_white_01",
-   "file": "animals_white_01.png",
+   "sid": "animals_orange_15",
+   "file": "animals_orange_15.png",
    "category": "animals",
-   "color": "white"
+   "color": "orange"
   },
   {
-   "sid": "animals_white_02",
-   "file": "animals_white_02.png",
+   "sid": "animals_orange_16",
+   "file": "animals_orange_16.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_18",
+   "file": "animals_orange_18.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_19",
+   "file": "animals_orange_19.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_22",
+   "file": "animals_orange_22.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_23",
+   "file": "animals_orange_23.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_24",
+   "file": "animals_orange_24.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_25",
+   "file": "animals_orange_25.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_orange_26",
+   "file": "animals_orange_26.png",
+   "category": "animals",
+   "color": "orange"
+  },
+  {
+   "sid": "animals_pink_01",
+   "file": "animals_pink_01.png",
+   "category": "animals",
+   "color": "pink"
+  },
+  {
+   "sid": "animals_pink_02",
+   "file": "animals_pink_02.png",
+   "category": "animals",
+   "color": "pink"
+  },
+  {
+   "sid": "animals_red_01",
+   "file": "animals_red_01.png",
+   "category": "animals",
+   "color": "red"
+  },
+  {
+   "sid": "animals_white_01",
+   "file": "animals_white_01.png",
    "category": "animals",
    "color": "white"
   },
@@ -110,10 +170,34 @@
    "color": "white"
   },
   {
-   "sid": "art_tools_black_01",
-   "file": "art_tools_black_01.png",
-   "category": "art_tools",
-   "color": "black"
+   "sid": "animals_white_06",
+   "file": "animals_white_06.png",
+   "category": "animals",
+   "color": "white"
+  },
+  {
+   "sid": "animals_white_07",
+   "file": "animals_white_07.png",
+   "category": "animals",
+   "color": "white"
+  },
+  {
+   "sid": "animals_white_09",
+   "file": "animals_white_09.png",
+   "category": "animals",
+   "color": "white"
+  },
+  {
+   "sid": "animals_white_12",
+   "file": "animals_white_12.png",
+   "category": "animals",
+   "color": "white"
+  },
+  {
+   "sid": "animals_white_13",
+   "file": "animals_white_13.png",
+   "category": "animals",
+   "color": "white"
   },
   {
    "sid": "art_tools_blue_01",
@@ -122,56 +206,62 @@
    "color": "blue"
   },
   {
-   "sid": "art_tools_brown_01",
-   "file": "art_tools_brown_01.png",
+   "sid": "art_tools_blue_02",
+   "file": "art_tools_blue_02.png",
    "category": "art_tools",
-   "color": "brown"
+   "color": "blue"
   },
   {
-   "sid": "art_tools_brown_02",
-   "file": "art_tools_brown_02.png",
+   "sid": "art_tools_blue_03",
+   "file": "art_tools_blue_03.png",
    "category": "art_tools",
-   "color": "brown"
+   "color": "blue"
   },
   {
-   "sid": "art_tools_green_01",
-   "file": "art_tools_green_01.png",
+   "sid": "art_tools_blue_05",
+   "file": "art_tools_blue_05.png",
+   "category": "art_tools",
+   "color": "blue"
+  },
+  {
+   "sid": "art_tools_blue_06",
+   "file": "art_tools_blue_06.png",
+   "category": "art_tools",
+   "color": "blue"
+  },
+  {
+   "sid": "art_tools_green_03",
+   "file": "art_tools_green_03.png",
    "category": "art_tools",
    "color": "green"
-  },
-  {
-   "sid": "art_tools_green_02",
-   "file": "art_tools_green_02.png",
-   "category": "art_tools",
-   "color": "green"
-  },
-  {
-   "sid": "art_tools_orange_01",
-   "file": "art_tools_orange_01.png",
-   "category": "art_tools",
-   "color": "orange"
-  },
-  {
-   "sid": "art_tools_orange_02",
-   "file": "art_tools_orange_02.png",
-   "category": "art_tools",
-   "color": "orange"
-  },
-  {
-   "sid": "art_tools_orange_03",
-   "file": "art_tools_orange_03.png",
-   "category": "art_tools",
-   "color": "orange"
-  },
-  {
-   "sid": "art_tools_orange_04",
-   "file": "art_tools_orange_04.png",
-   "category": "art_tools",
-   "color": "orange"
   },
   {
    "sid": "art_tools_orange_05",
    "file": "art_tools_orange_05.png",
+   "category": "art_tools",
+   "color": "orange"
+  },
+  {
+   "sid": "art_tools_orange_07",
+   "file": "art_tools_orange_07.png",
+   "category": "art_tools",
+   "color": "orange"
+  },
+  {
+   "sid": "art_tools_orange_08",
+   "file": "art_tools_orange_08.png",
+   "category": "art_tools",
+   "color": "orange"
+  },
+  {
+   "sid": "art_tools_orange_09",
+   "file": "art_tools_orange_09.png",
+   "category": "art_tools",
+   "color": "orange"
+  },
+  {
+   "sid": "art_tools_orange_10",
+   "file": "art_tools_orange_10.png",
    "category": "art_tools",
    "color": "orange"
   },
@@ -182,22 +272,28 @@
    "color": "pink"
   },
   {
-   "sid": "art_tools_purple_01",
-   "file": "art_tools_purple_01.png",
+   "sid": "art_tools_pink_02",
+   "file": "art_tools_pink_02.png",
    "category": "art_tools",
-   "color": "purple"
+   "color": "pink"
   },
   {
-   "sid": "art_tools_red_01",
-   "file": "art_tools_red_01.png",
+   "sid": "art_tools_pink_03",
+   "file": "art_tools_pink_03.png",
    "category": "art_tools",
-   "color": "red"
+   "color": "pink"
   },
   {
-   "sid": "art_tools_red_02",
-   "file": "art_tools_red_02.png",
+   "sid": "art_tools_pink_04",
+   "file": "art_tools_pink_04.png",
    "category": "art_tools",
-   "color": "red"
+   "color": "pink"
+  },
+  {
+   "sid": "art_tools_pink_05",
+   "file": "art_tools_pink_05.png",
+   "category": "art_tools",
+   "color": "pink"
   },
   {
    "sid": "art_tools_red_03",
@@ -206,28 +302,28 @@
    "color": "red"
   },
   {
-   "sid": "art_tools_white_01",
-   "file": "art_tools_white_01.png",
+   "sid": "art_tools_red_04",
+   "file": "art_tools_red_04.png",
    "category": "art_tools",
-   "color": "white"
+   "color": "red"
   },
   {
-   "sid": "art_tools_white_02",
-   "file": "art_tools_white_02.png",
+   "sid": "art_tools_red_05",
+   "file": "art_tools_red_05.png",
    "category": "art_tools",
-   "color": "white"
+   "color": "red"
   },
   {
-   "sid": "art_tools_white_03",
-   "file": "art_tools_white_03.png",
+   "sid": "art_tools_red_07",
+   "file": "art_tools_red_07.png",
    "category": "art_tools",
-   "color": "white"
+   "color": "red"
   },
   {
-   "sid": "art_tools_white_04",
-   "file": "art_tools_white_04.png",
+   "sid": "art_tools_red_08",
+   "file": "art_tools_red_08.png",
    "category": "art_tools",
-   "color": "white"
+   "color": "red"
   },
   {
    "sid": "art_tools_yellow_01",
@@ -236,22 +332,40 @@
    "color": "yellow"
   },
   {
-   "sid": "art_tools_yellow_02",
-   "file": "art_tools_yellow_02.png",
+   "sid": "art_tools_yellow_03",
+   "file": "art_tools_yellow_03.png",
    "category": "art_tools",
    "color": "yellow"
   },
   {
-   "sid": "baby_items_blue_01",
-   "file": "baby_items_blue_01.png",
-   "category": "baby_items",
-   "color": "blue"
+   "sid": "art_tools_yellow_04",
+   "file": "art_tools_yellow_04.png",
+   "category": "art_tools",
+   "color": "yellow"
   },
   {
-   "sid": "baby_items_blue_02",
-   "file": "baby_items_blue_02.png",
-   "category": "baby_items",
-   "color": "blue"
+   "sid": "art_tools_yellow_05",
+   "file": "art_tools_yellow_05.png",
+   "category": "art_tools",
+   "color": "yellow"
+  },
+  {
+   "sid": "art_tools_yellow_06",
+   "file": "art_tools_yellow_06.png",
+   "category": "art_tools",
+   "color": "yellow"
+  },
+  {
+   "sid": "art_tools_yellow_07",
+   "file": "art_tools_yellow_07.png",
+   "category": "art_tools",
+   "color": "yellow"
+  },
+  {
+   "sid": "art_tools_yellow_08",
+   "file": "art_tools_yellow_08.png",
+   "category": "art_tools",
+   "color": "yellow"
   },
   {
    "sid": "baby_items_blue_03",
@@ -272,36 +386,6 @@
    "color": "blue"
   },
   {
-   "sid": "baby_items_blue_06",
-   "file": "baby_items_blue_06.png",
-   "category": "baby_items",
-   "color": "blue"
-  },
-  {
-   "sid": "baby_items_gray_01",
-   "file": "baby_items_gray_01.png",
-   "category": "baby_items",
-   "color": "gray"
-  },
-  {
-   "sid": "baby_items_orange_01",
-   "file": "baby_items_orange_01.png",
-   "category": "baby_items",
-   "color": "orange"
-  },
-  {
-   "sid": "baby_items_orange_02",
-   "file": "baby_items_orange_02.png",
-   "category": "baby_items",
-   "color": "orange"
-  },
-  {
-   "sid": "baby_items_orange_03",
-   "file": "baby_items_orange_03.png",
-   "category": "baby_items",
-   "color": "orange"
-  },
-  {
    "sid": "baby_items_pink_01",
    "file": "baby_items_pink_01.png",
    "category": "baby_items",
@@ -314,34 +398,10 @@
    "color": "pink"
   },
   {
-   "sid": "baby_items_pink_03",
-   "file": "baby_items_pink_03.png",
-   "category": "baby_items",
-   "color": "pink"
-  },
-  {
-   "sid": "baby_items_pink_04",
-   "file": "baby_items_pink_04.png",
-   "category": "baby_items",
-   "color": "pink"
-  },
-  {
-   "sid": "baby_items_pink_05",
-   "file": "baby_items_pink_05.png",
-   "category": "baby_items",
-   "color": "pink"
-  },
-  {
    "sid": "baby_items_pink_06",
    "file": "baby_items_pink_06.png",
    "category": "baby_items",
    "color": "pink"
-  },
-  {
-   "sid": "baby_items_teal_01",
-   "file": "baby_items_teal_01.png",
-   "category": "baby_items",
-   "color": "teal"
   },
   {
    "sid": "baby_items_teal_02",
@@ -354,42 +414,6 @@
    "file": "baby_items_white_01.png",
    "category": "baby_items",
    "color": "white"
-  },
-  {
-   "sid": "baby_items_white_02",
-   "file": "baby_items_white_02.png",
-   "category": "baby_items",
-   "color": "white"
-  },
-  {
-   "sid": "baby_items_white_03",
-   "file": "baby_items_white_03.png",
-   "category": "baby_items",
-   "color": "white"
-  },
-  {
-   "sid": "baby_items_white_04",
-   "file": "baby_items_white_04.png",
-   "category": "baby_items",
-   "color": "white"
-  },
-  {
-   "sid": "baby_items_yellow_01",
-   "file": "baby_items_yellow_01.png",
-   "category": "baby_items",
-   "color": "yellow"
-  },
-  {
-   "sid": "baby_items_yellow_02",
-   "file": "baby_items_yellow_02.png",
-   "category": "baby_items",
-   "color": "yellow"
-  },
-  {
-   "sid": "baby_items_yellow_03",
-   "file": "baby_items_yellow_03.png",
-   "category": "baby_items",
-   "color": "yellow"
   },
   {
    "sid": "bags_blue_01",
@@ -428,20 +452,8 @@
    "color": "blue"
   },
   {
-   "sid": "bags_brown_01",
-   "file": "bags_brown_01.png",
-   "category": "bags",
-   "color": "brown"
-  },
-  {
    "sid": "bags_green_01",
    "file": "bags_green_01.png",
-   "category": "bags",
-   "color": "green"
-  },
-  {
-   "sid": "bags_green_02",
-   "file": "bags_green_02.png",
    "category": "bags",
    "color": "green"
   },
@@ -458,44 +470,8 @@
    "color": "green"
   },
   {
-   "sid": "bags_orange_01",
-   "file": "bags_orange_01.png",
-   "category": "bags",
-   "color": "orange"
-  },
-  {
-   "sid": "bags_orange_02",
-   "file": "bags_orange_02.png",
-   "category": "bags",
-   "color": "orange"
-  },
-  {
-   "sid": "bags_orange_03",
-   "file": "bags_orange_03.png",
-   "category": "bags",
-   "color": "orange"
-  },
-  {
-   "sid": "bags_pink_01",
-   "file": "bags_pink_01.png",
-   "category": "bags",
-   "color": "pink"
-  },
-  {
    "sid": "bags_pink_02",
    "file": "bags_pink_02.png",
-   "category": "bags",
-   "color": "pink"
-  },
-  {
-   "sid": "bags_pink_03",
-   "file": "bags_pink_03.png",
-   "category": "bags",
-   "color": "pink"
-  },
-  {
-   "sid": "bags_pink_04",
-   "file": "bags_pink_04.png",
    "category": "bags",
    "color": "pink"
   },
@@ -518,12 +494,6 @@
    "color": "red"
   },
   {
-   "sid": "bags_red_03",
-   "file": "bags_red_03.png",
-   "category": "bags",
-   "color": "red"
-  },
-  {
    "sid": "bags_red_04",
    "file": "bags_red_04.png",
    "category": "bags",
@@ -540,24 +510,6 @@
    "file": "bags_red_06.png",
    "category": "bags",
    "color": "red"
-  },
-  {
-   "sid": "bags_teal_01",
-   "file": "bags_teal_01.png",
-   "category": "bags",
-   "color": "teal"
-  },
-  {
-   "sid": "bags_teal_02",
-   "file": "bags_teal_02.png",
-   "category": "bags",
-   "color": "teal"
-  },
-  {
-   "sid": "bags_white_01",
-   "file": "bags_white_01.png",
-   "category": "bags",
-   "color": "white"
   },
   {
    "sid": "bags_white_02",
@@ -590,12 +542,6 @@
    "color": "yellow"
   },
   {
-   "sid": "bags_yellow_02",
-   "file": "bags_yellow_02.png",
-   "category": "bags",
-   "color": "yellow"
-  },
-  {
    "sid": "bags_yellow_03",
    "file": "bags_yellow_03.png",
    "category": "bags",
@@ -608,578 +554,98 @@
    "color": "yellow"
   },
   {
-   "sid": "bedroom_blue_01",
-   "file": "bedroom_blue_01.png",
+   "sid": "bedroom_blue_09",
+   "file": "bedroom_blue_09.png",
    "category": "bedroom",
    "color": "blue"
   },
   {
-   "sid": "bedroom_blue_02",
-   "file": "bedroom_blue_02.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_blue_03",
-   "file": "bedroom_blue_03.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_blue_04",
-   "file": "bedroom_blue_04.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_blue_05",
-   "file": "bedroom_blue_05.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_blue_06",
-   "file": "bedroom_blue_06.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_blue_07",
-   "file": "bedroom_blue_07.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_blue_08",
-   "file": "bedroom_blue_08.png",
-   "category": "bedroom",
-   "color": "blue"
-  },
-  {
-   "sid": "bedroom_brown_01",
-   "file": "bedroom_brown_01.png",
-   "category": "bedroom",
-   "color": "brown"
-  },
-  {
-   "sid": "bedroom_green_01",
-   "file": "bedroom_green_01.png",
+   "sid": "bedroom_green_04",
+   "file": "bedroom_green_04.png",
    "category": "bedroom",
    "color": "green"
   },
   {
-   "sid": "bedroom_green_02",
-   "file": "bedroom_green_02.png",
+   "sid": "bedroom_green_05",
+   "file": "bedroom_green_05.png",
    "category": "bedroom",
    "color": "green"
   },
   {
-   "sid": "bedroom_green_03",
-   "file": "bedroom_green_03.png",
-   "category": "bedroom",
-   "color": "green"
-  },
-  {
-   "sid": "bedroom_orange_01",
-   "file": "bedroom_orange_01.png",
+   "sid": "bedroom_orange_08",
+   "file": "bedroom_orange_08.png",
    "category": "bedroom",
    "color": "orange"
   },
   {
-   "sid": "bedroom_orange_02",
-   "file": "bedroom_orange_02.png",
-   "category": "bedroom",
-   "color": "orange"
-  },
-  {
-   "sid": "bedroom_orange_03",
-   "file": "bedroom_orange_03.png",
-   "category": "bedroom",
-   "color": "orange"
-  },
-  {
-   "sid": "bedroom_orange_04",
-   "file": "bedroom_orange_04.png",
-   "category": "bedroom",
-   "color": "orange"
-  },
-  {
-   "sid": "bedroom_orange_05",
-   "file": "bedroom_orange_05.png",
-   "category": "bedroom",
-   "color": "orange"
-  },
-  {
-   "sid": "bedroom_orange_06",
-   "file": "bedroom_orange_06.png",
-   "category": "bedroom",
-   "color": "orange"
-  },
-  {
-   "sid": "bedroom_orange_07",
-   "file": "bedroom_orange_07.png",
-   "category": "bedroom",
-   "color": "orange"
-  },
-  {
-   "sid": "bedroom_pink_01",
-   "file": "bedroom_pink_01.png",
+   "sid": "bedroom_pink_07",
+   "file": "bedroom_pink_07.png",
    "category": "bedroom",
    "color": "pink"
   },
   {
-   "sid": "bedroom_pink_02",
-   "file": "bedroom_pink_02.png",
+   "sid": "bedroom_pink_08",
+   "file": "bedroom_pink_08.png",
    "category": "bedroom",
    "color": "pink"
   },
   {
-   "sid": "bedroom_pink_03",
-   "file": "bedroom_pink_03.png",
+   "sid": "bedroom_pink_10",
+   "file": "bedroom_pink_10.png",
    "category": "bedroom",
    "color": "pink"
   },
   {
-   "sid": "bedroom_pink_04",
-   "file": "bedroom_pink_04.png",
-   "category": "bedroom",
-   "color": "pink"
-  },
-  {
-   "sid": "bedroom_pink_05",
-   "file": "bedroom_pink_05.png",
-   "category": "bedroom",
-   "color": "pink"
-  },
-  {
-   "sid": "bedroom_pink_06",
-   "file": "bedroom_pink_06.png",
-   "category": "bedroom",
-   "color": "pink"
-  },
-  {
-   "sid": "bedroom_purple_01",
-   "file": "bedroom_purple_01.png",
+   "sid": "bedroom_purple_02",
+   "file": "bedroom_purple_02.png",
    "category": "bedroom",
    "color": "purple"
   },
   {
-   "sid": "bedroom_red_01",
-   "file": "bedroom_red_01.png",
+   "sid": "bedroom_purple_03",
+   "file": "bedroom_purple_03.png",
    "category": "bedroom",
-   "color": "red"
-  },
-  {
-   "sid": "bedroom_red_02",
-   "file": "bedroom_red_02.png",
-   "category": "bedroom",
-   "color": "red"
-  },
-  {
-   "sid": "bedroom_red_03",
-   "file": "bedroom_red_03.png",
-   "category": "bedroom",
-   "color": "red"
-  },
-  {
-   "sid": "bedroom_red_04",
-   "file": "bedroom_red_04.png",
-   "category": "bedroom",
-   "color": "red"
-  },
-  {
-   "sid": "bedroom_teal_01",
-   "file": "bedroom_teal_01.png",
-   "category": "bedroom",
-   "color": "teal"
-  },
-  {
-   "sid": "bedroom_teal_02",
-   "file": "bedroom_teal_02.png",
-   "category": "bedroom",
-   "color": "teal"
-  },
-  {
-   "sid": "bedroom_teal_03",
-   "file": "bedroom_teal_03.png",
-   "category": "bedroom",
-   "color": "teal"
-  },
-  {
-   "sid": "bedroom_white_01",
-   "file": "bedroom_white_01.png",
-   "category": "bedroom",
-   "color": "white"
-  },
-  {
-   "sid": "bedroom_white_02",
-   "file": "bedroom_white_02.png",
-   "category": "bedroom",
-   "color": "white"
-  },
-  {
-   "sid": "bedroom_white_03",
-   "file": "bedroom_white_03.png",
-   "category": "bedroom",
-   "color": "white"
-  },
-  {
-   "sid": "bedroom_white_04",
-   "file": "bedroom_white_04.png",
-   "category": "bedroom",
-   "color": "white"
-  },
-  {
-   "sid": "bedroom_white_05",
-   "file": "bedroom_white_05.png",
-   "category": "bedroom",
-   "color": "white"
-  },
-  {
-   "sid": "bedroom_white_06",
-   "file": "bedroom_white_06.png",
-   "category": "bedroom",
-   "color": "white"
-  },
-  {
-   "sid": "bedroom_yellow_01",
-   "file": "bedroom_yellow_01.png",
-   "category": "bedroom",
-   "color": "yellow"
-  },
-  {
-   "sid": "bedroom_yellow_02",
-   "file": "bedroom_yellow_02.png",
-   "category": "bedroom",
-   "color": "yellow"
-  },
-  {
-   "sid": "blocks_blue_01",
-   "file": "blocks_blue_01.png",
-   "category": "blocks",
-   "color": "blue"
-  },
-  {
-   "sid": "blocks_blue_02",
-   "file": "blocks_blue_02.png",
-   "category": "blocks",
-   "color": "blue"
-  },
-  {
-   "sid": "blocks_blue_03",
-   "file": "blocks_blue_03.png",
-   "category": "blocks",
-   "color": "blue"
-  },
-  {
-   "sid": "blocks_blue_04",
-   "file": "blocks_blue_04.png",
-   "category": "blocks",
-   "color": "blue"
-  },
-  {
-   "sid": "blocks_blue_05",
-   "file": "blocks_blue_05.png",
-   "category": "blocks",
-   "color": "blue"
-  },
-  {
-   "sid": "blocks_blue_06",
-   "file": "blocks_blue_06.png",
-   "category": "blocks",
-   "color": "blue"
-  },
-  {
-   "sid": "blocks_brown_01",
-   "file": "blocks_brown_01.png",
-   "category": "blocks",
-   "color": "brown"
-  },
-  {
-   "sid": "blocks_brown_02",
-   "file": "blocks_brown_02.png",
-   "category": "blocks",
-   "color": "brown"
-  },
-  {
-   "sid": "blocks_brown_03",
-   "file": "blocks_brown_03.png",
-   "category": "blocks",
-   "color": "brown"
-  },
-  {
-   "sid": "blocks_brown_04",
-   "file": "blocks_brown_04.png",
-   "category": "blocks",
-   "color": "brown"
-  },
-  {
-   "sid": "blocks_brown_05",
-   "file": "blocks_brown_05.png",
-   "category": "blocks",
-   "color": "brown"
-  },
-  {
-   "sid": "blocks_brown_06",
-   "file": "blocks_brown_06.png",
-   "category": "blocks",
-   "color": "brown"
-  },
-  {
-   "sid": "blocks_gray_01",
-   "file": "blocks_gray_01.png",
-   "category": "blocks",
-   "color": "gray"
-  },
-  {
-   "sid": "blocks_gray_02",
-   "file": "blocks_gray_02.png",
-   "category": "blocks",
-   "color": "gray"
-  },
-  {
-   "sid": "blocks_gray_03",
-   "file": "blocks_gray_03.png",
-   "category": "blocks",
-   "color": "gray"
-  },
-  {
-   "sid": "blocks_green_01",
-   "file": "blocks_green_01.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_02",
-   "file": "blocks_green_02.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_03",
-   "file": "blocks_green_03.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_04",
-   "file": "blocks_green_04.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_05",
-   "file": "blocks_green_05.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_06",
-   "file": "blocks_green_06.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_07",
-   "file": "blocks_green_07.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_08",
-   "file": "blocks_green_08.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_green_09",
-   "file": "blocks_green_09.png",
-   "category": "blocks",
-   "color": "green"
-  },
-  {
-   "sid": "blocks_orange_01",
-   "file": "blocks_orange_01.png",
-   "category": "blocks",
-   "color": "orange"
-  },
-  {
-   "sid": "blocks_orange_02",
-   "file": "blocks_orange_02.png",
-   "category": "blocks",
-   "color": "orange"
-  },
-  {
-   "sid": "blocks_orange_03",
-   "file": "blocks_orange_03.png",
-   "category": "blocks",
-   "color": "orange"
-  },
-  {
-   "sid": "blocks_orange_04",
-   "file": "blocks_orange_04.png",
-   "category": "blocks",
-   "color": "orange"
-  },
-  {
-   "sid": "blocks_orange_05",
-   "file": "blocks_orange_05.png",
-   "category": "blocks",
-   "color": "orange"
-  },
-  {
-   "sid": "blocks_pink_01",
-   "file": "blocks_pink_01.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_02",
-   "file": "blocks_pink_02.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_03",
-   "file": "blocks_pink_03.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_04",
-   "file": "blocks_pink_04.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_05",
-   "file": "blocks_pink_05.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_06",
-   "file": "blocks_pink_06.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_07",
-   "file": "blocks_pink_07.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_pink_08",
-   "file": "blocks_pink_08.png",
-   "category": "blocks",
-   "color": "pink"
-  },
-  {
-   "sid": "blocks_purple_01",
-   "file": "blocks_purple_01.png",
-   "category": "blocks",
    "color": "purple"
   },
   {
-   "sid": "blocks_purple_02",
-   "file": "blocks_purple_02.png",
-   "category": "blocks",
-   "color": "purple"
-  },
-  {
-   "sid": "blocks_purple_03",
-   "file": "blocks_purple_03.png",
-   "category": "blocks",
-   "color": "purple"
-  },
-  {
-   "sid": "blocks_red_01",
-   "file": "blocks_red_01.png",
-   "category": "blocks",
+   "sid": "bedroom_red_05",
+   "file": "bedroom_red_05.png",
+   "category": "bedroom",
    "color": "red"
   },
   {
-   "sid": "blocks_red_02",
-   "file": "blocks_red_02.png",
-   "category": "blocks",
+   "sid": "bedroom_red_06",
+   "file": "bedroom_red_06.png",
+   "category": "bedroom",
    "color": "red"
   },
   {
-   "sid": "blocks_red_03",
-   "file": "blocks_red_03.png",
-   "category": "blocks",
-   "color": "red"
-  },
-  {
-   "sid": "blocks_red_04",
-   "file": "blocks_red_04.png",
-   "category": "blocks",
-   "color": "red"
-  },
-  {
-   "sid": "blocks_red_05",
-   "file": "blocks_red_05.png",
-   "category": "blocks",
-   "color": "red"
-  },
-  {
-   "sid": "blocks_red_06",
-   "file": "blocks_red_06.png",
-   "category": "blocks",
-   "color": "red"
-  },
-  {
-   "sid": "blocks_teal_01",
-   "file": "blocks_teal_01.png",
-   "category": "blocks",
-   "color": "teal"
-  },
-  {
-   "sid": "blocks_teal_02",
-   "file": "blocks_teal_02.png",
-   "category": "blocks",
-   "color": "teal"
-  },
-  {
-   "sid": "blocks_white_01",
-   "file": "blocks_white_01.png",
-   "category": "blocks",
-   "color": "white"
-  },
-  {
-   "sid": "blocks_white_02",
-   "file": "blocks_white_02.png",
-   "category": "blocks",
-   "color": "white"
-  },
-  {
-   "sid": "blocks_yellow_01",
-   "file": "blocks_yellow_01.png",
-   "category": "blocks",
+   "sid": "bedroom_yellow_03",
+   "file": "bedroom_yellow_03.png",
+   "category": "bedroom",
    "color": "yellow"
   },
   {
-   "sid": "blocks_yellow_02",
-   "file": "blocks_yellow_02.png",
-   "category": "blocks",
+   "sid": "bedroom_yellow_05",
+   "file": "bedroom_yellow_05.png",
+   "category": "bedroom",
    "color": "yellow"
   },
   {
-   "sid": "blocks_yellow_03",
-   "file": "blocks_yellow_03.png",
-   "category": "blocks",
+   "sid": "bedroom_yellow_06",
+   "file": "bedroom_yellow_06.png",
+   "category": "bedroom",
    "color": "yellow"
   },
   {
-   "sid": "breakfast_blue_01",
-   "file": "breakfast_blue_01.png",
+   "sid": "breakfast_blue_05",
+   "file": "breakfast_blue_05.png",
    "category": "breakfast",
    "color": "blue"
   },
   {
-   "sid": "breakfast_blue_02",
-   "file": "breakfast_blue_02.png",
+   "sid": "breakfast_blue_06",
+   "file": "breakfast_blue_06.png",
    "category": "breakfast",
    "color": "blue"
   },
@@ -1190,32 +656,14 @@
    "color": "green"
   },
   {
-   "sid": "breakfast_green_02",
-   "file": "breakfast_green_02.png",
-   "category": "breakfast",
-   "color": "green"
-  },
-  {
    "sid": "breakfast_green_03",
    "file": "breakfast_green_03.png",
    "category": "breakfast",
    "color": "green"
   },
   {
-   "sid": "breakfast_orange_01",
-   "file": "breakfast_orange_01.png",
-   "category": "breakfast",
-   "color": "orange"
-  },
-  {
    "sid": "breakfast_orange_02",
    "file": "breakfast_orange_02.png",
-   "category": "breakfast",
-   "color": "orange"
-  },
-  {
-   "sid": "breakfast_orange_03",
-   "file": "breakfast_orange_03.png",
    "category": "breakfast",
    "color": "orange"
   },
@@ -1238,26 +686,50 @@
    "color": "orange"
   },
   {
-   "sid": "breakfast_orange_07",
-   "file": "breakfast_orange_07.png",
-   "category": "breakfast",
-   "color": "orange"
-  },
-  {
    "sid": "breakfast_orange_08",
    "file": "breakfast_orange_08.png",
    "category": "breakfast",
    "color": "orange"
   },
   {
-   "sid": "breakfast_orange_09",
-   "file": "breakfast_orange_09.png",
+   "sid": "breakfast_orange_13",
+   "file": "breakfast_orange_13.png",
    "category": "breakfast",
    "color": "orange"
   },
   {
-   "sid": "breakfast_orange_10",
-   "file": "breakfast_orange_10.png",
+   "sid": "breakfast_orange_18",
+   "file": "breakfast_orange_18.png",
+   "category": "breakfast",
+   "color": "orange"
+  },
+  {
+   "sid": "breakfast_orange_21",
+   "file": "breakfast_orange_21.png",
+   "category": "breakfast",
+   "color": "orange"
+  },
+  {
+   "sid": "breakfast_orange_24",
+   "file": "breakfast_orange_24.png",
+   "category": "breakfast",
+   "color": "orange"
+  },
+  {
+   "sid": "breakfast_orange_25",
+   "file": "breakfast_orange_25.png",
+   "category": "breakfast",
+   "color": "orange"
+  },
+  {
+   "sid": "breakfast_orange_26",
+   "file": "breakfast_orange_26.png",
+   "category": "breakfast",
+   "color": "orange"
+  },
+  {
+   "sid": "breakfast_orange_27",
+   "file": "breakfast_orange_27.png",
    "category": "breakfast",
    "color": "orange"
   },
@@ -1268,26 +740,68 @@
    "color": "pink"
   },
   {
+   "sid": "breakfast_pink_02",
+   "file": "breakfast_pink_02.png",
+   "category": "breakfast",
+   "color": "pink"
+  },
+  {
+   "sid": "breakfast_pink_03",
+   "file": "breakfast_pink_03.png",
+   "category": "breakfast",
+   "color": "pink"
+  },
+  {
+   "sid": "breakfast_purple_01",
+   "file": "breakfast_purple_01.png",
+   "category": "breakfast",
+   "color": "purple"
+  },
+  {
    "sid": "breakfast_red_01",
    "file": "breakfast_red_01.png",
    "category": "breakfast",
    "color": "red"
   },
   {
-   "sid": "breakfast_red_02",
-   "file": "breakfast_red_02.png",
+   "sid": "breakfast_red_03",
+   "file": "breakfast_red_03.png",
    "category": "breakfast",
    "color": "red"
   },
   {
-   "sid": "breakfast_white_01",
-   "file": "breakfast_white_01.png",
+   "sid": "breakfast_red_04",
+   "file": "breakfast_red_04.png",
+   "category": "breakfast",
+   "color": "red"
+  },
+  {
+   "sid": "breakfast_red_05",
+   "file": "breakfast_red_05.png",
+   "category": "breakfast",
+   "color": "red"
+  },
+  {
+   "sid": "breakfast_white_03",
+   "file": "breakfast_white_03.png",
    "category": "breakfast",
    "color": "white"
   },
   {
-   "sid": "breakfast_white_02",
-   "file": "breakfast_white_02.png",
+   "sid": "breakfast_white_04",
+   "file": "breakfast_white_04.png",
+   "category": "breakfast",
+   "color": "white"
+  },
+  {
+   "sid": "breakfast_white_05",
+   "file": "breakfast_white_05.png",
+   "category": "breakfast",
+   "color": "white"
+  },
+  {
+   "sid": "breakfast_white_06",
+   "file": "breakfast_white_06.png",
    "category": "breakfast",
    "color": "white"
   },
@@ -1298,430 +812,238 @@
    "color": "yellow"
   },
   {
-   "sid": "breakfast_yellow_02",
-   "file": "breakfast_yellow_02.png",
+   "sid": "breakfast_yellow_06",
+   "file": "breakfast_yellow_06.png",
    "category": "breakfast",
    "color": "yellow"
   },
   {
-   "sid": "breakfast_yellow_03",
-   "file": "breakfast_yellow_03.png",
+   "sid": "breakfast_yellow_07",
+   "file": "breakfast_yellow_07.png",
    "category": "breakfast",
    "color": "yellow"
   },
   {
-   "sid": "cafe_black_01",
-   "file": "cafe_black_01.png",
-   "category": "cafe",
-   "color": "black"
-  },
-  {
-   "sid": "cafe_blue_01",
-   "file": "cafe_blue_01.png",
-   "category": "cafe",
+   "sid": "camping_blue_03",
+   "file": "camping_blue_03.png",
+   "category": "camping",
    "color": "blue"
   },
   {
-   "sid": "cafe_brown_01",
-   "file": "cafe_brown_01.png",
-   "category": "cafe",
-   "color": "brown"
+   "sid": "camping_blue_04",
+   "file": "camping_blue_04.png",
+   "category": "camping",
+   "color": "blue"
   },
   {
-   "sid": "cafe_brown_02",
-   "file": "cafe_brown_02.png",
-   "category": "cafe",
-   "color": "brown"
-  },
-  {
-   "sid": "cafe_brown_03",
-   "file": "cafe_brown_03.png",
-   "category": "cafe",
-   "color": "brown"
-  },
-  {
-   "sid": "cafe_gray_01",
-   "file": "cafe_gray_01.png",
-   "category": "cafe",
-   "color": "gray"
-  },
-  {
-   "sid": "cafe_gray_02",
-   "file": "cafe_gray_02.png",
-   "category": "cafe",
-   "color": "gray"
-  },
-  {
-   "sid": "cafe_gray_03",
-   "file": "cafe_gray_03.png",
-   "category": "cafe",
-   "color": "gray"
-  },
-  {
-   "sid": "cafe_gray_04",
-   "file": "cafe_gray_04.png",
-   "category": "cafe",
-   "color": "gray"
-  },
-  {
-   "sid": "cafe_green_01",
-   "file": "cafe_green_01.png",
-   "category": "cafe",
+   "sid": "camping_green_11",
+   "file": "camping_green_11.png",
+   "category": "camping",
    "color": "green"
   },
   {
-   "sid": "cafe_green_02",
-   "file": "cafe_green_02.png",
-   "category": "cafe",
+   "sid": "camping_green_12",
+   "file": "camping_green_12.png",
+   "category": "camping",
    "color": "green"
   },
   {
-   "sid": "cafe_green_03",
-   "file": "cafe_green_03.png",
-   "category": "cafe",
+   "sid": "camping_green_13",
+   "file": "camping_green_13.png",
+   "category": "camping",
    "color": "green"
   },
   {
-   "sid": "cafe_orange_01",
-   "file": "cafe_orange_01.png",
-   "category": "cafe",
+   "sid": "camping_orange_16",
+   "file": "camping_orange_16.png",
+   "category": "camping",
    "color": "orange"
   },
   {
-   "sid": "cafe_orange_02",
-   "file": "cafe_orange_02.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_03",
-   "file": "cafe_orange_03.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_04",
-   "file": "cafe_orange_04.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_05",
-   "file": "cafe_orange_05.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_06",
-   "file": "cafe_orange_06.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_07",
-   "file": "cafe_orange_07.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_08",
-   "file": "cafe_orange_08.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_09",
-   "file": "cafe_orange_09.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_orange_10",
-   "file": "cafe_orange_10.png",
-   "category": "cafe",
-   "color": "orange"
-  },
-  {
-   "sid": "cafe_red_01",
-   "file": "cafe_red_01.png",
-   "category": "cafe",
+   "sid": "camping_red_05",
+   "file": "camping_red_05.png",
+   "category": "camping",
    "color": "red"
   },
   {
-   "sid": "cafe_teal_01",
-   "file": "cafe_teal_01.png",
-   "category": "cafe",
+   "sid": "camping_red_06",
+   "file": "camping_red_06.png",
+   "category": "camping",
+   "color": "red"
+  },
+  {
+   "sid": "camping_red_07",
+   "file": "camping_red_07.png",
+   "category": "camping",
+   "color": "red"
+  },
+  {
+   "sid": "camping_red_08",
+   "file": "camping_red_08.png",
+   "category": "camping",
+   "color": "red"
+  },
+  {
+   "sid": "camping_red_09",
+   "file": "camping_red_09.png",
+   "category": "camping",
+   "color": "red"
+  },
+  {
+   "sid": "camping_red_10",
+   "file": "camping_red_10.png",
+   "category": "camping",
+   "color": "red"
+  },
+  {
+   "sid": "camping_white_03",
+   "file": "camping_white_03.png",
+   "category": "camping",
+   "color": "white"
+  },
+  {
+   "sid": "camping_yellow_01",
+   "file": "camping_yellow_01.png",
+   "category": "camping",
+   "color": "yellow"
+  },
+  {
+   "sid": "camping_yellow_02",
+   "file": "camping_yellow_02.png",
+   "category": "camping",
+   "color": "yellow"
+  },
+  {
+   "sid": "camping_yellow_03",
+   "file": "camping_yellow_03.png",
+   "category": "camping",
+   "color": "yellow"
+  },
+  {
+   "sid": "candy_blue_01",
+   "file": "candy_blue_01.png",
+   "category": "candy",
+   "color": "blue"
+  },
+  {
+   "sid": "candy_brown_01",
+   "file": "candy_brown_01.png",
+   "category": "candy",
+   "color": "brown"
+  },
+  {
+   "sid": "candy_green_01",
+   "file": "candy_green_01.png",
+   "category": "candy",
+   "color": "green"
+  },
+  {
+   "sid": "candy_green_02",
+   "file": "candy_green_02.png",
+   "category": "candy",
+   "color": "green"
+  },
+  {
+   "sid": "candy_orange_01",
+   "file": "candy_orange_01.png",
+   "category": "candy",
+   "color": "orange"
+  },
+  {
+   "sid": "candy_orange_03",
+   "file": "candy_orange_03.png",
+   "category": "candy",
+   "color": "orange"
+  },
+  {
+   "sid": "candy_pink_01",
+   "file": "candy_pink_01.png",
+   "category": "candy",
+   "color": "pink"
+  },
+  {
+   "sid": "candy_pink_02",
+   "file": "candy_pink_02.png",
+   "category": "candy",
+   "color": "pink"
+  },
+  {
+   "sid": "candy_pink_03",
+   "file": "candy_pink_03.png",
+   "category": "candy",
+   "color": "pink"
+  },
+  {
+   "sid": "candy_pink_05",
+   "file": "candy_pink_05.png",
+   "category": "candy",
+   "color": "pink"
+  },
+  {
+   "sid": "candy_pink_06",
+   "file": "candy_pink_06.png",
+   "category": "candy",
+   "color": "pink"
+  },
+  {
+   "sid": "candy_purple_01",
+   "file": "candy_purple_01.png",
+   "category": "candy",
+   "color": "purple"
+  },
+  {
+   "sid": "candy_red_01",
+   "file": "candy_red_01.png",
+   "category": "candy",
+   "color": "red"
+  },
+  {
+   "sid": "candy_red_02",
+   "file": "candy_red_02.png",
+   "category": "candy",
+   "color": "red"
+  },
+  {
+   "sid": "candy_red_03",
+   "file": "candy_red_03.png",
+   "category": "candy",
+   "color": "red"
+  },
+  {
+   "sid": "candy_red_04",
+   "file": "candy_red_04.png",
+   "category": "candy",
+   "color": "red"
+  },
+  {
+   "sid": "candy_red_05",
+   "file": "candy_red_05.png",
+   "category": "candy",
+   "color": "red"
+  },
+  {
+   "sid": "candy_teal_01",
+   "file": "candy_teal_01.png",
+   "category": "candy",
    "color": "teal"
   },
   {
-   "sid": "cafe_white_01",
-   "file": "cafe_white_01.png",
-   "category": "cafe",
-   "color": "white"
+   "sid": "candy_teal_02",
+   "file": "candy_teal_02.png",
+   "category": "candy",
+   "color": "teal"
   },
   {
-   "sid": "cafe_yellow_01",
-   "file": "cafe_yellow_01.png",
-   "category": "cafe",
+   "sid": "candy_yellow_01",
+   "file": "candy_yellow_01.png",
+   "category": "candy",
    "color": "yellow"
   },
   {
-   "sid": "camping_blue_01",
-   "file": "camping_blue_01.png",
-   "category": "camping",
-   "color": "blue"
-  },
-  {
-   "sid": "camping_blue_02",
-   "file": "camping_blue_02.png",
-   "category": "camping",
-   "color": "blue"
-  },
-  {
-   "sid": "camping_brown_01",
-   "file": "camping_brown_01.png",
-   "category": "camping",
-   "color": "brown"
-  },
-  {
-   "sid": "camping_brown_02",
-   "file": "camping_brown_02.png",
-   "category": "camping",
-   "color": "brown"
-  },
-  {
-   "sid": "camping_brown_03",
-   "file": "camping_brown_03.png",
-   "category": "camping",
-   "color": "brown"
-  },
-  {
-   "sid": "camping_brown_04",
-   "file": "camping_brown_04.png",
-   "category": "camping",
-   "color": "brown"
-  },
-  {
-   "sid": "camping_brown_05",
-   "file": "camping_brown_05.png",
-   "category": "camping",
-   "color": "brown"
-  },
-  {
-   "sid": "camping_gray_01",
-   "file": "camping_gray_01.png",
-   "category": "camping",
-   "color": "gray"
-  },
-  {
-   "sid": "camping_gray_02",
-   "file": "camping_gray_02.png",
-   "category": "camping",
-   "color": "gray"
-  },
-  {
-   "sid": "camping_green_01",
-   "file": "camping_green_01.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_02",
-   "file": "camping_green_02.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_03",
-   "file": "camping_green_03.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_04",
-   "file": "camping_green_04.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_05",
-   "file": "camping_green_05.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_06",
-   "file": "camping_green_06.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_07",
-   "file": "camping_green_07.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_08",
-   "file": "camping_green_08.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_09",
-   "file": "camping_green_09.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_green_10",
-   "file": "camping_green_10.png",
-   "category": "camping",
-   "color": "green"
-  },
-  {
-   "sid": "camping_orange_01",
-   "file": "camping_orange_01.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_02",
-   "file": "camping_orange_02.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_03",
-   "file": "camping_orange_03.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_04",
-   "file": "camping_orange_04.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_05",
-   "file": "camping_orange_05.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_06",
-   "file": "camping_orange_06.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_07",
-   "file": "camping_orange_07.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_08",
-   "file": "camping_orange_08.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_09",
-   "file": "camping_orange_09.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_10",
-   "file": "camping_orange_10.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_11",
-   "file": "camping_orange_11.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_12",
-   "file": "camping_orange_12.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_13",
-   "file": "camping_orange_13.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_orange_14",
-   "file": "camping_orange_14.png",
-   "category": "camping",
-   "color": "orange"
-  },
-  {
-   "sid": "camping_red_01",
-   "file": "camping_red_01.png",
-   "category": "camping",
-   "color": "red"
-  },
-  {
-   "sid": "camping_red_02",
-   "file": "camping_red_02.png",
-   "category": "camping",
-   "color": "red"
-  },
-  {
-   "sid": "camping_red_03",
-   "file": "camping_red_03.png",
-   "category": "camping",
-   "color": "red"
-  },
-  {
-   "sid": "camping_red_04",
-   "file": "camping_red_04.png",
-   "category": "camping",
-   "color": "red"
-  },
-  {
-   "sid": "camping_white_01",
-   "file": "camping_white_01.png",
-   "category": "camping",
-   "color": "white"
-  },
-  {
-   "sid": "camping_white_02",
-   "file": "camping_white_02.png",
-   "category": "camping",
-   "color": "white"
-  },
-  {
-   "sid": "carnival_blue_01",
-   "file": "carnival_blue_01.png",
-   "category": "carnival",
-   "color": "blue"
-  },
-  {
-   "sid": "carnival_blue_02",
-   "file": "carnival_blue_02.png",
-   "category": "carnival",
-   "color": "blue"
-  },
-  {
-   "sid": "carnival_blue_03",
-   "file": "carnival_blue_03.png",
-   "category": "carnival",
-   "color": "blue"
-  },
-  {
-   "sid": "carnival_blue_04",
-   "file": "carnival_blue_04.png",
-   "category": "carnival",
-   "color": "blue"
+   "sid": "candy_yellow_02",
+   "file": "candy_yellow_02.png",
+   "category": "candy",
+   "color": "yellow"
   },
   {
    "sid": "carnival_blue_05",
@@ -1730,40 +1052,10 @@
    "color": "blue"
   },
   {
-   "sid": "carnival_blue_06",
-   "file": "carnival_blue_06.png",
+   "sid": "carnival_blue_08",
+   "file": "carnival_blue_08.png",
    "category": "carnival",
    "color": "blue"
-  },
-  {
-   "sid": "carnival_blue_07",
-   "file": "carnival_blue_07.png",
-   "category": "carnival",
-   "color": "blue"
-  },
-  {
-   "sid": "carnival_green_01",
-   "file": "carnival_green_01.png",
-   "category": "carnival",
-   "color": "green"
-  },
-  {
-   "sid": "carnival_green_02",
-   "file": "carnival_green_02.png",
-   "category": "carnival",
-   "color": "green"
-  },
-  {
-   "sid": "carnival_green_03",
-   "file": "carnival_green_03.png",
-   "category": "carnival",
-   "color": "green"
-  },
-  {
-   "sid": "carnival_green_04",
-   "file": "carnival_green_04.png",
-   "category": "carnival",
-   "color": "green"
   },
   {
    "sid": "carnival_green_05",
@@ -1778,38 +1070,8 @@
    "color": "green"
   },
   {
-   "sid": "carnival_green_07",
-   "file": "carnival_green_07.png",
-   "category": "carnival",
-   "color": "green"
-  },
-  {
-   "sid": "carnival_green_08",
-   "file": "carnival_green_08.png",
-   "category": "carnival",
-   "color": "green"
-  },
-  {
-   "sid": "carnival_orange_01",
-   "file": "carnival_orange_01.png",
-   "category": "carnival",
-   "color": "orange"
-  },
-  {
-   "sid": "carnival_pink_01",
-   "file": "carnival_pink_01.png",
-   "category": "carnival",
-   "color": "pink"
-  },
-  {
    "sid": "carnival_pink_02",
    "file": "carnival_pink_02.png",
-   "category": "carnival",
-   "color": "pink"
-  },
-  {
-   "sid": "carnival_pink_03",
-   "file": "carnival_pink_03.png",
    "category": "carnival",
    "color": "pink"
   },
@@ -1826,40 +1088,16 @@
    "color": "pink"
   },
   {
-   "sid": "carnival_pink_06",
-   "file": "carnival_pink_06.png",
-   "category": "carnival",
-   "color": "pink"
-  },
-  {
-   "sid": "carnival_pink_07",
-   "file": "carnival_pink_07.png",
-   "category": "carnival",
-   "color": "pink"
-  },
-  {
-   "sid": "carnival_purple_01",
-   "file": "carnival_purple_01.png",
-   "category": "carnival",
-   "color": "purple"
-  },
-  {
    "sid": "carnival_purple_02",
    "file": "carnival_purple_02.png",
    "category": "carnival",
    "color": "purple"
   },
   {
-   "sid": "carnival_red_01",
-   "file": "carnival_red_01.png",
+   "sid": "carnival_purple_03",
+   "file": "carnival_purple_03.png",
    "category": "carnival",
-   "color": "red"
-  },
-  {
-   "sid": "carnival_red_02",
-   "file": "carnival_red_02.png",
-   "category": "carnival",
-   "color": "red"
+   "color": "purple"
   },
   {
    "sid": "carnival_red_03",
@@ -1868,8 +1106,8 @@
    "color": "red"
   },
   {
-   "sid": "carnival_red_04",
-   "file": "carnival_red_04.png",
+   "sid": "carnival_red_05",
+   "file": "carnival_red_05.png",
    "category": "carnival",
    "color": "red"
   },
@@ -1886,429 +1124,9 @@
    "color": "yellow"
   },
   {
-   "sid": "carnival_yellow_03",
-   "file": "carnival_yellow_03.png",
+   "sid": "carnival_yellow_04",
+   "file": "carnival_yellow_04.png",
    "category": "carnival",
-   "color": "yellow"
-  },
-  {
-   "sid": "casino_black_01",
-   "file": "casino_black_01.png",
-   "category": "casino",
-   "color": "black"
-  },
-  {
-   "sid": "casino_black_02",
-   "file": "casino_black_02.png",
-   "category": "casino",
-   "color": "black"
-  },
-  {
-   "sid": "casino_black_03",
-   "file": "casino_black_03.png",
-   "category": "casino",
-   "color": "black"
-  },
-  {
-   "sid": "casino_blue_01",
-   "file": "casino_blue_01.png",
-   "category": "casino",
-   "color": "blue"
-  },
-  {
-   "sid": "casino_blue_02",
-   "file": "casino_blue_02.png",
-   "category": "casino",
-   "color": "blue"
-  },
-  {
-   "sid": "casino_brown_01",
-   "file": "casino_brown_01.png",
-   "category": "casino",
-   "color": "brown"
-  },
-  {
-   "sid": "casino_gray_01",
-   "file": "casino_gray_01.png",
-   "category": "casino",
-   "color": "gray"
-  },
-  {
-   "sid": "casino_gray_02",
-   "file": "casino_gray_02.png",
-   "category": "casino",
-   "color": "gray"
-  },
-  {
-   "sid": "casino_green_01",
-   "file": "casino_green_01.png",
-   "category": "casino",
-   "color": "green"
-  },
-  {
-   "sid": "casino_green_02",
-   "file": "casino_green_02.png",
-   "category": "casino",
-   "color": "green"
-  },
-  {
-   "sid": "casino_green_03",
-   "file": "casino_green_03.png",
-   "category": "casino",
-   "color": "green"
-  },
-  {
-   "sid": "casino_green_04",
-   "file": "casino_green_04.png",
-   "category": "casino",
-   "color": "green"
-  },
-  {
-   "sid": "casino_orange_01",
-   "file": "casino_orange_01.png",
-   "category": "casino",
-   "color": "orange"
-  },
-  {
-   "sid": "casino_orange_02",
-   "file": "casino_orange_02.png",
-   "category": "casino",
-   "color": "orange"
-  },
-  {
-   "sid": "casino_orange_03",
-   "file": "casino_orange_03.png",
-   "category": "casino",
-   "color": "orange"
-  },
-  {
-   "sid": "casino_orange_04",
-   "file": "casino_orange_04.png",
-   "category": "casino",
-   "color": "orange"
-  },
-  {
-   "sid": "casino_orange_05",
-   "file": "casino_orange_05.png",
-   "category": "casino",
-   "color": "orange"
-  },
-  {
-   "sid": "casino_pink_01",
-   "file": "casino_pink_01.png",
-   "category": "casino",
-   "color": "pink"
-  },
-  {
-   "sid": "casino_red_01",
-   "file": "casino_red_01.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_02",
-   "file": "casino_red_02.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_03",
-   "file": "casino_red_03.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_04",
-   "file": "casino_red_04.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_05",
-   "file": "casino_red_05.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_06",
-   "file": "casino_red_06.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_07",
-   "file": "casino_red_07.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_red_08",
-   "file": "casino_red_08.png",
-   "category": "casino",
-   "color": "red"
-  },
-  {
-   "sid": "casino_white_01",
-   "file": "casino_white_01.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_white_02",
-   "file": "casino_white_02.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_white_03",
-   "file": "casino_white_03.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_white_04",
-   "file": "casino_white_04.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_white_05",
-   "file": "casino_white_05.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_white_06",
-   "file": "casino_white_06.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_white_07",
-   "file": "casino_white_07.png",
-   "category": "casino",
-   "color": "white"
-  },
-  {
-   "sid": "casino_yellow_01",
-   "file": "casino_yellow_01.png",
-   "category": "casino",
-   "color": "yellow"
-  },
-  {
-   "sid": "casino_yellow_02",
-   "file": "casino_yellow_02.png",
-   "category": "casino",
-   "color": "yellow"
-  },
-  {
-   "sid": "cat_items_blue_01",
-   "file": "cat_items_blue_01.png",
-   "category": "cat_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cat_items_blue_02",
-   "file": "cat_items_blue_02.png",
-   "category": "cat_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cat_items_blue_03",
-   "file": "cat_items_blue_03.png",
-   "category": "cat_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cat_items_blue_04",
-   "file": "cat_items_blue_04.png",
-   "category": "cat_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cat_items_blue_05",
-   "file": "cat_items_blue_05.png",
-   "category": "cat_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cat_items_green_01",
-   "file": "cat_items_green_01.png",
-   "category": "cat_items",
-   "color": "green"
-  },
-  {
-   "sid": "cat_items_green_02",
-   "file": "cat_items_green_02.png",
-   "category": "cat_items",
-   "color": "green"
-  },
-  {
-   "sid": "cat_items_orange_01",
-   "file": "cat_items_orange_01.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_02",
-   "file": "cat_items_orange_02.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_03",
-   "file": "cat_items_orange_03.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_04",
-   "file": "cat_items_orange_04.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_05",
-   "file": "cat_items_orange_05.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_06",
-   "file": "cat_items_orange_06.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_07",
-   "file": "cat_items_orange_07.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_orange_08",
-   "file": "cat_items_orange_08.png",
-   "category": "cat_items",
-   "color": "orange"
-  },
-  {
-   "sid": "cat_items_pink_01",
-   "file": "cat_items_pink_01.png",
-   "category": "cat_items",
-   "color": "pink"
-  },
-  {
-   "sid": "cat_items_pink_02",
-   "file": "cat_items_pink_02.png",
-   "category": "cat_items",
-   "color": "pink"
-  },
-  {
-   "sid": "cat_items_pink_03",
-   "file": "cat_items_pink_03.png",
-   "category": "cat_items",
-   "color": "pink"
-  },
-  {
-   "sid": "cat_items_pink_04",
-   "file": "cat_items_pink_04.png",
-   "category": "cat_items",
-   "color": "pink"
-  },
-  {
-   "sid": "cat_items_purple_01",
-   "file": "cat_items_purple_01.png",
-   "category": "cat_items",
-   "color": "purple"
-  },
-  {
-   "sid": "cat_items_purple_02",
-   "file": "cat_items_purple_02.png",
-   "category": "cat_items",
-   "color": "purple"
-  },
-  {
-   "sid": "cat_items_red_01",
-   "file": "cat_items_red_01.png",
-   "category": "cat_items",
-   "color": "red"
-  },
-  {
-   "sid": "cat_items_red_02",
-   "file": "cat_items_red_02.png",
-   "category": "cat_items",
-   "color": "red"
-  },
-  {
-   "sid": "cat_items_red_03",
-   "file": "cat_items_red_03.png",
-   "category": "cat_items",
-   "color": "red"
-  },
-  {
-   "sid": "cat_items_teal_01",
-   "file": "cat_items_teal_01.png",
-   "category": "cat_items",
-   "color": "teal"
-  },
-  {
-   "sid": "cat_items_teal_02",
-   "file": "cat_items_teal_02.png",
-   "category": "cat_items",
-   "color": "teal"
-  },
-  {
-   "sid": "cat_items_teal_03",
-   "file": "cat_items_teal_03.png",
-   "category": "cat_items",
-   "color": "teal"
-  },
-  {
-   "sid": "cat_items_white_01",
-   "file": "cat_items_white_01.png",
-   "category": "cat_items",
-   "color": "white"
-  },
-  {
-   "sid": "cat_items_white_02",
-   "file": "cat_items_white_02.png",
-   "category": "cat_items",
-   "color": "white"
-  },
-  {
-   "sid": "cat_items_white_03",
-   "file": "cat_items_white_03.png",
-   "category": "cat_items",
-   "color": "white"
-  },
-  {
-   "sid": "cat_items_white_04",
-   "file": "cat_items_white_04.png",
-   "category": "cat_items",
-   "color": "white"
-  },
-  {
-   "sid": "cat_items_white_05",
-   "file": "cat_items_white_05.png",
-   "category": "cat_items",
-   "color": "white"
-  },
-  {
-   "sid": "cat_items_white_06",
-   "file": "cat_items_white_06.png",
-   "category": "cat_items",
-   "color": "white"
-  },
-  {
-   "sid": "cat_items_yellow_01",
-   "file": "cat_items_yellow_01.png",
-   "category": "cat_items",
-   "color": "yellow"
-  },
-  {
-   "sid": "cat_items_yellow_02",
-   "file": "cat_items_yellow_02.png",
-   "category": "cat_items",
    "color": "yellow"
   },
   {
@@ -2462,30 +1280,6 @@
    "color": "yellow"
   },
   {
-   "sid": "christmas_blue_01",
-   "file": "christmas_blue_01.png",
-   "category": "christmas",
-   "color": "blue"
-  },
-  {
-   "sid": "christmas_brown_01",
-   "file": "christmas_brown_01.png",
-   "category": "christmas",
-   "color": "brown"
-  },
-  {
-   "sid": "christmas_brown_02",
-   "file": "christmas_brown_02.png",
-   "category": "christmas",
-   "color": "brown"
-  },
-  {
-   "sid": "christmas_green_01",
-   "file": "christmas_green_01.png",
-   "category": "christmas",
-   "color": "green"
-  },
-  {
    "sid": "christmas_green_02",
    "file": "christmas_green_02.png",
    "category": "christmas",
@@ -2504,12 +1298,6 @@
    "color": "green"
   },
   {
-   "sid": "christmas_green_05",
-   "file": "christmas_green_05.png",
-   "category": "christmas",
-   "color": "green"
-  },
-  {
    "sid": "christmas_green_06",
    "file": "christmas_green_06.png",
    "category": "christmas",
@@ -2524,18 +1312,6 @@
   {
    "sid": "christmas_orange_02",
    "file": "christmas_orange_02.png",
-   "category": "christmas",
-   "color": "orange"
-  },
-  {
-   "sid": "christmas_orange_03",
-   "file": "christmas_orange_03.png",
-   "category": "christmas",
-   "color": "orange"
-  },
-  {
-   "sid": "christmas_orange_04",
-   "file": "christmas_orange_04.png",
    "category": "christmas",
    "color": "orange"
   },
@@ -2594,80 +1370,14 @@
    "color": "red"
   },
   {
-   "sid": "christmas_red_08",
-   "file": "christmas_red_08.png",
-   "category": "christmas",
-   "color": "red"
-  },
-  {
-   "sid": "christmas_red_09",
-   "file": "christmas_red_09.png",
-   "category": "christmas",
-   "color": "red"
-  },
-  {
-   "sid": "christmas_red_10",
-   "file": "christmas_red_10.png",
-   "category": "christmas",
-   "color": "red"
-  },
-  {
-   "sid": "christmas_red_11",
-   "file": "christmas_red_11.png",
-   "category": "christmas",
-   "color": "red"
-  },
-  {
-   "sid": "christmas_red_12",
-   "file": "christmas_red_12.png",
-   "category": "christmas",
-   "color": "red"
-  },
-  {
    "sid": "christmas_red_13",
    "file": "christmas_red_13.png",
    "category": "christmas",
    "color": "red"
   },
   {
-   "sid": "christmas_red_14",
-   "file": "christmas_red_14.png",
-   "category": "christmas",
-   "color": "red"
-  },
-  {
-   "sid": "christmas_teal_01",
-   "file": "christmas_teal_01.png",
-   "category": "christmas",
-   "color": "teal"
-  },
-  {
-   "sid": "christmas_white_01",
-   "file": "christmas_white_01.png",
-   "category": "christmas",
-   "color": "white"
-  },
-  {
    "sid": "christmas_white_02",
    "file": "christmas_white_02.png",
-   "category": "christmas",
-   "color": "white"
-  },
-  {
-   "sid": "christmas_white_03",
-   "file": "christmas_white_03.png",
-   "category": "christmas",
-   "color": "white"
-  },
-  {
-   "sid": "christmas_white_04",
-   "file": "christmas_white_04.png",
-   "category": "christmas",
-   "color": "white"
-  },
-  {
-   "sid": "christmas_white_05",
-   "file": "christmas_white_05.png",
    "category": "christmas",
    "color": "white"
   },
@@ -2678,28 +1388,10 @@
    "color": "white"
   },
   {
-   "sid": "cinema_blue_01",
-   "file": "cinema_blue_01.png",
+   "sid": "cinema_blue_04",
+   "file": "cinema_blue_04.png",
    "category": "cinema",
    "color": "blue"
-  },
-  {
-   "sid": "cinema_blue_02",
-   "file": "cinema_blue_02.png",
-   "category": "cinema",
-   "color": "blue"
-  },
-  {
-   "sid": "cinema_blue_03",
-   "file": "cinema_blue_03.png",
-   "category": "cinema",
-   "color": "blue"
-  },
-  {
-   "sid": "cinema_brown_01",
-   "file": "cinema_brown_01.png",
-   "category": "cinema",
-   "color": "brown"
   },
   {
    "sid": "cinema_gray_01",
@@ -2708,326 +1400,116 @@
    "color": "gray"
   },
   {
-   "sid": "cinema_gray_02",
-   "file": "cinema_gray_02.png",
+   "sid": "cinema_green_01",
+   "file": "cinema_green_01.png",
    "category": "cinema",
-   "color": "gray"
+   "color": "green"
   },
   {
-   "sid": "cinema_gray_03",
-   "file": "cinema_gray_03.png",
+   "sid": "cinema_green_02",
+   "file": "cinema_green_02.png",
    "category": "cinema",
-   "color": "gray"
+   "color": "green"
   },
   {
-   "sid": "cinema_orange_01",
-   "file": "cinema_orange_01.png",
+   "sid": "cinema_green_03",
+   "file": "cinema_green_03.png",
    "category": "cinema",
-   "color": "orange"
+   "color": "green"
   },
   {
-   "sid": "cinema_orange_02",
-   "file": "cinema_orange_02.png",
+   "sid": "cinema_green_04",
+   "file": "cinema_green_04.png",
    "category": "cinema",
-   "color": "orange"
+   "color": "green"
   },
   {
-   "sid": "cinema_orange_03",
-   "file": "cinema_orange_03.png",
-   "category": "cinema",
-   "color": "orange"
-  },
-  {
-   "sid": "cinema_orange_04",
-   "file": "cinema_orange_04.png",
+   "sid": "cinema_orange_08",
+   "file": "cinema_orange_08.png",
    "category": "cinema",
    "color": "orange"
   },
   {
-   "sid": "cinema_orange_05",
-   "file": "cinema_orange_05.png",
+   "sid": "cinema_orange_09",
+   "file": "cinema_orange_09.png",
    "category": "cinema",
    "color": "orange"
   },
   {
-   "sid": "cinema_orange_06",
-   "file": "cinema_orange_06.png",
+   "sid": "cinema_orange_10",
+   "file": "cinema_orange_10.png",
    "category": "cinema",
    "color": "orange"
   },
   {
-   "sid": "cinema_orange_07",
-   "file": "cinema_orange_07.png",
+   "sid": "cinema_pink_02",
+   "file": "cinema_pink_02.png",
    "category": "cinema",
-   "color": "orange"
-  },
-  {
-   "sid": "cinema_red_01",
-   "file": "cinema_red_01.png",
-   "category": "cinema",
-   "color": "red"
-  },
-  {
-   "sid": "cinema_red_02",
-   "file": "cinema_red_02.png",
-   "category": "cinema",
-   "color": "red"
-  },
-  {
-   "sid": "cinema_red_03",
-   "file": "cinema_red_03.png",
-   "category": "cinema",
-   "color": "red"
-  },
-  {
-   "sid": "cinema_red_04",
-   "file": "cinema_red_04.png",
-   "category": "cinema",
-   "color": "red"
-  },
-  {
-   "sid": "cinema_red_05",
-   "file": "cinema_red_05.png",
-   "category": "cinema",
-   "color": "red"
-  },
-  {
-   "sid": "cinema_red_06",
-   "file": "cinema_red_06.png",
-   "category": "cinema",
-   "color": "red"
-  },
-  {
-   "sid": "cinema_white_01",
-   "file": "cinema_white_01.png",
-   "category": "cinema",
-   "color": "white"
-  },
-  {
-   "sid": "cinema_white_02",
-   "file": "cinema_white_02.png",
-   "category": "cinema",
-   "color": "white"
-  },
-  {
-   "sid": "cinema_white_03",
-   "file": "cinema_white_03.png",
-   "category": "cinema",
-   "color": "white"
-  },
-  {
-   "sid": "cinema_yellow_01",
-   "file": "cinema_yellow_01.png",
-   "category": "cinema",
-   "color": "yellow"
-  },
-  {
-   "sid": "cinema_yellow_02",
-   "file": "cinema_yellow_02.png",
-   "category": "cinema",
-   "color": "yellow"
-  },
-  {
-   "sid": "cinema_yellow_03",
-   "file": "cinema_yellow_03.png",
-   "category": "cinema",
-   "color": "yellow"
-  },
-  {
-   "sid": "circus_blue_01",
-   "file": "circus_blue_01.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_02",
-   "file": "circus_blue_02.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_03",
-   "file": "circus_blue_03.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_04",
-   "file": "circus_blue_04.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_05",
-   "file": "circus_blue_05.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_06",
-   "file": "circus_blue_06.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_07",
-   "file": "circus_blue_07.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_blue_08",
-   "file": "circus_blue_08.png",
-   "category": "circus",
-   "color": "blue"
-  },
-  {
-   "sid": "circus_brown_01",
-   "file": "circus_brown_01.png",
-   "category": "circus",
-   "color": "brown"
-  },
-  {
-   "sid": "circus_gray_01",
-   "file": "circus_gray_01.png",
-   "category": "circus",
-   "color": "gray"
-  },
-  {
-   "sid": "circus_orange_01",
-   "file": "circus_orange_01.png",
-   "category": "circus",
-   "color": "orange"
-  },
-  {
-   "sid": "circus_orange_02",
-   "file": "circus_orange_02.png",
-   "category": "circus",
-   "color": "orange"
-  },
-  {
-   "sid": "circus_orange_03",
-   "file": "circus_orange_03.png",
-   "category": "circus",
-   "color": "orange"
-  },
-  {
-   "sid": "circus_orange_04",
-   "file": "circus_orange_04.png",
-   "category": "circus",
-   "color": "orange"
-  },
-  {
-   "sid": "circus_orange_05",
-   "file": "circus_orange_05.png",
-   "category": "circus",
-   "color": "orange"
-  },
-  {
-   "sid": "circus_orange_06",
-   "file": "circus_orange_06.png",
-   "category": "circus",
-   "color": "orange"
-  },
-  {
-   "sid": "circus_pink_01",
-   "file": "circus_pink_01.png",
-   "category": "circus",
    "color": "pink"
   },
   {
-   "sid": "circus_red_01",
-   "file": "circus_red_01.png",
-   "category": "circus",
+   "sid": "cinema_purple_02",
+   "file": "cinema_purple_02.png",
+   "category": "cinema",
+   "color": "purple"
+  },
+  {
+   "sid": "cinema_purple_03",
+   "file": "cinema_purple_03.png",
+   "category": "cinema",
+   "color": "purple"
+  },
+  {
+   "sid": "cinema_red_07",
+   "file": "cinema_red_07.png",
+   "category": "cinema",
    "color": "red"
   },
   {
-   "sid": "circus_red_02",
-   "file": "circus_red_02.png",
-   "category": "circus",
+   "sid": "cinema_red_08",
+   "file": "cinema_red_08.png",
+   "category": "cinema",
    "color": "red"
   },
   {
-   "sid": "circus_red_03",
-   "file": "circus_red_03.png",
-   "category": "circus",
+   "sid": "cinema_red_10",
+   "file": "cinema_red_10.png",
+   "category": "cinema",
    "color": "red"
   },
   {
-   "sid": "circus_red_04",
-   "file": "circus_red_04.png",
-   "category": "circus",
+   "sid": "cinema_red_11",
+   "file": "cinema_red_11.png",
+   "category": "cinema",
    "color": "red"
   },
   {
-   "sid": "circus_red_05",
-   "file": "circus_red_05.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_red_06",
-   "file": "circus_red_06.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_red_07",
-   "file": "circus_red_07.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_red_08",
-   "file": "circus_red_08.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_red_09",
-   "file": "circus_red_09.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_red_10",
-   "file": "circus_red_10.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_red_11",
-   "file": "circus_red_11.png",
-   "category": "circus",
-   "color": "red"
-  },
-  {
-   "sid": "circus_white_01",
-   "file": "circus_white_01.png",
-   "category": "circus",
+   "sid": "cinema_white_04",
+   "file": "cinema_white_04.png",
+   "category": "cinema",
    "color": "white"
   },
   {
-   "sid": "circus_white_02",
-   "file": "circus_white_02.png",
-   "category": "circus",
-   "color": "white"
+   "sid": "cinema_yellow_04",
+   "file": "cinema_yellow_04.png",
+   "category": "cinema",
+   "color": "yellow"
   },
   {
-   "sid": "cleaning_items_blue_01",
-   "file": "cleaning_items_blue_01.png",
-   "category": "cleaning_items",
-   "color": "blue"
+   "sid": "cinema_yellow_05",
+   "file": "cinema_yellow_05.png",
+   "category": "cinema",
+   "color": "yellow"
+  },
+  {
+   "sid": "cinema_yellow_06",
+   "file": "cinema_yellow_06.png",
+   "category": "cinema",
+   "color": "yellow"
   },
   {
    "sid": "cleaning_items_blue_02",
    "file": "cleaning_items_blue_02.png",
-   "category": "cleaning_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cleaning_items_blue_03",
-   "file": "cleaning_items_blue_03.png",
    "category": "cleaning_items",
    "color": "blue"
   },
@@ -3038,40 +1520,16 @@
    "color": "blue"
   },
   {
-   "sid": "cleaning_items_blue_05",
-   "file": "cleaning_items_blue_05.png",
+   "sid": "cleaning_items_blue_10",
+   "file": "cleaning_items_blue_10.png",
    "category": "cleaning_items",
    "color": "blue"
   },
   {
-   "sid": "cleaning_items_blue_06",
-   "file": "cleaning_items_blue_06.png",
+   "sid": "cleaning_items_blue_11",
+   "file": "cleaning_items_blue_11.png",
    "category": "cleaning_items",
    "color": "blue"
-  },
-  {
-   "sid": "cleaning_items_blue_07",
-   "file": "cleaning_items_blue_07.png",
-   "category": "cleaning_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cleaning_items_blue_08",
-   "file": "cleaning_items_blue_08.png",
-   "category": "cleaning_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cleaning_items_blue_09",
-   "file": "cleaning_items_blue_09.png",
-   "category": "cleaning_items",
-   "color": "blue"
-  },
-  {
-   "sid": "cleaning_items_green_01",
-   "file": "cleaning_items_green_01.png",
-   "category": "cleaning_items",
-   "color": "green"
   },
   {
    "sid": "cleaning_items_green_02",
@@ -3086,74 +1544,38 @@
    "color": "green"
   },
   {
-   "sid": "cleaning_items_green_04",
-   "file": "cleaning_items_green_04.png",
+   "sid": "cleaning_items_green_08",
+   "file": "cleaning_items_green_08.png",
    "category": "cleaning_items",
    "color": "green"
   },
   {
-   "sid": "cleaning_items_green_05",
-   "file": "cleaning_items_green_05.png",
+   "sid": "cleaning_items_orange_01",
+   "file": "cleaning_items_orange_01.png",
    "category": "cleaning_items",
-   "color": "green"
+   "color": "orange"
   },
   {
-   "sid": "cleaning_items_green_06",
-   "file": "cleaning_items_green_06.png",
+   "sid": "cleaning_items_pink_01",
+   "file": "cleaning_items_pink_01.png",
    "category": "cleaning_items",
-   "color": "green"
+   "color": "pink"
   },
   {
-   "sid": "cleaning_items_green_07",
-   "file": "cleaning_items_green_07.png",
+   "sid": "cleaning_items_pink_02",
+   "file": "cleaning_items_pink_02.png",
    "category": "cleaning_items",
-   "color": "green"
+   "color": "pink"
   },
   {
-   "sid": "cleaning_items_purple_01",
-   "file": "cleaning_items_purple_01.png",
+   "sid": "cleaning_items_pink_03",
+   "file": "cleaning_items_pink_03.png",
    "category": "cleaning_items",
-   "color": "purple"
-  },
-  {
-   "sid": "cleaning_items_red_01",
-   "file": "cleaning_items_red_01.png",
-   "category": "cleaning_items",
-   "color": "red"
+   "color": "pink"
   },
   {
    "sid": "cleaning_items_red_02",
    "file": "cleaning_items_red_02.png",
-   "category": "cleaning_items",
-   "color": "red"
-  },
-  {
-   "sid": "cleaning_items_red_03",
-   "file": "cleaning_items_red_03.png",
-   "category": "cleaning_items",
-   "color": "red"
-  },
-  {
-   "sid": "cleaning_items_red_04",
-   "file": "cleaning_items_red_04.png",
-   "category": "cleaning_items",
-   "color": "red"
-  },
-  {
-   "sid": "cleaning_items_red_05",
-   "file": "cleaning_items_red_05.png",
-   "category": "cleaning_items",
-   "color": "red"
-  },
-  {
-   "sid": "cleaning_items_red_06",
-   "file": "cleaning_items_red_06.png",
-   "category": "cleaning_items",
-   "color": "red"
-  },
-  {
-   "sid": "cleaning_items_red_07",
-   "file": "cleaning_items_red_07.png",
    "category": "cleaning_items",
    "color": "red"
   },
@@ -3176,8 +1598,38 @@
    "color": "red"
   },
   {
+   "sid": "cleaning_items_red_11",
+   "file": "cleaning_items_red_11.png",
+   "category": "cleaning_items",
+   "color": "red"
+  },
+  {
+   "sid": "cleaning_items_red_12",
+   "file": "cleaning_items_red_12.png",
+   "category": "cleaning_items",
+   "color": "red"
+  },
+  {
+   "sid": "cleaning_items_red_13",
+   "file": "cleaning_items_red_13.png",
+   "category": "cleaning_items",
+   "color": "red"
+  },
+  {
+   "sid": "cleaning_items_red_14",
+   "file": "cleaning_items_red_14.png",
+   "category": "cleaning_items",
+   "color": "red"
+  },
+  {
    "sid": "cleaning_items_teal_01",
    "file": "cleaning_items_teal_01.png",
+   "category": "cleaning_items",
+   "color": "teal"
+  },
+  {
+   "sid": "cleaning_items_teal_02",
+   "file": "cleaning_items_teal_02.png",
    "category": "cleaning_items",
    "color": "teal"
   },
@@ -3188,22 +1640,16 @@
    "color": "white"
   },
   {
-   "sid": "cleaning_items_yellow_01",
-   "file": "cleaning_items_yellow_01.png",
+   "sid": "cleaning_items_white_02",
+   "file": "cleaning_items_white_02.png",
    "category": "cleaning_items",
-   "color": "yellow"
+   "color": "white"
   },
   {
-   "sid": "cleaning_items_yellow_02",
-   "file": "cleaning_items_yellow_02.png",
+   "sid": "cleaning_items_white_03",
+   "file": "cleaning_items_white_03.png",
    "category": "cleaning_items",
-   "color": "yellow"
-  },
-  {
-   "sid": "cleaning_items_yellow_03",
-   "file": "cleaning_items_yellow_03.png",
-   "category": "cleaning_items",
-   "color": "yellow"
+   "color": "white"
   },
   {
    "sid": "cleaning_items_yellow_04",
@@ -3212,22 +1658,22 @@
    "color": "yellow"
   },
   {
-   "sid": "cleaning_items_yellow_05",
-   "file": "cleaning_items_yellow_05.png",
+   "sid": "cleaning_items_yellow_07",
+   "file": "cleaning_items_yellow_07.png",
    "category": "cleaning_items",
    "color": "yellow"
   },
   {
-   "sid": "cleaning_items_yellow_06",
-   "file": "cleaning_items_yellow_06.png",
+   "sid": "cleaning_items_yellow_09",
+   "file": "cleaning_items_yellow_09.png",
    "category": "cleaning_items",
    "color": "yellow"
   },
   {
-   "sid": "clothes_black_01",
-   "file": "clothes_black_01.png",
-   "category": "clothes",
-   "color": "black"
+   "sid": "cleaning_items_yellow_11",
+   "file": "cleaning_items_yellow_11.png",
+   "category": "cleaning_items",
+   "color": "yellow"
   },
   {
    "sid": "clothes_blue_01",
@@ -3248,30 +1694,6 @@
    "color": "blue"
   },
   {
-   "sid": "clothes_blue_04",
-   "file": "clothes_blue_04.png",
-   "category": "clothes",
-   "color": "blue"
-  },
-  {
-   "sid": "clothes_blue_05",
-   "file": "clothes_blue_05.png",
-   "category": "clothes",
-   "color": "blue"
-  },
-  {
-   "sid": "clothes_blue_06",
-   "file": "clothes_blue_06.png",
-   "category": "clothes",
-   "color": "blue"
-  },
-  {
-   "sid": "clothes_blue_07",
-   "file": "clothes_blue_07.png",
-   "category": "clothes",
-   "color": "blue"
-  },
-  {
    "sid": "clothes_blue_08",
    "file": "clothes_blue_08.png",
    "category": "clothes",
@@ -3282,36 +1704,6 @@
    "file": "clothes_blue_09.png",
    "category": "clothes",
    "color": "blue"
-  },
-  {
-   "sid": "clothes_blue_10",
-   "file": "clothes_blue_10.png",
-   "category": "clothes",
-   "color": "blue"
-  },
-  {
-   "sid": "clothes_brown_01",
-   "file": "clothes_brown_01.png",
-   "category": "clothes",
-   "color": "brown"
-  },
-  {
-   "sid": "clothes_brown_02",
-   "file": "clothes_brown_02.png",
-   "category": "clothes",
-   "color": "brown"
-  },
-  {
-   "sid": "clothes_gray_01",
-   "file": "clothes_gray_01.png",
-   "category": "clothes",
-   "color": "gray"
-  },
-  {
-   "sid": "clothes_gray_02",
-   "file": "clothes_gray_02.png",
-   "category": "clothes",
-   "color": "gray"
   },
   {
    "sid": "clothes_green_01",
@@ -3332,30 +1724,6 @@
    "color": "green"
   },
   {
-   "sid": "clothes_green_04",
-   "file": "clothes_green_04.png",
-   "category": "clothes",
-   "color": "green"
-  },
-  {
-   "sid": "clothes_green_05",
-   "file": "clothes_green_05.png",
-   "category": "clothes",
-   "color": "green"
-  },
-  {
-   "sid": "clothes_green_06",
-   "file": "clothes_green_06.png",
-   "category": "clothes",
-   "color": "green"
-  },
-  {
-   "sid": "clothes_green_07",
-   "file": "clothes_green_07.png",
-   "category": "clothes",
-   "color": "green"
-  },
-  {
    "sid": "clothes_green_08",
    "file": "clothes_green_08.png",
    "category": "clothes",
@@ -3364,36 +1732,6 @@
   {
    "sid": "clothes_orange_01",
    "file": "clothes_orange_01.png",
-   "category": "clothes",
-   "color": "orange"
-  },
-  {
-   "sid": "clothes_orange_02",
-   "file": "clothes_orange_02.png",
-   "category": "clothes",
-   "color": "orange"
-  },
-  {
-   "sid": "clothes_orange_03",
-   "file": "clothes_orange_03.png",
-   "category": "clothes",
-   "color": "orange"
-  },
-  {
-   "sid": "clothes_orange_04",
-   "file": "clothes_orange_04.png",
-   "category": "clothes",
-   "color": "orange"
-  },
-  {
-   "sid": "clothes_orange_05",
-   "file": "clothes_orange_05.png",
-   "category": "clothes",
-   "color": "orange"
-  },
-  {
-   "sid": "clothes_orange_06",
-   "file": "clothes_orange_06.png",
    "category": "clothes",
    "color": "orange"
   },
@@ -3416,28 +1754,10 @@
    "color": "pink"
   },
   {
-   "sid": "clothes_pink_04",
-   "file": "clothes_pink_04.png",
-   "category": "clothes",
-   "color": "pink"
-  },
-  {
-   "sid": "clothes_pink_05",
-   "file": "clothes_pink_05.png",
-   "category": "clothes",
-   "color": "pink"
-  },
-  {
    "sid": "clothes_pink_06",
    "file": "clothes_pink_06.png",
    "category": "clothes",
    "color": "pink"
-  },
-  {
-   "sid": "clothes_purple_01",
-   "file": "clothes_purple_01.png",
-   "category": "clothes",
-   "color": "purple"
   },
   {
    "sid": "clothes_red_01",
@@ -3464,30 +1784,6 @@
    "color": "red"
   },
   {
-   "sid": "clothes_red_05",
-   "file": "clothes_red_05.png",
-   "category": "clothes",
-   "color": "red"
-  },
-  {
-   "sid": "clothes_red_06",
-   "file": "clothes_red_06.png",
-   "category": "clothes",
-   "color": "red"
-  },
-  {
-   "sid": "clothes_red_07",
-   "file": "clothes_red_07.png",
-   "category": "clothes",
-   "color": "red"
-  },
-  {
-   "sid": "clothes_red_08",
-   "file": "clothes_red_08.png",
-   "category": "clothes",
-   "color": "red"
-  },
-  {
    "sid": "clothes_red_09",
    "file": "clothes_red_09.png",
    "category": "clothes",
@@ -3506,12 +1802,6 @@
    "color": "red"
   },
   {
-   "sid": "clothes_white_01",
-   "file": "clothes_white_01.png",
-   "category": "clothes",
-   "color": "white"
-  },
-  {
    "sid": "clothes_white_02",
    "file": "clothes_white_02.png",
    "category": "clothes",
@@ -3524,52 +1814,22 @@
    "color": "yellow"
   },
   {
-   "sid": "clothes_yellow_02",
-   "file": "clothes_yellow_02.png",
-   "category": "clothes",
-   "color": "yellow"
-  },
-  {
-   "sid": "clothes_yellow_03",
-   "file": "clothes_yellow_03.png",
-   "category": "clothes",
-   "color": "yellow"
-  },
-  {
    "sid": "clothes_yellow_04",
    "file": "clothes_yellow_04.png",
    "category": "clothes",
    "color": "yellow"
   },
   {
-   "sid": "clothes_yellow_05",
-   "file": "clothes_yellow_05.png",
-   "category": "clothes",
-   "color": "yellow"
-  },
-  {
-   "sid": "cold_drink_blue_01",
-   "file": "cold_drink_blue_01.png",
+   "sid": "cold_drink_blue_03",
+   "file": "cold_drink_blue_03.png",
    "category": "cold_drink",
    "color": "blue"
   },
   {
-   "sid": "cold_drink_brown_01",
-   "file": "cold_drink_brown_01.png",
+   "sid": "cold_drink_brown_02",
+   "file": "cold_drink_brown_02.png",
    "category": "cold_drink",
    "color": "brown"
-  },
-  {
-   "sid": "cold_drink_green_01",
-   "file": "cold_drink_green_01.png",
-   "category": "cold_drink",
-   "color": "green"
-  },
-  {
-   "sid": "cold_drink_green_02",
-   "file": "cold_drink_green_02.png",
-   "category": "cold_drink",
-   "color": "green"
   },
   {
    "sid": "cold_drink_green_03",
@@ -3578,32 +1838,80 @@
    "color": "green"
   },
   {
-   "sid": "cold_drink_orange_01",
-   "file": "cold_drink_orange_01.png",
+   "sid": "cold_drink_green_04",
+   "file": "cold_drink_green_04.png",
+   "category": "cold_drink",
+   "color": "green"
+  },
+  {
+   "sid": "cold_drink_green_05",
+   "file": "cold_drink_green_05.png",
+   "category": "cold_drink",
+   "color": "green"
+  },
+  {
+   "sid": "cold_drink_orange_04",
+   "file": "cold_drink_orange_04.png",
    "category": "cold_drink",
    "color": "orange"
   },
   {
-   "sid": "cold_drink_pink_01",
-   "file": "cold_drink_pink_01.png",
+   "sid": "cold_drink_pink_02",
+   "file": "cold_drink_pink_02.png",
    "category": "cold_drink",
    "color": "pink"
   },
   {
-   "sid": "cold_drink_red_01",
-   "file": "cold_drink_red_01.png",
+   "sid": "cold_drink_purple_01",
+   "file": "cold_drink_purple_01.png",
+   "category": "cold_drink",
+   "color": "purple"
+  },
+  {
+   "sid": "cold_drink_purple_02",
+   "file": "cold_drink_purple_02.png",
+   "category": "cold_drink",
+   "color": "purple"
+  },
+  {
+   "sid": "cold_drink_purple_03",
+   "file": "cold_drink_purple_03.png",
+   "category": "cold_drink",
+   "color": "purple"
+  },
+  {
+   "sid": "cold_drink_red_03",
+   "file": "cold_drink_red_03.png",
    "category": "cold_drink",
    "color": "red"
   },
   {
-   "sid": "cold_drink_red_02",
-   "file": "cold_drink_red_02.png",
+   "sid": "cold_drink_red_04",
+   "file": "cold_drink_red_04.png",
    "category": "cold_drink",
    "color": "red"
   },
   {
-   "sid": "cold_drink_yellow_01",
-   "file": "cold_drink_yellow_01.png",
+   "sid": "cold_drink_red_06",
+   "file": "cold_drink_red_06.png",
+   "category": "cold_drink",
+   "color": "red"
+  },
+  {
+   "sid": "cold_drink_white_01",
+   "file": "cold_drink_white_01.png",
+   "category": "cold_drink",
+   "color": "white"
+  },
+  {
+   "sid": "cold_drink_white_02",
+   "file": "cold_drink_white_02.png",
+   "category": "cold_drink",
+   "color": "white"
+  },
+  {
+   "sid": "cold_drink_yellow_02",
+   "file": "cold_drink_yellow_02.png",
    "category": "cold_drink",
    "color": "yellow"
   },
@@ -3914,68 +2222,32 @@
    "color": "pink"
   },
   {
-   "sid": "countrylife_brown_01",
-   "file": "countrylife_brown_01.png",
+   "sid": "countrylife_blue_02",
+   "file": "countrylife_blue_02.png",
    "category": "countrylife",
-   "color": "brown"
+   "color": "blue"
   },
   {
-   "sid": "countrylife_brown_02",
-   "file": "countrylife_brown_02.png",
+   "sid": "countrylife_blue_03",
+   "file": "countrylife_blue_03.png",
    "category": "countrylife",
-   "color": "brown"
+   "color": "blue"
   },
   {
-   "sid": "countrylife_brown_03",
-   "file": "countrylife_brown_03.png",
+   "sid": "countrylife_blue_04",
+   "file": "countrylife_blue_04.png",
    "category": "countrylife",
-   "color": "brown"
+   "color": "blue"
   },
   {
-   "sid": "countrylife_brown_04",
-   "file": "countrylife_brown_04.png",
+   "sid": "countrylife_blue_05",
+   "file": "countrylife_blue_05.png",
    "category": "countrylife",
-   "color": "brown"
-  },
-  {
-   "sid": "countrylife_gray_01",
-   "file": "countrylife_gray_01.png",
-   "category": "countrylife",
-   "color": "gray"
-  },
-  {
-   "sid": "countrylife_gray_02",
-   "file": "countrylife_gray_02.png",
-   "category": "countrylife",
-   "color": "gray"
-  },
-  {
-   "sid": "countrylife_green_01",
-   "file": "countrylife_green_01.png",
-   "category": "countrylife",
-   "color": "green"
+   "color": "blue"
   },
   {
    "sid": "countrylife_green_02",
    "file": "countrylife_green_02.png",
-   "category": "countrylife",
-   "color": "green"
-  },
-  {
-   "sid": "countrylife_green_03",
-   "file": "countrylife_green_03.png",
-   "category": "countrylife",
-   "color": "green"
-  },
-  {
-   "sid": "countrylife_green_04",
-   "file": "countrylife_green_04.png",
-   "category": "countrylife",
-   "color": "green"
-  },
-  {
-   "sid": "countrylife_green_05",
-   "file": "countrylife_green_05.png",
    "category": "countrylife",
    "color": "green"
   },
@@ -3986,56 +2258,14 @@
    "color": "green"
   },
   {
-   "sid": "countrylife_green_07",
-   "file": "countrylife_green_07.png",
+   "sid": "countrylife_green_10",
+   "file": "countrylife_green_10.png",
    "category": "countrylife",
    "color": "green"
-  },
-  {
-   "sid": "countrylife_green_08",
-   "file": "countrylife_green_08.png",
-   "category": "countrylife",
-   "color": "green"
-  },
-  {
-   "sid": "countrylife_green_09",
-   "file": "countrylife_green_09.png",
-   "category": "countrylife",
-   "color": "green"
-  },
-  {
-   "sid": "countrylife_orange_01",
-   "file": "countrylife_orange_01.png",
-   "category": "countrylife",
-   "color": "orange"
-  },
-  {
-   "sid": "countrylife_orange_02",
-   "file": "countrylife_orange_02.png",
-   "category": "countrylife",
-   "color": "orange"
-  },
-  {
-   "sid": "countrylife_orange_03",
-   "file": "countrylife_orange_03.png",
-   "category": "countrylife",
-   "color": "orange"
   },
   {
    "sid": "countrylife_orange_04",
    "file": "countrylife_orange_04.png",
-   "category": "countrylife",
-   "color": "orange"
-  },
-  {
-   "sid": "countrylife_orange_05",
-   "file": "countrylife_orange_05.png",
-   "category": "countrylife",
-   "color": "orange"
-  },
-  {
-   "sid": "countrylife_orange_06",
-   "file": "countrylife_orange_06.png",
    "category": "countrylife",
    "color": "orange"
   },
@@ -4046,188 +2276,122 @@
    "color": "orange"
   },
   {
-   "sid": "countrylife_orange_08",
-   "file": "countrylife_orange_08.png",
+   "sid": "countrylife_orange_16",
+   "file": "countrylife_orange_16.png",
    "category": "countrylife",
    "color": "orange"
   },
   {
-   "sid": "countrylife_orange_09",
-   "file": "countrylife_orange_09.png",
+   "sid": "countrylife_orange_17",
+   "file": "countrylife_orange_17.png",
    "category": "countrylife",
    "color": "orange"
   },
   {
-   "sid": "countrylife_orange_10",
-   "file": "countrylife_orange_10.png",
+   "sid": "countrylife_orange_18",
+   "file": "countrylife_orange_18.png",
    "category": "countrylife",
    "color": "orange"
   },
   {
-   "sid": "countrylife_orange_11",
-   "file": "countrylife_orange_11.png",
+   "sid": "countrylife_pink_01",
+   "file": "countrylife_pink_01.png",
    "category": "countrylife",
-   "color": "orange"
+   "color": "pink"
   },
   {
-   "sid": "countrylife_orange_12",
-   "file": "countrylife_orange_12.png",
+   "sid": "countrylife_pink_02",
+   "file": "countrylife_pink_02.png",
    "category": "countrylife",
-   "color": "orange"
+   "color": "pink"
   },
   {
-   "sid": "countrylife_orange_13",
-   "file": "countrylife_orange_13.png",
+   "sid": "countrylife_purple_01",
+   "file": "countrylife_purple_01.png",
    "category": "countrylife",
-   "color": "orange"
+   "color": "purple"
   },
   {
-   "sid": "countrylife_orange_14",
-   "file": "countrylife_orange_14.png",
-   "category": "countrylife",
-   "color": "orange"
-  },
-  {
-   "sid": "countrylife_orange_15",
-   "file": "countrylife_orange_15.png",
-   "category": "countrylife",
-   "color": "orange"
-  },
-  {
-   "sid": "countrylife_red_01",
-   "file": "countrylife_red_01.png",
+   "sid": "countrylife_red_11",
+   "file": "countrylife_red_11.png",
    "category": "countrylife",
    "color": "red"
   },
   {
-   "sid": "countrylife_red_02",
-   "file": "countrylife_red_02.png",
+   "sid": "countrylife_red_12",
+   "file": "countrylife_red_12.png",
    "category": "countrylife",
    "color": "red"
   },
   {
-   "sid": "countrylife_red_03",
-   "file": "countrylife_red_03.png",
+   "sid": "countrylife_red_14",
+   "file": "countrylife_red_14.png",
    "category": "countrylife",
    "color": "red"
   },
   {
-   "sid": "countrylife_red_04",
-   "file": "countrylife_red_04.png",
+   "sid": "countrylife_red_15",
+   "file": "countrylife_red_15.png",
    "category": "countrylife",
    "color": "red"
   },
   {
-   "sid": "countrylife_red_05",
-   "file": "countrylife_red_05.png",
+   "sid": "countrylife_red_16",
+   "file": "countrylife_red_16.png",
    "category": "countrylife",
    "color": "red"
   },
   {
-   "sid": "countrylife_red_06",
-   "file": "countrylife_red_06.png",
+   "sid": "countrylife_red_17",
+   "file": "countrylife_red_17.png",
    "category": "countrylife",
    "color": "red"
   },
   {
-   "sid": "countrylife_red_07",
-   "file": "countrylife_red_07.png",
-   "category": "countrylife",
-   "color": "red"
-  },
-  {
-   "sid": "countrylife_red_08",
-   "file": "countrylife_red_08.png",
-   "category": "countrylife",
-   "color": "red"
-  },
-  {
-   "sid": "countrylife_red_09",
-   "file": "countrylife_red_09.png",
-   "category": "countrylife",
-   "color": "red"
-  },
-  {
-   "sid": "countrylife_red_10",
-   "file": "countrylife_red_10.png",
-   "category": "countrylife",
-   "color": "red"
-  },
-  {
-   "sid": "countrylife_white_01",
-   "file": "countrylife_white_01.png",
-   "category": "countrylife",
-   "color": "white"
-  },
-  {
-   "sid": "countrylife_white_02",
-   "file": "countrylife_white_02.png",
-   "category": "countrylife",
-   "color": "white"
-  },
-  {
-   "sid": "countrylife_white_03",
-   "file": "countrylife_white_03.png",
-   "category": "countrylife",
-   "color": "white"
-  },
-  {
-   "sid": "countrylife_yellow_01",
-   "file": "countrylife_yellow_01.png",
+   "sid": "countrylife_yellow_04",
+   "file": "countrylife_yellow_04.png",
    "category": "countrylife",
    "color": "yellow"
   },
   {
-   "sid": "countrylife_yellow_02",
-   "file": "countrylife_yellow_02.png",
+   "sid": "countrylife_yellow_05",
+   "file": "countrylife_yellow_05.png",
    "category": "countrylife",
    "color": "yellow"
   },
   {
-   "sid": "countrylife_yellow_03",
-   "file": "countrylife_yellow_03.png",
+   "sid": "countrylife_yellow_06",
+   "file": "countrylife_yellow_06.png",
    "category": "countrylife",
    "color": "yellow"
   },
   {
-   "sid": "desserts_brown_01",
-   "file": "desserts_brown_01.png",
-   "category": "desserts",
-   "color": "brown"
+   "sid": "countrylife_yellow_07",
+   "file": "countrylife_yellow_07.png",
+   "category": "countrylife",
+   "color": "yellow"
   },
   {
-   "sid": "desserts_brown_02",
-   "file": "desserts_brown_02.png",
-   "category": "desserts",
-   "color": "brown"
+   "sid": "countrylife_yellow_08",
+   "file": "countrylife_yellow_08.png",
+   "category": "countrylife",
+   "color": "yellow"
+  },
+  {
+   "sid": "countrylife_yellow_09",
+   "file": "countrylife_yellow_09.png",
+   "category": "countrylife",
+   "color": "yellow"
+  },
+  {
+   "sid": "countrylife_yellow_10",
+   "file": "countrylife_yellow_10.png",
+   "category": "countrylife",
+   "color": "yellow"
   },
   {
    "sid": "desserts_brown_03",
    "file": "desserts_brown_03.png",
-   "category": "desserts",
-   "color": "brown"
-  },
-  {
-   "sid": "desserts_brown_04",
-   "file": "desserts_brown_04.png",
-   "category": "desserts",
-   "color": "brown"
-  },
-  {
-   "sid": "desserts_brown_05",
-   "file": "desserts_brown_05.png",
-   "category": "desserts",
-   "color": "brown"
-  },
-  {
-   "sid": "desserts_brown_06",
-   "file": "desserts_brown_06.png",
-   "category": "desserts",
-   "color": "brown"
-  },
-  {
-   "sid": "desserts_brown_07",
-   "file": "desserts_brown_07.png",
    "category": "desserts",
    "color": "brown"
   },
@@ -4244,6 +2408,12 @@
    "color": "brown"
   },
   {
+   "sid": "desserts_brown_12",
+   "file": "desserts_brown_12.png",
+   "category": "desserts",
+   "color": "brown"
+  },
+  {
    "sid": "desserts_green_01",
    "file": "desserts_green_01.png",
    "category": "desserts",
@@ -4256,32 +2426,32 @@
    "color": "green"
   },
   {
-   "sid": "desserts_orange_01",
-   "file": "desserts_orange_01.png",
+   "sid": "desserts_green_04",
+   "file": "desserts_green_04.png",
    "category": "desserts",
-   "color": "orange"
+   "color": "green"
   },
   {
-   "sid": "desserts_orange_02",
-   "file": "desserts_orange_02.png",
+   "sid": "desserts_green_05",
+   "file": "desserts_green_05.png",
    "category": "desserts",
-   "color": "orange"
+   "color": "green"
   },
   {
-   "sid": "desserts_orange_03",
-   "file": "desserts_orange_03.png",
+   "sid": "desserts_green_06",
+   "file": "desserts_green_06.png",
    "category": "desserts",
-   "color": "orange"
+   "color": "green"
+  },
+  {
+   "sid": "desserts_green_07",
+   "file": "desserts_green_07.png",
+   "category": "desserts",
+   "color": "green"
   },
   {
    "sid": "desserts_orange_04",
    "file": "desserts_orange_04.png",
-   "category": "desserts",
-   "color": "orange"
-  },
-  {
-   "sid": "desserts_orange_05",
-   "file": "desserts_orange_05.png",
    "category": "desserts",
    "color": "orange"
   },
@@ -4328,10 +2498,22 @@
    "color": "orange"
   },
   {
-   "sid": "desserts_pink_01",
-   "file": "desserts_pink_01.png",
+   "sid": "desserts_orange_15",
+   "file": "desserts_orange_15.png",
    "category": "desserts",
-   "color": "pink"
+   "color": "orange"
+  },
+  {
+   "sid": "desserts_orange_17",
+   "file": "desserts_orange_17.png",
+   "category": "desserts",
+   "color": "orange"
+  },
+  {
+   "sid": "desserts_orange_18",
+   "file": "desserts_orange_18.png",
+   "category": "desserts",
+   "color": "orange"
   },
   {
    "sid": "desserts_pink_02",
@@ -4358,26 +2540,32 @@
    "color": "pink"
   },
   {
-   "sid": "desserts_purple_01",
-   "file": "desserts_purple_01.png",
+   "sid": "desserts_pink_07",
+   "file": "desserts_pink_07.png",
+   "category": "desserts",
+   "color": "pink"
+  },
+  {
+   "sid": "desserts_pink_08",
+   "file": "desserts_pink_08.png",
+   "category": "desserts",
+   "color": "pink"
+  },
+  {
+   "sid": "desserts_purple_02",
+   "file": "desserts_purple_02.png",
    "category": "desserts",
    "color": "purple"
   },
   {
-   "sid": "desserts_red_01",
-   "file": "desserts_red_01.png",
+   "sid": "desserts_purple_03",
+   "file": "desserts_purple_03.png",
    "category": "desserts",
-   "color": "red"
+   "color": "purple"
   },
   {
    "sid": "desserts_red_02",
    "file": "desserts_red_02.png",
-   "category": "desserts",
-   "color": "red"
-  },
-  {
-   "sid": "desserts_red_03",
-   "file": "desserts_red_03.png",
    "category": "desserts",
    "color": "red"
   },
@@ -4400,10 +2588,22 @@
    "color": "red"
   },
   {
-   "sid": "desserts_red_07",
-   "file": "desserts_red_07.png",
+   "sid": "desserts_red_09",
+   "file": "desserts_red_09.png",
    "category": "desserts",
    "color": "red"
+  },
+  {
+   "sid": "desserts_red_10",
+   "file": "desserts_red_10.png",
+   "category": "desserts",
+   "color": "red"
+  },
+  {
+   "sid": "desserts_white_01",
+   "file": "desserts_white_01.png",
+   "category": "desserts",
+   "color": "white"
   },
   {
    "sid": "desserts_yellow_01",
@@ -4412,364 +2612,232 @@
    "color": "yellow"
   },
   {
-   "sid": "fairytale_blue_01",
-   "file": "fairytale_blue_01.png",
-   "category": "fairytale",
-   "color": "blue"
-  },
-  {
-   "sid": "fairytale_blue_02",
-   "file": "fairytale_blue_02.png",
-   "category": "fairytale",
-   "color": "blue"
-  },
-  {
-   "sid": "fairytale_blue_03",
-   "file": "fairytale_blue_03.png",
-   "category": "fairytale",
-   "color": "blue"
-  },
-  {
-   "sid": "fairytale_blue_04",
-   "file": "fairytale_blue_04.png",
-   "category": "fairytale",
-   "color": "blue"
-  },
-  {
-   "sid": "fairytale_blue_05",
-   "file": "fairytale_blue_05.png",
-   "category": "fairytale",
-   "color": "blue"
-  },
-  {
-   "sid": "fairytale_blue_06",
-   "file": "fairytale_blue_06.png",
-   "category": "fairytale",
-   "color": "blue"
-  },
-  {
-   "sid": "fairytale_green_01",
-   "file": "fairytale_green_01.png",
-   "category": "fairytale",
-   "color": "green"
-  },
-  {
-   "sid": "fairytale_green_02",
-   "file": "fairytale_green_02.png",
-   "category": "fairytale",
-   "color": "green"
-  },
-  {
-   "sid": "fairytale_green_03",
-   "file": "fairytale_green_03.png",
-   "category": "fairytale",
-   "color": "green"
-  },
-  {
-   "sid": "fairytale_orange_01",
-   "file": "fairytale_orange_01.png",
-   "category": "fairytale",
-   "color": "orange"
-  },
-  {
-   "sid": "fairytale_orange_02",
-   "file": "fairytale_orange_02.png",
-   "category": "fairytale",
-   "color": "orange"
-  },
-  {
-   "sid": "fairytale_orange_03",
-   "file": "fairytale_orange_03.png",
-   "category": "fairytale",
-   "color": "orange"
-  },
-  {
-   "sid": "fairytale_pink_01",
-   "file": "fairytale_pink_01.png",
-   "category": "fairytale",
-   "color": "pink"
-  },
-  {
-   "sid": "fairytale_purple_01",
-   "file": "fairytale_purple_01.png",
-   "category": "fairytale",
-   "color": "purple"
-  },
-  {
-   "sid": "fairytale_red_01",
-   "file": "fairytale_red_01.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_02",
-   "file": "fairytale_red_02.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_03",
-   "file": "fairytale_red_03.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_04",
-   "file": "fairytale_red_04.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_05",
-   "file": "fairytale_red_05.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_06",
-   "file": "fairytale_red_06.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_07",
-   "file": "fairytale_red_07.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_08",
-   "file": "fairytale_red_08.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_red_09",
-   "file": "fairytale_red_09.png",
-   "category": "fairytale",
-   "color": "red"
-  },
-  {
-   "sid": "fairytale_yellow_01",
-   "file": "fairytale_yellow_01.png",
-   "category": "fairytale",
+   "sid": "desserts_yellow_02",
+   "file": "desserts_yellow_02.png",
+   "category": "desserts",
    "color": "yellow"
   },
   {
-   "sid": "fairytale_yellow_02",
-   "file": "fairytale_yellow_02.png",
-   "category": "fairytale",
+   "sid": "desserts_yellow_03",
+   "file": "desserts_yellow_03.png",
+   "category": "desserts",
    "color": "yellow"
   },
   {
-   "sid": "fantasy_blue_01",
-   "file": "fantasy_blue_01.png",
+   "sid": "dinosaurs_blue_01",
+   "file": "dinosaurs_blue_01.png",
+   "category": "dinosaurs",
+   "color": "blue"
+  },
+  {
+   "sid": "dinosaurs_blue_02",
+   "file": "dinosaurs_blue_02.png",
+   "category": "dinosaurs",
+   "color": "blue"
+  },
+  {
+   "sid": "dinosaurs_blue_03",
+   "file": "dinosaurs_blue_03.png",
+   "category": "dinosaurs",
+   "color": "blue"
+  },
+  {
+   "sid": "dinosaurs_blue_04",
+   "file": "dinosaurs_blue_04.png",
+   "category": "dinosaurs",
+   "color": "blue"
+  },
+  {
+   "sid": "dinosaurs_blue_05",
+   "file": "dinosaurs_blue_05.png",
+   "category": "dinosaurs",
+   "color": "blue"
+  },
+  {
+   "sid": "dinosaurs_blue_06",
+   "file": "dinosaurs_blue_06.png",
+   "category": "dinosaurs",
+   "color": "blue"
+  },
+  {
+   "sid": "dinosaurs_green_01",
+   "file": "dinosaurs_green_01.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_green_02",
+   "file": "dinosaurs_green_02.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_green_03",
+   "file": "dinosaurs_green_03.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_green_04",
+   "file": "dinosaurs_green_04.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_green_05",
+   "file": "dinosaurs_green_05.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_green_06",
+   "file": "dinosaurs_green_06.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_green_07",
+   "file": "dinosaurs_green_07.png",
+   "category": "dinosaurs",
+   "color": "green"
+  },
+  {
+   "sid": "dinosaurs_orange_01",
+   "file": "dinosaurs_orange_01.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_orange_02",
+   "file": "dinosaurs_orange_02.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_orange_03",
+   "file": "dinosaurs_orange_03.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_orange_04",
+   "file": "dinosaurs_orange_04.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_orange_05",
+   "file": "dinosaurs_orange_05.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_orange_06",
+   "file": "dinosaurs_orange_06.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_orange_07",
+   "file": "dinosaurs_orange_07.png",
+   "category": "dinosaurs",
+   "color": "orange"
+  },
+  {
+   "sid": "dinosaurs_white_01",
+   "file": "dinosaurs_white_01.png",
+   "category": "dinosaurs",
+   "color": "white"
+  },
+  {
+   "sid": "dinosaurs_white_02",
+   "file": "dinosaurs_white_02.png",
+   "category": "dinosaurs",
+   "color": "white"
+  },
+  {
+   "sid": "fantasy_blue_11",
+   "file": "fantasy_blue_11.png",
    "category": "fantasy",
    "color": "blue"
   },
   {
-   "sid": "fantasy_blue_02",
-   "file": "fantasy_blue_02.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_03",
-   "file": "fantasy_blue_03.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_04",
-   "file": "fantasy_blue_04.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_05",
-   "file": "fantasy_blue_05.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_06",
-   "file": "fantasy_blue_06.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_07",
-   "file": "fantasy_blue_07.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_08",
-   "file": "fantasy_blue_08.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_09",
-   "file": "fantasy_blue_09.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_blue_10",
-   "file": "fantasy_blue_10.png",
-   "category": "fantasy",
-   "color": "blue"
-  },
-  {
-   "sid": "fantasy_gray_01",
-   "file": "fantasy_gray_01.png",
+   "sid": "fantasy_gray_02",
+   "file": "fantasy_gray_02.png",
    "category": "fantasy",
    "color": "gray"
   },
   {
-   "sid": "fantasy_green_01",
-   "file": "fantasy_green_01.png",
+   "sid": "fantasy_green_08",
+   "file": "fantasy_green_08.png",
    "category": "fantasy",
    "color": "green"
   },
   {
-   "sid": "fantasy_green_02",
-   "file": "fantasy_green_02.png",
+   "sid": "fantasy_green_09",
+   "file": "fantasy_green_09.png",
    "category": "fantasy",
    "color": "green"
   },
   {
-   "sid": "fantasy_green_03",
-   "file": "fantasy_green_03.png",
+   "sid": "fantasy_green_10",
+   "file": "fantasy_green_10.png",
    "category": "fantasy",
    "color": "green"
   },
   {
-   "sid": "fantasy_green_04",
-   "file": "fantasy_green_04.png",
+   "sid": "fantasy_green_11",
+   "file": "fantasy_green_11.png",
    "category": "fantasy",
    "color": "green"
   },
   {
-   "sid": "fantasy_green_05",
-   "file": "fantasy_green_05.png",
+   "sid": "fantasy_green_12",
+   "file": "fantasy_green_12.png",
    "category": "fantasy",
    "color": "green"
   },
   {
-   "sid": "fantasy_green_06",
-   "file": "fantasy_green_06.png",
-   "category": "fantasy",
-   "color": "green"
-  },
-  {
-   "sid": "fantasy_green_07",
-   "file": "fantasy_green_07.png",
-   "category": "fantasy",
-   "color": "green"
-  },
-  {
-   "sid": "fantasy_orange_01",
-   "file": "fantasy_orange_01.png",
+   "sid": "fantasy_orange_09",
+   "file": "fantasy_orange_09.png",
    "category": "fantasy",
    "color": "orange"
   },
   {
-   "sid": "fantasy_orange_02",
-   "file": "fantasy_orange_02.png",
+   "sid": "fantasy_orange_10",
+   "file": "fantasy_orange_10.png",
    "category": "fantasy",
    "color": "orange"
   },
   {
-   "sid": "fantasy_orange_03",
-   "file": "fantasy_orange_03.png",
+   "sid": "fantasy_orange_11",
+   "file": "fantasy_orange_11.png",
    "category": "fantasy",
    "color": "orange"
   },
   {
-   "sid": "fantasy_orange_04",
-   "file": "fantasy_orange_04.png",
+   "sid": "fantasy_orange_12",
+   "file": "fantasy_orange_12.png",
    "category": "fantasy",
    "color": "orange"
   },
   {
-   "sid": "fantasy_orange_05",
-   "file": "fantasy_orange_05.png",
-   "category": "fantasy",
-   "color": "orange"
-  },
-  {
-   "sid": "fantasy_orange_06",
-   "file": "fantasy_orange_06.png",
-   "category": "fantasy",
-   "color": "orange"
-  },
-  {
-   "sid": "fantasy_orange_07",
-   "file": "fantasy_orange_07.png",
-   "category": "fantasy",
-   "color": "orange"
-  },
-  {
-   "sid": "fantasy_orange_08",
-   "file": "fantasy_orange_08.png",
-   "category": "fantasy",
-   "color": "orange"
-  },
-  {
-   "sid": "fantasy_purple_01",
-   "file": "fantasy_purple_01.png",
+   "sid": "fantasy_purple_02",
+   "file": "fantasy_purple_02.png",
    "category": "fantasy",
    "color": "purple"
   },
   {
-   "sid": "fantasy_red_01",
-   "file": "fantasy_red_01.png",
+   "sid": "fantasy_purple_03",
+   "file": "fantasy_purple_03.png",
    "category": "fantasy",
-   "color": "red"
+   "color": "purple"
   },
   {
-   "sid": "fantasy_red_02",
-   "file": "fantasy_red_02.png",
+   "sid": "fantasy_purple_04",
+   "file": "fantasy_purple_04.png",
    "category": "fantasy",
-   "color": "red"
-  },
-  {
-   "sid": "fantasy_red_03",
-   "file": "fantasy_red_03.png",
-   "category": "fantasy",
-   "color": "red"
-  },
-  {
-   "sid": "fantasy_red_04",
-   "file": "fantasy_red_04.png",
-   "category": "fantasy",
-   "color": "red"
-  },
-  {
-   "sid": "fantasy_red_05",
-   "file": "fantasy_red_05.png",
-   "category": "fantasy",
-   "color": "red"
-  },
-  {
-   "sid": "fantasy_red_06",
-   "file": "fantasy_red_06.png",
-   "category": "fantasy",
-   "color": "red"
-  },
-  {
-   "sid": "fantasy_red_07",
-   "file": "fantasy_red_07.png",
-   "category": "fantasy",
-   "color": "red"
-  },
-  {
-   "sid": "fantasy_red_08",
-   "file": "fantasy_red_08.png",
-   "category": "fantasy",
-   "color": "red"
+   "color": "purple"
   },
   {
    "sid": "fantasy_red_09",
@@ -4778,8 +2846,56 @@
    "color": "red"
   },
   {
-   "sid": "fantasy_yellow_01",
-   "file": "fantasy_yellow_01.png",
+   "sid": "fantasy_red_10",
+   "file": "fantasy_red_10.png",
+   "category": "fantasy",
+   "color": "red"
+  },
+  {
+   "sid": "fantasy_red_11",
+   "file": "fantasy_red_11.png",
+   "category": "fantasy",
+   "color": "red"
+  },
+  {
+   "sid": "fantasy_red_12",
+   "file": "fantasy_red_12.png",
+   "category": "fantasy",
+   "color": "red"
+  },
+  {
+   "sid": "fantasy_red_13",
+   "file": "fantasy_red_13.png",
+   "category": "fantasy",
+   "color": "red"
+  },
+  {
+   "sid": "fantasy_red_14",
+   "file": "fantasy_red_14.png",
+   "category": "fantasy",
+   "color": "red"
+  },
+  {
+   "sid": "fantasy_red_15",
+   "file": "fantasy_red_15.png",
+   "category": "fantasy",
+   "color": "red"
+  },
+  {
+   "sid": "fantasy_white_01",
+   "file": "fantasy_white_01.png",
+   "category": "fantasy",
+   "color": "white"
+  },
+  {
+   "sid": "fantasy_yellow_02",
+   "file": "fantasy_yellow_02.png",
+   "category": "fantasy",
+   "color": "yellow"
+  },
+  {
+   "sid": "fantasy_yellow_03",
+   "file": "fantasy_yellow_03.png",
    "category": "fantasy",
    "color": "yellow"
   },
@@ -4802,56 +2918,8 @@
    "color": "blue"
   },
   {
-   "sid": "flowers_blue_04",
-   "file": "flowers_blue_04.png",
-   "category": "flowers",
-   "color": "blue"
-  },
-  {
-   "sid": "flowers_green_01",
-   "file": "flowers_green_01.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_02",
-   "file": "flowers_green_02.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_03",
-   "file": "flowers_green_03.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
    "sid": "flowers_green_04",
    "file": "flowers_green_04.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_05",
-   "file": "flowers_green_05.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_06",
-   "file": "flowers_green_06.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_07",
-   "file": "flowers_green_07.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_08",
-   "file": "flowers_green_08.png",
    "category": "flowers",
    "color": "green"
   },
@@ -4860,48 +2928,6 @@
    "file": "flowers_green_09.png",
    "category": "flowers",
    "color": "green"
-  },
-  {
-   "sid": "flowers_green_10",
-   "file": "flowers_green_10.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_green_11",
-   "file": "flowers_green_11.png",
-   "category": "flowers",
-   "color": "green"
-  },
-  {
-   "sid": "flowers_orange_01",
-   "file": "flowers_orange_01.png",
-   "category": "flowers",
-   "color": "orange"
-  },
-  {
-   "sid": "flowers_orange_02",
-   "file": "flowers_orange_02.png",
-   "category": "flowers",
-   "color": "orange"
-  },
-  {
-   "sid": "flowers_orange_03",
-   "file": "flowers_orange_03.png",
-   "category": "flowers",
-   "color": "orange"
-  },
-  {
-   "sid": "flowers_orange_04",
-   "file": "flowers_orange_04.png",
-   "category": "flowers",
-   "color": "orange"
-  },
-  {
-   "sid": "flowers_orange_05",
-   "file": "flowers_orange_05.png",
-   "category": "flowers",
-   "color": "orange"
   },
   {
    "sid": "flowers_orange_06",
@@ -4916,20 +2942,44 @@
    "color": "orange"
   },
   {
-   "sid": "flowers_pink_01",
-   "file": "flowers_pink_01.png",
+   "sid": "flowers_orange_08",
+   "file": "flowers_orange_08.png",
    "category": "flowers",
-   "color": "pink"
+   "color": "orange"
   },
   {
-   "sid": "flowers_pink_02",
-   "file": "flowers_pink_02.png",
+   "sid": "flowers_orange_10",
+   "file": "flowers_orange_10.png",
    "category": "flowers",
-   "color": "pink"
+   "color": "orange"
+  },
+  {
+   "sid": "flowers_orange_12",
+   "file": "flowers_orange_12.png",
+   "category": "flowers",
+   "color": "orange"
   },
   {
    "sid": "flowers_pink_03",
    "file": "flowers_pink_03.png",
+   "category": "flowers",
+   "color": "pink"
+  },
+  {
+   "sid": "flowers_pink_06",
+   "file": "flowers_pink_06.png",
+   "category": "flowers",
+   "color": "pink"
+  },
+  {
+   "sid": "flowers_pink_09",
+   "file": "flowers_pink_09.png",
+   "category": "flowers",
+   "color": "pink"
+  },
+  {
+   "sid": "flowers_pink_10",
+   "file": "flowers_pink_10.png",
    "category": "flowers",
    "color": "pink"
   },
@@ -4940,34 +2990,16 @@
    "color": "purple"
   },
   {
-   "sid": "flowers_purple_02",
-   "file": "flowers_purple_02.png",
+   "sid": "flowers_purple_04",
+   "file": "flowers_purple_04.png",
    "category": "flowers",
    "color": "purple"
   },
   {
-   "sid": "flowers_purple_03",
-   "file": "flowers_purple_03.png",
+   "sid": "flowers_purple_09",
+   "file": "flowers_purple_09.png",
    "category": "flowers",
    "color": "purple"
-  },
-  {
-   "sid": "flowers_red_01",
-   "file": "flowers_red_01.png",
-   "category": "flowers",
-   "color": "red"
-  },
-  {
-   "sid": "flowers_red_02",
-   "file": "flowers_red_02.png",
-   "category": "flowers",
-   "color": "red"
-  },
-  {
-   "sid": "flowers_red_03",
-   "file": "flowers_red_03.png",
-   "category": "flowers",
-   "color": "red"
   },
   {
    "sid": "flowers_red_04",
@@ -4976,20 +3008,8 @@
    "color": "red"
   },
   {
-   "sid": "flowers_red_05",
-   "file": "flowers_red_05.png",
-   "category": "flowers",
-   "color": "red"
-  },
-  {
    "sid": "flowers_red_06",
    "file": "flowers_red_06.png",
-   "category": "flowers",
-   "color": "red"
-  },
-  {
-   "sid": "flowers_red_07",
-   "file": "flowers_red_07.png",
    "category": "flowers",
    "color": "red"
   },
@@ -5006,8 +3026,8 @@
    "color": "red"
   },
   {
-   "sid": "flowers_red_10",
-   "file": "flowers_red_10.png",
+   "sid": "flowers_red_13",
+   "file": "flowers_red_13.png",
    "category": "flowers",
    "color": "red"
   },
@@ -5018,44 +3038,32 @@
    "color": "white"
   },
   {
-   "sid": "flowers_white_02",
-   "file": "flowers_white_02.png",
-   "category": "flowers",
-   "color": "white"
-  },
-  {
-   "sid": "flowers_white_03",
-   "file": "flowers_white_03.png",
-   "category": "flowers",
-   "color": "white"
-  },
-  {
    "sid": "flowers_white_04",
    "file": "flowers_white_04.png",
    "category": "flowers",
    "color": "white"
   },
   {
-   "sid": "flowers_yellow_01",
-   "file": "flowers_yellow_01.png",
+   "sid": "flowers_white_08",
+   "file": "flowers_white_08.png",
    "category": "flowers",
-   "color": "yellow"
+   "color": "white"
+  },
+  {
+   "sid": "flowers_white_10",
+   "file": "flowers_white_10.png",
+   "category": "flowers",
+   "color": "white"
+  },
+  {
+   "sid": "flowers_white_11",
+   "file": "flowers_white_11.png",
+   "category": "flowers",
+   "color": "white"
   },
   {
    "sid": "flowers_yellow_02",
    "file": "flowers_yellow_02.png",
-   "category": "flowers",
-   "color": "yellow"
-  },
-  {
-   "sid": "flowers_yellow_03",
-   "file": "flowers_yellow_03.png",
-   "category": "flowers",
-   "color": "yellow"
-  },
-  {
-   "sid": "flowers_yellow_04",
-   "file": "flowers_yellow_04.png",
    "category": "flowers",
    "color": "yellow"
   },
@@ -5066,20 +3074,38 @@
    "color": "yellow"
   },
   {
+   "sid": "flowers_yellow_08",
+   "file": "flowers_yellow_08.png",
+   "category": "flowers",
+   "color": "yellow"
+  },
+  {
+   "sid": "flowers_yellow_10",
+   "file": "flowers_yellow_10.png",
+   "category": "flowers",
+   "color": "yellow"
+  },
+  {
+   "sid": "flowers_yellow_11",
+   "file": "flowers_yellow_11.png",
+   "category": "flowers",
+   "color": "yellow"
+  },
+  {
    "sid": "fruits_blue_01",
    "file": "fruits_blue_01.png",
    "category": "fruits",
    "color": "blue"
   },
   {
-   "sid": "fruits_green_01",
-   "file": "fruits_green_01.png",
+   "sid": "fruits_brown_01",
+   "file": "fruits_brown_01.png",
    "category": "fruits",
-   "color": "green"
+   "color": "brown"
   },
   {
-   "sid": "fruits_green_02",
-   "file": "fruits_green_02.png",
+   "sid": "fruits_green_01",
+   "file": "fruits_green_01.png",
    "category": "fruits",
    "color": "green"
   },
@@ -5102,14 +3128,38 @@
    "color": "green"
   },
   {
-   "sid": "fruits_orange_01",
-   "file": "fruits_orange_01.png",
+   "sid": "fruits_green_07",
+   "file": "fruits_green_07.png",
    "category": "fruits",
-   "color": "orange"
+   "color": "green"
+  },
+  {
+   "sid": "fruits_green_08",
+   "file": "fruits_green_08.png",
+   "category": "fruits",
+   "color": "green"
+  },
+  {
+   "sid": "fruits_green_10",
+   "file": "fruits_green_10.png",
+   "category": "fruits",
+   "color": "green"
   },
   {
    "sid": "fruits_orange_02",
    "file": "fruits_orange_02.png",
+   "category": "fruits",
+   "color": "orange"
+  },
+  {
+   "sid": "fruits_orange_06",
+   "file": "fruits_orange_06.png",
+   "category": "fruits",
+   "color": "orange"
+  },
+  {
+   "sid": "fruits_orange_07",
+   "file": "fruits_orange_07.png",
    "category": "fruits",
    "color": "orange"
   },
@@ -5120,8 +3170,8 @@
    "color": "purple"
   },
   {
-   "sid": "fruits_purple_02",
-   "file": "fruits_purple_02.png",
+   "sid": "fruits_purple_04",
+   "file": "fruits_purple_04.png",
    "category": "fruits",
    "color": "purple"
   },
@@ -5162,14 +3212,20 @@
    "color": "red"
   },
   {
-   "sid": "fruits_red_07",
-   "file": "fruits_red_07.png",
+   "sid": "fruits_red_08",
+   "file": "fruits_red_08.png",
    "category": "fruits",
    "color": "red"
   },
   {
-   "sid": "fruits_red_08",
-   "file": "fruits_red_08.png",
+   "sid": "fruits_red_13",
+   "file": "fruits_red_13.png",
+   "category": "fruits",
+   "color": "red"
+  },
+  {
+   "sid": "fruits_red_15",
+   "file": "fruits_red_15.png",
    "category": "fruits",
    "color": "red"
   },
@@ -5192,8 +3248,32 @@
    "color": "yellow"
   },
   {
-   "sid": "fruits_yellow_04",
-   "file": "fruits_yellow_04.png",
+   "sid": "fruits_yellow_05",
+   "file": "fruits_yellow_05.png",
+   "category": "fruits",
+   "color": "yellow"
+  },
+  {
+   "sid": "fruits_yellow_06",
+   "file": "fruits_yellow_06.png",
+   "category": "fruits",
+   "color": "yellow"
+  },
+  {
+   "sid": "fruits_yellow_08",
+   "file": "fruits_yellow_08.png",
+   "category": "fruits",
+   "color": "yellow"
+  },
+  {
+   "sid": "fruits_yellow_09",
+   "file": "fruits_yellow_09.png",
+   "category": "fruits",
+   "color": "yellow"
+  },
+  {
+   "sid": "fruits_yellow_10",
+   "file": "fruits_yellow_10.png",
    "category": "fruits",
    "color": "yellow"
   },
@@ -5212,12 +3292,6 @@
   {
    "sid": "gems_blue_03",
    "file": "gems_blue_03.png",
-   "category": "gems",
-   "color": "blue"
-  },
-  {
-   "sid": "gems_blue_04",
-   "file": "gems_blue_04.png",
    "category": "gems",
    "color": "blue"
   },
@@ -5354,12 +3428,6 @@
    "color": "white"
   },
   {
-   "sid": "gems_yellow_01",
-   "file": "gems_yellow_01.png",
-   "category": "gems",
-   "color": "yellow"
-  },
-  {
    "sid": "gems_yellow_02",
    "file": "gems_yellow_02.png",
    "category": "gems",
@@ -5372,10 +3440,334 @@
    "color": "yellow"
   },
   {
-   "sid": "icons_blue_01",
-   "file": "icons_blue_01.png",
-   "category": "icons",
+   "sid": "halloween_blue_01",
+   "file": "halloween_blue_01.png",
+   "category": "halloween",
    "color": "blue"
+  },
+  {
+   "sid": "halloween_gray_02",
+   "file": "halloween_gray_02.png",
+   "category": "halloween",
+   "color": "gray"
+  },
+  {
+   "sid": "halloween_green_01",
+   "file": "halloween_green_01.png",
+   "category": "halloween",
+   "color": "green"
+  },
+  {
+   "sid": "halloween_green_02",
+   "file": "halloween_green_02.png",
+   "category": "halloween",
+   "color": "green"
+  },
+  {
+   "sid": "halloween_green_03",
+   "file": "halloween_green_03.png",
+   "category": "halloween",
+   "color": "green"
+  },
+  {
+   "sid": "halloween_green_04",
+   "file": "halloween_green_04.png",
+   "category": "halloween",
+   "color": "green"
+  },
+  {
+   "sid": "halloween_orange_01",
+   "file": "halloween_orange_01.png",
+   "category": "halloween",
+   "color": "orange"
+  },
+  {
+   "sid": "halloween_orange_04",
+   "file": "halloween_orange_04.png",
+   "category": "halloween",
+   "color": "orange"
+  },
+  {
+   "sid": "halloween_orange_05",
+   "file": "halloween_orange_05.png",
+   "category": "halloween",
+   "color": "orange"
+  },
+  {
+   "sid": "halloween_orange_06",
+   "file": "halloween_orange_06.png",
+   "category": "halloween",
+   "color": "orange"
+  },
+  {
+   "sid": "halloween_pink_01",
+   "file": "halloween_pink_01.png",
+   "category": "halloween",
+   "color": "pink"
+  },
+  {
+   "sid": "halloween_purple_02",
+   "file": "halloween_purple_02.png",
+   "category": "halloween",
+   "color": "purple"
+  },
+  {
+   "sid": "halloween_purple_05",
+   "file": "halloween_purple_05.png",
+   "category": "halloween",
+   "color": "purple"
+  },
+  {
+   "sid": "halloween_purple_06",
+   "file": "halloween_purple_06.png",
+   "category": "halloween",
+   "color": "purple"
+  },
+  {
+   "sid": "halloween_purple_09",
+   "file": "halloween_purple_09.png",
+   "category": "halloween",
+   "color": "purple"
+  },
+  {
+   "sid": "halloween_purple_10",
+   "file": "halloween_purple_10.png",
+   "category": "halloween",
+   "color": "purple"
+  },
+  {
+   "sid": "halloween_purple_11",
+   "file": "halloween_purple_11.png",
+   "category": "halloween",
+   "color": "purple"
+  },
+  {
+   "sid": "halloween_red_01",
+   "file": "halloween_red_01.png",
+   "category": "halloween",
+   "color": "red"
+  },
+  {
+   "sid": "halloween_white_01",
+   "file": "halloween_white_01.png",
+   "category": "halloween",
+   "color": "white"
+  },
+  {
+   "sid": "halloween_white_03",
+   "file": "halloween_white_03.png",
+   "category": "halloween",
+   "color": "white"
+  },
+  {
+   "sid": "halloween_white_06",
+   "file": "halloween_white_06.png",
+   "category": "halloween",
+   "color": "white"
+  },
+  {
+   "sid": "halloween_white_07",
+   "file": "halloween_white_07.png",
+   "category": "halloween",
+   "color": "white"
+  },
+  {
+   "sid": "hats_blue_01",
+   "file": "hats_blue_01.png",
+   "category": "hats",
+   "color": "blue"
+  },
+  {
+   "sid": "hats_blue_03",
+   "file": "hats_blue_03.png",
+   "category": "hats",
+   "color": "blue"
+  },
+  {
+   "sid": "hats_blue_04",
+   "file": "hats_blue_04.png",
+   "category": "hats",
+   "color": "blue"
+  },
+  {
+   "sid": "hats_blue_05",
+   "file": "hats_blue_05.png",
+   "category": "hats",
+   "color": "blue"
+  },
+  {
+   "sid": "hats_blue_08",
+   "file": "hats_blue_08.png",
+   "category": "hats",
+   "color": "blue"
+  },
+  {
+   "sid": "hats_blue_09",
+   "file": "hats_blue_09.png",
+   "category": "hats",
+   "color": "blue"
+  },
+  {
+   "sid": "hats_brown_01",
+   "file": "hats_brown_01.png",
+   "category": "hats",
+   "color": "brown"
+  },
+  {
+   "sid": "hats_gray_01",
+   "file": "hats_gray_01.png",
+   "category": "hats",
+   "color": "gray"
+  },
+  {
+   "sid": "hats_green_01",
+   "file": "hats_green_01.png",
+   "category": "hats",
+   "color": "green"
+  },
+  {
+   "sid": "hats_green_02",
+   "file": "hats_green_02.png",
+   "category": "hats",
+   "color": "green"
+  },
+  {
+   "sid": "hats_green_03",
+   "file": "hats_green_03.png",
+   "category": "hats",
+   "color": "green"
+  },
+  {
+   "sid": "hats_green_04",
+   "file": "hats_green_04.png",
+   "category": "hats",
+   "color": "green"
+  },
+  {
+   "sid": "hats_orange_02",
+   "file": "hats_orange_02.png",
+   "category": "hats",
+   "color": "orange"
+  },
+  {
+   "sid": "hats_orange_03",
+   "file": "hats_orange_03.png",
+   "category": "hats",
+   "color": "orange"
+  },
+  {
+   "sid": "hats_pink_01",
+   "file": "hats_pink_01.png",
+   "category": "hats",
+   "color": "pink"
+  },
+  {
+   "sid": "hats_pink_02",
+   "file": "hats_pink_02.png",
+   "category": "hats",
+   "color": "pink"
+  },
+  {
+   "sid": "hats_pink_03",
+   "file": "hats_pink_03.png",
+   "category": "hats",
+   "color": "pink"
+  },
+  {
+   "sid": "hats_pink_04",
+   "file": "hats_pink_04.png",
+   "category": "hats",
+   "color": "pink"
+  },
+  {
+   "sid": "hats_purple_01",
+   "file": "hats_purple_01.png",
+   "category": "hats",
+   "color": "purple"
+  },
+  {
+   "sid": "hats_red_01",
+   "file": "hats_red_01.png",
+   "category": "hats",
+   "color": "red"
+  },
+  {
+   "sid": "hats_red_02",
+   "file": "hats_red_02.png",
+   "category": "hats",
+   "color": "red"
+  },
+  {
+   "sid": "hats_red_04",
+   "file": "hats_red_04.png",
+   "category": "hats",
+   "color": "red"
+  },
+  {
+   "sid": "hats_red_05",
+   "file": "hats_red_05.png",
+   "category": "hats",
+   "color": "red"
+  },
+  {
+   "sid": "hats_red_09",
+   "file": "hats_red_09.png",
+   "category": "hats",
+   "color": "red"
+  },
+  {
+   "sid": "hats_red_10",
+   "file": "hats_red_10.png",
+   "category": "hats",
+   "color": "red"
+  },
+  {
+   "sid": "hats_white_01",
+   "file": "hats_white_01.png",
+   "category": "hats",
+   "color": "white"
+  },
+  {
+   "sid": "hats_white_02",
+   "file": "hats_white_02.png",
+   "category": "hats",
+   "color": "white"
+  },
+  {
+   "sid": "hats_white_04",
+   "file": "hats_white_04.png",
+   "category": "hats",
+   "color": "white"
+  },
+  {
+   "sid": "hats_yellow_01",
+   "file": "hats_yellow_01.png",
+   "category": "hats",
+   "color": "yellow"
+  },
+  {
+   "sid": "hats_yellow_02",
+   "file": "hats_yellow_02.png",
+   "category": "hats",
+   "color": "yellow"
+  },
+  {
+   "sid": "hats_yellow_04",
+   "file": "hats_yellow_04.png",
+   "category": "hats",
+   "color": "yellow"
+  },
+  {
+   "sid": "hats_yellow_05",
+   "file": "hats_yellow_05.png",
+   "category": "hats",
+   "color": "yellow"
+  },
+  {
+   "sid": "hats_yellow_06",
+   "file": "hats_yellow_06.png",
+   "category": "hats",
+   "color": "yellow"
   },
   {
    "sid": "icons_blue_02",
@@ -5402,6 +3794,18 @@
    "color": "blue"
   },
   {
+   "sid": "icons_blue_06",
+   "file": "icons_blue_06.png",
+   "category": "icons",
+   "color": "blue"
+  },
+  {
+   "sid": "icons_blue_07",
+   "file": "icons_blue_07.png",
+   "category": "icons",
+   "color": "blue"
+  },
+  {
    "sid": "icons_green_01",
    "file": "icons_green_01.png",
    "category": "icons",
@@ -5414,8 +3818,26 @@
    "color": "green"
   },
   {
-   "sid": "icons_green_03",
-   "file": "icons_green_03.png",
+   "sid": "icons_green_04",
+   "file": "icons_green_04.png",
+   "category": "icons",
+   "color": "green"
+  },
+  {
+   "sid": "icons_green_05",
+   "file": "icons_green_05.png",
+   "category": "icons",
+   "color": "green"
+  },
+  {
+   "sid": "icons_green_06",
+   "file": "icons_green_06.png",
+   "category": "icons",
+   "color": "green"
+  },
+  {
+   "sid": "icons_green_07",
+   "file": "icons_green_07.png",
    "category": "icons",
    "color": "green"
   },
@@ -5426,8 +3848,32 @@
    "color": "orange"
   },
   {
+   "sid": "icons_orange_02",
+   "file": "icons_orange_02.png",
+   "category": "icons",
+   "color": "orange"
+  },
+  {
    "sid": "icons_pink_01",
    "file": "icons_pink_01.png",
+   "category": "icons",
+   "color": "pink"
+  },
+  {
+   "sid": "icons_pink_02",
+   "file": "icons_pink_02.png",
+   "category": "icons",
+   "color": "pink"
+  },
+  {
+   "sid": "icons_pink_03",
+   "file": "icons_pink_03.png",
+   "category": "icons",
+   "color": "pink"
+  },
+  {
+   "sid": "icons_pink_04",
+   "file": "icons_pink_04.png",
    "category": "icons",
    "color": "pink"
   },
@@ -5438,10 +3884,10 @@
    "color": "purple"
   },
   {
-   "sid": "icons_red_01",
-   "file": "icons_red_01.png",
+   "sid": "icons_purple_02",
+   "file": "icons_purple_02.png",
    "category": "icons",
-   "color": "red"
+   "color": "purple"
   },
   {
    "sid": "icons_red_02",
@@ -5462,16 +3908,58 @@
    "color": "red"
   },
   {
+   "sid": "icons_red_05",
+   "file": "icons_red_05.png",
+   "category": "icons",
+   "color": "red"
+  },
+  {
+   "sid": "icons_red_06",
+   "file": "icons_red_06.png",
+   "category": "icons",
+   "color": "red"
+  },
+  {
+   "sid": "icons_red_07",
+   "file": "icons_red_07.png",
+   "category": "icons",
+   "color": "red"
+  },
+  {
+   "sid": "icons_red_08",
+   "file": "icons_red_08.png",
+   "category": "icons",
+   "color": "red"
+  },
+  {
+   "sid": "icons_red_09",
+   "file": "icons_red_09.png",
+   "category": "icons",
+   "color": "red"
+  },
+  {
    "sid": "icons_teal_01",
    "file": "icons_teal_01.png",
    "category": "icons",
    "color": "teal"
   },
   {
-   "sid": "icons_yellow_01",
-   "file": "icons_yellow_01.png",
+   "sid": "icons_teal_02",
+   "file": "icons_teal_02.png",
    "category": "icons",
-   "color": "yellow"
+   "color": "teal"
+  },
+  {
+   "sid": "icons_teal_03",
+   "file": "icons_teal_03.png",
+   "category": "icons",
+   "color": "teal"
+  },
+  {
+   "sid": "icons_teal_05",
+   "file": "icons_teal_05.png",
+   "category": "icons",
+   "color": "teal"
   },
   {
    "sid": "icons_yellow_02",
@@ -5486,50 +3974,44 @@
    "color": "yellow"
   },
   {
-   "sid": "kitchen_blue_01",
-   "file": "kitchen_blue_01.png",
+   "sid": "icons_yellow_04",
+   "file": "icons_yellow_04.png",
+   "category": "icons",
+   "color": "yellow"
+  },
+  {
+   "sid": "icons_yellow_05",
+   "file": "icons_yellow_05.png",
+   "category": "icons",
+   "color": "yellow"
+  },
+  {
+   "sid": "icons_yellow_06",
+   "file": "icons_yellow_06.png",
+   "category": "icons",
+   "color": "yellow"
+  },
+  {
+   "sid": "icons_yellow_08",
+   "file": "icons_yellow_08.png",
+   "category": "icons",
+   "color": "yellow"
+  },
+  {
+   "sid": "kitchen_blue_03",
+   "file": "kitchen_blue_03.png",
    "category": "kitchen",
    "color": "blue"
   },
   {
-   "sid": "kitchen_blue_02",
-   "file": "kitchen_blue_02.png",
+   "sid": "kitchen_blue_04",
+   "file": "kitchen_blue_04.png",
    "category": "kitchen",
    "color": "blue"
   },
   {
-   "sid": "kitchen_gray_01",
-   "file": "kitchen_gray_01.png",
-   "category": "kitchen",
-   "color": "gray"
-  },
-  {
-   "sid": "kitchen_gray_02",
-   "file": "kitchen_gray_02.png",
-   "category": "kitchen",
-   "color": "gray"
-  },
-  {
-   "sid": "kitchen_gray_03",
-   "file": "kitchen_gray_03.png",
-   "category": "kitchen",
-   "color": "gray"
-  },
-  {
-   "sid": "kitchen_gray_04",
-   "file": "kitchen_gray_04.png",
-   "category": "kitchen",
-   "color": "gray"
-  },
-  {
-   "sid": "kitchen_green_01",
-   "file": "kitchen_green_01.png",
-   "category": "kitchen",
-   "color": "green"
-  },
-  {
-   "sid": "kitchen_green_02",
-   "file": "kitchen_green_02.png",
+   "sid": "kitchen_green_03",
+   "file": "kitchen_green_03.png",
    "category": "kitchen",
    "color": "green"
   },
@@ -5540,106 +4022,376 @@
    "color": "orange"
   },
   {
-   "sid": "kitchen_orange_02",
-   "file": "kitchen_orange_02.png",
+   "sid": "kitchen_orange_04",
+   "file": "kitchen_orange_04.png",
    "category": "kitchen",
    "color": "orange"
   },
   {
-   "sid": "kitchen_orange_03",
-   "file": "kitchen_orange_03.png",
+   "sid": "kitchen_orange_05",
+   "file": "kitchen_orange_05.png",
    "category": "kitchen",
    "color": "orange"
   },
   {
-   "sid": "kitchen_red_01",
-   "file": "kitchen_red_01.png",
+   "sid": "kitchen_pink_01",
+   "file": "kitchen_pink_01.png",
+   "category": "kitchen",
+   "color": "pink"
+  },
+  {
+   "sid": "kitchen_pink_02",
+   "file": "kitchen_pink_02.png",
+   "category": "kitchen",
+   "color": "pink"
+  },
+  {
+   "sid": "kitchen_pink_03",
+   "file": "kitchen_pink_03.png",
+   "category": "kitchen",
+   "color": "pink"
+  },
+  {
+   "sid": "kitchen_purple_01",
+   "file": "kitchen_purple_01.png",
+   "category": "kitchen",
+   "color": "purple"
+  },
+  {
+   "sid": "kitchen_red_07",
+   "file": "kitchen_red_07.png",
    "category": "kitchen",
    "color": "red"
   },
   {
-   "sid": "kitchen_red_02",
-   "file": "kitchen_red_02.png",
+   "sid": "kitchen_red_08",
+   "file": "kitchen_red_08.png",
    "category": "kitchen",
    "color": "red"
   },
   {
-   "sid": "kitchen_red_03",
-   "file": "kitchen_red_03.png",
-   "category": "kitchen",
-   "color": "red"
-  },
-  {
-   "sid": "kitchen_red_04",
-   "file": "kitchen_red_04.png",
-   "category": "kitchen",
-   "color": "red"
-  },
-  {
-   "sid": "kitchen_red_05",
-   "file": "kitchen_red_05.png",
-   "category": "kitchen",
-   "color": "red"
-  },
-  {
-   "sid": "kitchen_red_06",
-   "file": "kitchen_red_06.png",
-   "category": "kitchen",
-   "color": "red"
-  },
-  {
-   "sid": "kitchen_white_01",
-   "file": "kitchen_white_01.png",
+   "sid": "kitchen_white_07",
+   "file": "kitchen_white_07.png",
    "category": "kitchen",
    "color": "white"
   },
   {
-   "sid": "kitchen_white_02",
-   "file": "kitchen_white_02.png",
+   "sid": "kitchen_white_08",
+   "file": "kitchen_white_08.png",
    "category": "kitchen",
    "color": "white"
   },
   {
-   "sid": "kitchen_white_03",
-   "file": "kitchen_white_03.png",
+   "sid": "kitchen_white_09",
+   "file": "kitchen_white_09.png",
    "category": "kitchen",
    "color": "white"
   },
   {
-   "sid": "kitchen_white_04",
-   "file": "kitchen_white_04.png",
-   "category": "kitchen",
-   "color": "white"
-  },
-  {
-   "sid": "kitchen_white_05",
-   "file": "kitchen_white_05.png",
-   "category": "kitchen",
-   "color": "white"
-  },
-  {
-   "sid": "kitchen_white_06",
-   "file": "kitchen_white_06.png",
-   "category": "kitchen",
-   "color": "white"
-  },
-  {
-   "sid": "kitchen_yellow_01",
-   "file": "kitchen_yellow_01.png",
+   "sid": "kitchen_yellow_03",
+   "file": "kitchen_yellow_03.png",
    "category": "kitchen",
    "color": "yellow"
   },
   {
-   "sid": "kitchen_yellow_02",
-   "file": "kitchen_yellow_02.png",
+   "sid": "kitchen_yellow_04",
+   "file": "kitchen_yellow_04.png",
    "category": "kitchen",
    "color": "yellow"
   },
   {
-   "sid": "music_blue_01",
-   "file": "music_blue_01.png",
-   "category": "music",
-   "color": "blue"
+   "sid": "kitchen_yellow_05",
+   "file": "kitchen_yellow_05.png",
+   "category": "kitchen",
+   "color": "yellow"
+  },
+  {
+   "sid": "landmarks_brown_01",
+   "file": "landmarks_brown_01.png",
+   "category": "landmarks",
+   "color": "brown"
+  },
+  {
+   "sid": "landmarks_gray_01",
+   "file": "landmarks_gray_01.png",
+   "category": "landmarks",
+   "color": "gray"
+  },
+  {
+   "sid": "landmarks_gray_02",
+   "file": "landmarks_gray_02.png",
+   "category": "landmarks",
+   "color": "gray"
+  },
+  {
+   "sid": "landmarks_gray_03",
+   "file": "landmarks_gray_03.png",
+   "category": "landmarks",
+   "color": "gray"
+  },
+  {
+   "sid": "landmarks_orange_02",
+   "file": "landmarks_orange_02.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_03",
+   "file": "landmarks_orange_03.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_04",
+   "file": "landmarks_orange_04.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_05",
+   "file": "landmarks_orange_05.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_06",
+   "file": "landmarks_orange_06.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_07",
+   "file": "landmarks_orange_07.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_08",
+   "file": "landmarks_orange_08.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_09",
+   "file": "landmarks_orange_09.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_10",
+   "file": "landmarks_orange_10.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_11",
+   "file": "landmarks_orange_11.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_12",
+   "file": "landmarks_orange_12.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_13",
+   "file": "landmarks_orange_13.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_orange_14",
+   "file": "landmarks_orange_14.png",
+   "category": "landmarks",
+   "color": "orange"
+  },
+  {
+   "sid": "landmarks_red_01",
+   "file": "landmarks_red_01.png",
+   "category": "landmarks",
+   "color": "red"
+  },
+  {
+   "sid": "landmarks_red_02",
+   "file": "landmarks_red_02.png",
+   "category": "landmarks",
+   "color": "red"
+  },
+  {
+   "sid": "landmarks_teal_01",
+   "file": "landmarks_teal_01.png",
+   "category": "landmarks",
+   "color": "teal"
+  },
+  {
+   "sid": "landmarks_white_01",
+   "file": "landmarks_white_01.png",
+   "category": "landmarks",
+   "color": "white"
+  },
+  {
+   "sid": "monsters_green_01",
+   "file": "monsters_green_01.png",
+   "category": "monsters",
+   "color": "green"
+  },
+  {
+   "sid": "monsters_green_02",
+   "file": "monsters_green_02.png",
+   "category": "monsters",
+   "color": "green"
+  },
+  {
+   "sid": "monsters_green_03",
+   "file": "monsters_green_03.png",
+   "category": "monsters",
+   "color": "green"
+  },
+  {
+   "sid": "monsters_green_04",
+   "file": "monsters_green_04.png",
+   "category": "monsters",
+   "color": "green"
+  },
+  {
+   "sid": "monsters_orange_02",
+   "file": "monsters_orange_02.png",
+   "category": "monsters",
+   "color": "orange"
+  },
+  {
+   "sid": "monsters_orange_03",
+   "file": "monsters_orange_03.png",
+   "category": "monsters",
+   "color": "orange"
+  },
+  {
+   "sid": "monsters_orange_04",
+   "file": "monsters_orange_04.png",
+   "category": "monsters",
+   "color": "orange"
+  },
+  {
+   "sid": "monsters_pink_01",
+   "file": "monsters_pink_01.png",
+   "category": "monsters",
+   "color": "pink"
+  },
+  {
+   "sid": "monsters_pink_03",
+   "file": "monsters_pink_03.png",
+   "category": "monsters",
+   "color": "pink"
+  },
+  {
+   "sid": "monsters_pink_04",
+   "file": "monsters_pink_04.png",
+   "category": "monsters",
+   "color": "pink"
+  },
+  {
+   "sid": "monsters_pink_05",
+   "file": "monsters_pink_05.png",
+   "category": "monsters",
+   "color": "pink"
+  },
+  {
+   "sid": "monsters_pink_06",
+   "file": "monsters_pink_06.png",
+   "category": "monsters",
+   "color": "pink"
+  },
+  {
+   "sid": "monsters_purple_01",
+   "file": "monsters_purple_01.png",
+   "category": "monsters",
+   "color": "purple"
+  },
+  {
+   "sid": "monsters_purple_02",
+   "file": "monsters_purple_02.png",
+   "category": "monsters",
+   "color": "purple"
+  },
+  {
+   "sid": "monsters_purple_03",
+   "file": "monsters_purple_03.png",
+   "category": "monsters",
+   "color": "purple"
+  },
+  {
+   "sid": "monsters_red_01",
+   "file": "monsters_red_01.png",
+   "category": "monsters",
+   "color": "red"
+  },
+  {
+   "sid": "monsters_red_02",
+   "file": "monsters_red_02.png",
+   "category": "monsters",
+   "color": "red"
+  },
+  {
+   "sid": "monsters_red_03",
+   "file": "monsters_red_03.png",
+   "category": "monsters",
+   "color": "red"
+  },
+  {
+   "sid": "monsters_red_05",
+   "file": "monsters_red_05.png",
+   "category": "monsters",
+   "color": "red"
+  },
+  {
+   "sid": "monsters_white_01",
+   "file": "monsters_white_01.png",
+   "category": "monsters",
+   "color": "white"
+  },
+  {
+   "sid": "monsters_white_02",
+   "file": "monsters_white_02.png",
+   "category": "monsters",
+   "color": "white"
+  },
+  {
+   "sid": "monsters_white_03",
+   "file": "monsters_white_03.png",
+   "category": "monsters",
+   "color": "white"
+  },
+  {
+   "sid": "monsters_yellow_01",
+   "file": "monsters_yellow_01.png",
+   "category": "monsters",
+   "color": "yellow"
+  },
+  {
+   "sid": "monsters_yellow_02",
+   "file": "monsters_yellow_02.png",
+   "category": "monsters",
+   "color": "yellow"
+  },
+  {
+   "sid": "monsters_yellow_03",
+   "file": "monsters_yellow_03.png",
+   "category": "monsters",
+   "color": "yellow"
+  },
+  {
+   "sid": "monsters_yellow_05",
+   "file": "monsters_yellow_05.png",
+   "category": "monsters",
+   "color": "yellow"
+  },
+  {
+   "sid": "monsters_yellow_06",
+   "file": "monsters_yellow_06.png",
+   "category": "monsters",
+   "color": "yellow"
   },
   {
    "sid": "music_blue_02",
@@ -5660,8 +4412,8 @@
    "color": "blue"
   },
   {
-   "sid": "music_blue_05",
-   "file": "music_blue_05.png",
+   "sid": "music_blue_06",
+   "file": "music_blue_06.png",
    "category": "music",
    "color": "blue"
   },
@@ -5678,12 +4430,6 @@
    "color": "brown"
   },
   {
-   "sid": "music_green_01",
-   "file": "music_green_01.png",
-   "category": "music",
-   "color": "green"
-  },
-  {
    "sid": "music_green_02",
    "file": "music_green_02.png",
    "category": "music",
@@ -5696,52 +4442,22 @@
    "color": "green"
   },
   {
-   "sid": "music_green_04",
-   "file": "music_green_04.png",
-   "category": "music",
-   "color": "green"
-  },
-  {
-   "sid": "music_orange_01",
-   "file": "music_orange_01.png",
-   "category": "music",
-   "color": "orange"
-  },
-  {
-   "sid": "music_orange_02",
-   "file": "music_orange_02.png",
-   "category": "music",
-   "color": "orange"
-  },
-  {
-   "sid": "music_orange_03",
-   "file": "music_orange_03.png",
-   "category": "music",
-   "color": "orange"
-  },
-  {
    "sid": "music_orange_04",
    "file": "music_orange_04.png",
    "category": "music",
    "color": "orange"
   },
   {
-   "sid": "music_orange_05",
-   "file": "music_orange_05.png",
+   "sid": "music_orange_07",
+   "file": "music_orange_07.png",
    "category": "music",
    "color": "orange"
   },
   {
-   "sid": "music_orange_06",
-   "file": "music_orange_06.png",
+   "sid": "music_orange_08",
+   "file": "music_orange_08.png",
    "category": "music",
    "color": "orange"
-  },
-  {
-   "sid": "music_pink_01",
-   "file": "music_pink_01.png",
-   "category": "music",
-   "color": "pink"
   },
   {
    "sid": "music_pink_02",
@@ -5750,26 +4466,8 @@
    "color": "pink"
   },
   {
-   "sid": "music_pink_03",
-   "file": "music_pink_03.png",
-   "category": "music",
-   "color": "pink"
-  },
-  {
-   "sid": "music_red_01",
-   "file": "music_red_01.png",
-   "category": "music",
-   "color": "red"
-  },
-  {
    "sid": "music_red_02",
    "file": "music_red_02.png",
-   "category": "music",
-   "color": "red"
-  },
-  {
-   "sid": "music_red_03",
-   "file": "music_red_03.png",
    "category": "music",
    "color": "red"
   },
@@ -5786,38 +4484,68 @@
    "color": "red"
   },
   {
-   "sid": "music_red_06",
-   "file": "music_red_06.png",
+   "sid": "music_red_08",
+   "file": "music_red_08.png",
    "category": "music",
    "color": "red"
   },
   {
-   "sid": "music_red_07",
-   "file": "music_red_07.png",
+   "sid": "music_red_10",
+   "file": "music_red_10.png",
    "category": "music",
    "color": "red"
   },
   {
-   "sid": "music_white_01",
-   "file": "music_white_01.png",
+   "sid": "music_red_11",
+   "file": "music_red_11.png",
+   "category": "music",
+   "color": "red"
+  },
+  {
+   "sid": "music_red_12",
+   "file": "music_red_12.png",
+   "category": "music",
+   "color": "red"
+  },
+  {
+   "sid": "music_red_14",
+   "file": "music_red_14.png",
+   "category": "music",
+   "color": "red"
+  },
+  {
+   "sid": "music_red_15",
+   "file": "music_red_15.png",
+   "category": "music",
+   "color": "red"
+  },
+  {
+   "sid": "music_teal_01",
+   "file": "music_teal_01.png",
+   "category": "music",
+   "color": "teal"
+  },
+  {
+   "sid": "music_teal_03",
+   "file": "music_teal_03.png",
+   "category": "music",
+   "color": "teal"
+  },
+  {
+   "sid": "music_white_02",
+   "file": "music_white_02.png",
    "category": "music",
    "color": "white"
   },
   {
-   "sid": "music_yellow_01",
-   "file": "music_yellow_01.png",
+   "sid": "music_white_03",
+   "file": "music_white_03.png",
    "category": "music",
-   "color": "yellow"
+   "color": "white"
   },
   {
    "sid": "music_yellow_02",
    "file": "music_yellow_02.png",
-   "category": "music",
-   "color": "yellow"
-  },
-  {
-   "sid": "music_yellow_03",
-   "file": "music_yellow_03.png",
    "category": "music",
    "color": "yellow"
   },
@@ -5828,14 +4556,20 @@
    "color": "yellow"
   },
   {
-   "sid": "music_yellow_05",
-   "file": "music_yellow_05.png",
+   "sid": "music_yellow_07",
+   "file": "music_yellow_07.png",
    "category": "music",
    "color": "yellow"
   },
   {
-   "sid": "music_yellow_06",
-   "file": "music_yellow_06.png",
+   "sid": "music_yellow_09",
+   "file": "music_yellow_09.png",
+   "category": "music",
+   "color": "yellow"
+  },
+  {
+   "sid": "music_yellow_10",
+   "file": "music_yellow_10.png",
    "category": "music",
    "color": "yellow"
   },
@@ -6080,20 +4814,92 @@
    "color": "yellow"
   },
   {
-   "sid": "school_blue_01",
-   "file": "school_blue_01.png",
-   "category": "school",
+   "sid": "robots_blue_01",
+   "file": "robots_blue_01.png",
+   "category": "robots",
    "color": "blue"
+  },
+  {
+   "sid": "robots_blue_02",
+   "file": "robots_blue_02.png",
+   "category": "robots",
+   "color": "blue"
+  },
+  {
+   "sid": "robots_green_01",
+   "file": "robots_green_01.png",
+   "category": "robots",
+   "color": "green"
+  },
+  {
+   "sid": "robots_green_02",
+   "file": "robots_green_02.png",
+   "category": "robots",
+   "color": "green"
+  },
+  {
+   "sid": "robots_pink_01",
+   "file": "robots_pink_01.png",
+   "category": "robots",
+   "color": "pink"
+  },
+  {
+   "sid": "robots_red_01",
+   "file": "robots_red_01.png",
+   "category": "robots",
+   "color": "red"
+  },
+  {
+   "sid": "robots_red_03",
+   "file": "robots_red_03.png",
+   "category": "robots",
+   "color": "red"
+  },
+  {
+   "sid": "robots_red_04",
+   "file": "robots_red_04.png",
+   "category": "robots",
+   "color": "red"
+  },
+  {
+   "sid": "robots_teal_02",
+   "file": "robots_teal_02.png",
+   "category": "robots",
+   "color": "teal"
+  },
+  {
+   "sid": "robots_teal_05",
+   "file": "robots_teal_05.png",
+   "category": "robots",
+   "color": "teal"
+  },
+  {
+   "sid": "robots_white_01",
+   "file": "robots_white_01.png",
+   "category": "robots",
+   "color": "white"
+  },
+  {
+   "sid": "robots_yellow_01",
+   "file": "robots_yellow_01.png",
+   "category": "robots",
+   "color": "yellow"
+  },
+  {
+   "sid": "robots_yellow_02",
+   "file": "robots_yellow_02.png",
+   "category": "robots",
+   "color": "yellow"
+  },
+  {
+   "sid": "robots_yellow_03",
+   "file": "robots_yellow_03.png",
+   "category": "robots",
+   "color": "yellow"
   },
   {
    "sid": "school_blue_02",
    "file": "school_blue_02.png",
-   "category": "school",
-   "color": "blue"
-  },
-  {
-   "sid": "school_blue_03",
-   "file": "school_blue_03.png",
    "category": "school",
    "color": "blue"
   },
@@ -6106,12 +4912,6 @@
   {
    "sid": "school_blue_05",
    "file": "school_blue_05.png",
-   "category": "school",
-   "color": "blue"
-  },
-  {
-   "sid": "school_blue_06",
-   "file": "school_blue_06.png",
    "category": "school",
    "color": "blue"
   },
@@ -6140,10 +4940,34 @@
    "color": "blue"
   },
   {
-   "sid": "school_green_01",
-   "file": "school_green_01.png",
+   "sid": "school_blue_11",
+   "file": "school_blue_11.png",
    "category": "school",
-   "color": "green"
+   "color": "blue"
+  },
+  {
+   "sid": "school_blue_14",
+   "file": "school_blue_14.png",
+   "category": "school",
+   "color": "blue"
+  },
+  {
+   "sid": "school_blue_16",
+   "file": "school_blue_16.png",
+   "category": "school",
+   "color": "blue"
+  },
+  {
+   "sid": "school_blue_17",
+   "file": "school_blue_17.png",
+   "category": "school",
+   "color": "blue"
+  },
+  {
+   "sid": "school_blue_18",
+   "file": "school_blue_18.png",
+   "category": "school",
+   "color": "blue"
   },
   {
    "sid": "school_green_02",
@@ -6158,40 +4982,22 @@
    "color": "green"
   },
   {
-   "sid": "school_green_04",
-   "file": "school_green_04.png",
+   "sid": "school_green_05",
+   "file": "school_green_05.png",
    "category": "school",
    "color": "green"
   },
   {
-   "sid": "school_orange_01",
-   "file": "school_orange_01.png",
+   "sid": "school_orange_05",
+   "file": "school_orange_05.png",
    "category": "school",
    "color": "orange"
   },
   {
-   "sid": "school_orange_02",
-   "file": "school_orange_02.png",
+   "sid": "school_orange_06",
+   "file": "school_orange_06.png",
    "category": "school",
    "color": "orange"
-  },
-  {
-   "sid": "school_orange_03",
-   "file": "school_orange_03.png",
-   "category": "school",
-   "color": "orange"
-  },
-  {
-   "sid": "school_orange_04",
-   "file": "school_orange_04.png",
-   "category": "school",
-   "color": "orange"
-  },
-  {
-   "sid": "school_pink_01",
-   "file": "school_pink_01.png",
-   "category": "school",
-   "color": "pink"
   },
   {
    "sid": "school_pink_02",
@@ -6200,22 +5006,10 @@
    "color": "pink"
   },
   {
-   "sid": "school_pink_03",
-   "file": "school_pink_03.png",
-   "category": "school",
-   "color": "pink"
-  },
-  {
    "sid": "school_pink_04",
    "file": "school_pink_04.png",
    "category": "school",
    "color": "pink"
-  },
-  {
-   "sid": "school_red_01",
-   "file": "school_red_01.png",
-   "category": "school",
-   "color": "red"
   },
   {
    "sid": "school_red_02",
@@ -6236,56 +5030,56 @@
    "color": "red"
   },
   {
+   "sid": "school_red_05",
+   "file": "school_red_05.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
+   "sid": "school_red_06",
+   "file": "school_red_06.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
+   "sid": "school_red_07",
+   "file": "school_red_07.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
+   "sid": "school_red_09",
+   "file": "school_red_09.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
+   "sid": "school_red_10",
+   "file": "school_red_10.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
+   "sid": "school_red_11",
+   "file": "school_red_11.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
+   "sid": "school_red_12",
+   "file": "school_red_12.png",
+   "category": "school",
+   "color": "red"
+  },
+  {
    "sid": "school_white_01",
    "file": "school_white_01.png",
    "category": "school",
    "color": "white"
   },
   {
-   "sid": "school_white_02",
-   "file": "school_white_02.png",
-   "category": "school",
-   "color": "white"
-  },
-  {
-   "sid": "school_yellow_01",
-   "file": "school_yellow_01.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
    "sid": "school_yellow_02",
    "file": "school_yellow_02.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
-   "sid": "school_yellow_03",
-   "file": "school_yellow_03.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
-   "sid": "school_yellow_04",
-   "file": "school_yellow_04.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
-   "sid": "school_yellow_05",
-   "file": "school_yellow_05.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
-   "sid": "school_yellow_06",
-   "file": "school_yellow_06.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
-   "sid": "school_yellow_07",
-   "file": "school_yellow_07.png",
    "category": "school",
    "color": "yellow"
   },
@@ -6302,26 +5096,32 @@
    "color": "yellow"
   },
   {
-   "sid": "school_yellow_10",
-   "file": "school_yellow_10.png",
-   "category": "school",
-   "color": "yellow"
-  },
-  {
    "sid": "school_yellow_11",
    "file": "school_yellow_11.png",
    "category": "school",
    "color": "yellow"
   },
   {
-   "sid": "shapes_blue_01",
-   "file": "shapes_blue_01.png",
-   "category": "shapes",
-   "color": "blue"
+   "sid": "school_yellow_12",
+   "file": "school_yellow_12.png",
+   "category": "school",
+   "color": "yellow"
   },
   {
-   "sid": "shapes_blue_02",
-   "file": "shapes_blue_02.png",
+   "sid": "school_yellow_13",
+   "file": "school_yellow_13.png",
+   "category": "school",
+   "color": "yellow"
+  },
+  {
+   "sid": "school_yellow_14",
+   "file": "school_yellow_14.png",
+   "category": "school",
+   "color": "yellow"
+  },
+  {
+   "sid": "shapes_blue_01",
+   "file": "shapes_blue_01.png",
    "category": "shapes",
    "color": "blue"
   },
@@ -6344,6 +5144,24 @@
    "color": "blue"
   },
   {
+   "sid": "shapes_blue_06",
+   "file": "shapes_blue_06.png",
+   "category": "shapes",
+   "color": "blue"
+  },
+  {
+   "sid": "shapes_blue_07",
+   "file": "shapes_blue_07.png",
+   "category": "shapes",
+   "color": "blue"
+  },
+  {
+   "sid": "shapes_blue_09",
+   "file": "shapes_blue_09.png",
+   "category": "shapes",
+   "color": "blue"
+  },
+  {
    "sid": "shapes_green_01",
    "file": "shapes_green_01.png",
    "category": "shapes",
@@ -6358,6 +5176,12 @@
   {
    "sid": "shapes_green_03",
    "file": "shapes_green_03.png",
+   "category": "shapes",
+   "color": "green"
+  },
+  {
+   "sid": "shapes_green_06",
+   "file": "shapes_green_06.png",
    "category": "shapes",
    "color": "green"
   },
@@ -6398,6 +5222,30 @@
    "color": "orange"
   },
   {
+   "sid": "shapes_orange_08",
+   "file": "shapes_orange_08.png",
+   "category": "shapes",
+   "color": "orange"
+  },
+  {
+   "sid": "shapes_orange_09",
+   "file": "shapes_orange_09.png",
+   "category": "shapes",
+   "color": "orange"
+  },
+  {
+   "sid": "shapes_orange_10",
+   "file": "shapes_orange_10.png",
+   "category": "shapes",
+   "color": "orange"
+  },
+  {
+   "sid": "shapes_orange_11",
+   "file": "shapes_orange_11.png",
+   "category": "shapes",
+   "color": "orange"
+  },
+  {
    "sid": "shapes_pink_01",
    "file": "shapes_pink_01.png",
    "category": "shapes",
@@ -6408,6 +5256,48 @@
    "file": "shapes_pink_02.png",
    "category": "shapes",
    "color": "pink"
+  },
+  {
+   "sid": "shapes_pink_03",
+   "file": "shapes_pink_03.png",
+   "category": "shapes",
+   "color": "pink"
+  },
+  {
+   "sid": "shapes_pink_05",
+   "file": "shapes_pink_05.png",
+   "category": "shapes",
+   "color": "pink"
+  },
+  {
+   "sid": "shapes_pink_07",
+   "file": "shapes_pink_07.png",
+   "category": "shapes",
+   "color": "pink"
+  },
+  {
+   "sid": "shapes_purple_01",
+   "file": "shapes_purple_01.png",
+   "category": "shapes",
+   "color": "purple"
+  },
+  {
+   "sid": "shapes_purple_03",
+   "file": "shapes_purple_03.png",
+   "category": "shapes",
+   "color": "purple"
+  },
+  {
+   "sid": "shapes_purple_04",
+   "file": "shapes_purple_04.png",
+   "category": "shapes",
+   "color": "purple"
+  },
+  {
+   "sid": "shapes_purple_05",
+   "file": "shapes_purple_05.png",
+   "category": "shapes",
+   "color": "purple"
   },
   {
    "sid": "shapes_red_01",
@@ -6446,14 +5336,14 @@
    "color": "teal"
   },
   {
-   "sid": "shapes_yellow_01",
-   "file": "shapes_yellow_01.png",
+   "sid": "shapes_teal_03",
+   "file": "shapes_teal_03.png",
    "category": "shapes",
-   "color": "yellow"
+   "color": "teal"
   },
   {
-   "sid": "shapes_yellow_02",
-   "file": "shapes_yellow_02.png",
+   "sid": "shapes_yellow_01",
+   "file": "shapes_yellow_01.png",
    "category": "shapes",
    "color": "yellow"
   },
@@ -6476,10 +5366,124 @@
    "color": "yellow"
   },
   {
-   "sid": "sports_blue_01",
-   "file": "sports_blue_01.png",
-   "category": "sports",
+   "sid": "space_blue_01",
+   "file": "space_blue_01.png",
+   "category": "space",
    "color": "blue"
+  },
+  {
+   "sid": "space_gray_01",
+   "file": "space_gray_01.png",
+   "category": "space",
+   "color": "gray"
+  },
+  {
+   "sid": "space_green_01",
+   "file": "space_green_01.png",
+   "category": "space",
+   "color": "green"
+  },
+  {
+   "sid": "space_green_02",
+   "file": "space_green_02.png",
+   "category": "space",
+   "color": "green"
+  },
+  {
+   "sid": "space_green_03",
+   "file": "space_green_03.png",
+   "category": "space",
+   "color": "green"
+  },
+  {
+   "sid": "space_green_04",
+   "file": "space_green_04.png",
+   "category": "space",
+   "color": "green"
+  },
+  {
+   "sid": "space_orange_01",
+   "file": "space_orange_01.png",
+   "category": "space",
+   "color": "orange"
+  },
+  {
+   "sid": "space_orange_04",
+   "file": "space_orange_04.png",
+   "category": "space",
+   "color": "orange"
+  },
+  {
+   "sid": "space_pink_01",
+   "file": "space_pink_01.png",
+   "category": "space",
+   "color": "pink"
+  },
+  {
+   "sid": "space_pink_02",
+   "file": "space_pink_02.png",
+   "category": "space",
+   "color": "pink"
+  },
+  {
+   "sid": "space_pink_03",
+   "file": "space_pink_03.png",
+   "category": "space",
+   "color": "pink"
+  },
+  {
+   "sid": "space_purple_01",
+   "file": "space_purple_01.png",
+   "category": "space",
+   "color": "purple"
+  },
+  {
+   "sid": "space_purple_02",
+   "file": "space_purple_02.png",
+   "category": "space",
+   "color": "purple"
+  },
+  {
+   "sid": "space_purple_03",
+   "file": "space_purple_03.png",
+   "category": "space",
+   "color": "purple"
+  },
+  {
+   "sid": "space_purple_04",
+   "file": "space_purple_04.png",
+   "category": "space",
+   "color": "purple"
+  },
+  {
+   "sid": "space_red_01",
+   "file": "space_red_01.png",
+   "category": "space",
+   "color": "red"
+  },
+  {
+   "sid": "space_red_02",
+   "file": "space_red_02.png",
+   "category": "space",
+   "color": "red"
+  },
+  {
+   "sid": "space_white_01",
+   "file": "space_white_01.png",
+   "category": "space",
+   "color": "white"
+  },
+  {
+   "sid": "space_white_02",
+   "file": "space_white_02.png",
+   "category": "space",
+   "color": "white"
+  },
+  {
+   "sid": "space_yellow_02",
+   "file": "space_yellow_02.png",
+   "category": "space",
+   "color": "yellow"
   },
   {
    "sid": "sports_blue_02",
@@ -6506,44 +5510,26 @@
    "color": "blue"
   },
   {
-   "sid": "sports_blue_06",
-   "file": "sports_blue_06.png",
-   "category": "sports",
-   "color": "blue"
-  },
-  {
-   "sid": "sports_blue_07",
-   "file": "sports_blue_07.png",
-   "category": "sports",
-   "color": "blue"
-  },
-  {
-   "sid": "sports_blue_08",
-   "file": "sports_blue_08.png",
-   "category": "sports",
-   "color": "blue"
-  },
-  {
-   "sid": "sports_blue_09",
-   "file": "sports_blue_09.png",
-   "category": "sports",
-   "color": "blue"
-  },
-  {
-   "sid": "sports_blue_10",
-   "file": "sports_blue_10.png",
-   "category": "sports",
-   "color": "blue"
-  },
-  {
-   "sid": "sports_blue_11",
-   "file": "sports_blue_11.png",
-   "category": "sports",
-   "color": "blue"
-  },
-  {
    "sid": "sports_blue_12",
    "file": "sports_blue_12.png",
+   "category": "sports",
+   "color": "blue"
+  },
+  {
+   "sid": "sports_blue_13",
+   "file": "sports_blue_13.png",
+   "category": "sports",
+   "color": "blue"
+  },
+  {
+   "sid": "sports_blue_15",
+   "file": "sports_blue_15.png",
+   "category": "sports",
+   "color": "blue"
+  },
+  {
+   "sid": "sports_blue_17",
+   "file": "sports_blue_17.png",
    "category": "sports",
    "color": "blue"
   },
@@ -6554,12 +5540,6 @@
    "color": "brown"
   },
   {
-   "sid": "sports_gray_01",
-   "file": "sports_gray_01.png",
-   "category": "sports",
-   "color": "gray"
-  },
-  {
    "sid": "sports_green_01",
    "file": "sports_green_01.png",
    "category": "sports",
@@ -6568,12 +5548,6 @@
   {
    "sid": "sports_green_02",
    "file": "sports_green_02.png",
-   "category": "sports",
-   "color": "green"
-  },
-  {
-   "sid": "sports_green_03",
-   "file": "sports_green_03.png",
    "category": "sports",
    "color": "green"
   },
@@ -6590,12 +5564,6 @@
    "color": "green"
   },
   {
-   "sid": "sports_orange_01",
-   "file": "sports_orange_01.png",
-   "category": "sports",
-   "color": "orange"
-  },
-  {
    "sid": "sports_orange_02",
    "file": "sports_orange_02.png",
    "category": "sports",
@@ -6604,12 +5572,6 @@
   {
    "sid": "sports_orange_03",
    "file": "sports_orange_03.png",
-   "category": "sports",
-   "color": "orange"
-  },
-  {
-   "sid": "sports_orange_04",
-   "file": "sports_orange_04.png",
    "category": "sports",
    "color": "orange"
   },
@@ -6626,20 +5588,14 @@
    "color": "orange"
   },
   {
-   "sid": "sports_orange_07",
-   "file": "sports_orange_07.png",
-   "category": "sports",
-   "color": "orange"
-  },
-  {
    "sid": "sports_orange_08",
    "file": "sports_orange_08.png",
    "category": "sports",
    "color": "orange"
   },
   {
-   "sid": "sports_orange_09",
-   "file": "sports_orange_09.png",
+   "sid": "sports_orange_10",
+   "file": "sports_orange_10.png",
    "category": "sports",
    "color": "orange"
   },
@@ -6662,24 +5618,6 @@
    "color": "pink"
   },
   {
-   "sid": "sports_red_01",
-   "file": "sports_red_01.png",
-   "category": "sports",
-   "color": "red"
-  },
-  {
-   "sid": "sports_red_02",
-   "file": "sports_red_02.png",
-   "category": "sports",
-   "color": "red"
-  },
-  {
-   "sid": "sports_red_03",
-   "file": "sports_red_03.png",
-   "category": "sports",
-   "color": "red"
-  },
-  {
    "sid": "sports_red_04",
    "file": "sports_red_04.png",
    "category": "sports",
@@ -6692,38 +5630,26 @@
    "color": "red"
   },
   {
-   "sid": "sports_red_06",
-   "file": "sports_red_06.png",
+   "sid": "sports_red_12",
+   "file": "sports_red_12.png",
    "category": "sports",
    "color": "red"
   },
   {
-   "sid": "sports_red_07",
-   "file": "sports_red_07.png",
+   "sid": "sports_red_13",
+   "file": "sports_red_13.png",
    "category": "sports",
    "color": "red"
   },
   {
-   "sid": "sports_red_08",
-   "file": "sports_red_08.png",
+   "sid": "sports_red_14",
+   "file": "sports_red_14.png",
    "category": "sports",
    "color": "red"
   },
   {
-   "sid": "sports_red_09",
-   "file": "sports_red_09.png",
-   "category": "sports",
-   "color": "red"
-  },
-  {
-   "sid": "sports_red_10",
-   "file": "sports_red_10.png",
-   "category": "sports",
-   "color": "red"
-  },
-  {
-   "sid": "sports_red_11",
-   "file": "sports_red_11.png",
+   "sid": "sports_red_16",
+   "file": "sports_red_16.png",
    "category": "sports",
    "color": "red"
   },
@@ -6736,6 +5662,36 @@
   {
    "sid": "sports_white_02",
    "file": "sports_white_02.png",
+   "category": "sports",
+   "color": "white"
+  },
+  {
+   "sid": "sports_white_03",
+   "file": "sports_white_03.png",
+   "category": "sports",
+   "color": "white"
+  },
+  {
+   "sid": "sports_white_04",
+   "file": "sports_white_04.png",
+   "category": "sports",
+   "color": "white"
+  },
+  {
+   "sid": "sports_white_05",
+   "file": "sports_white_05.png",
+   "category": "sports",
+   "color": "white"
+  },
+  {
+   "sid": "sports_white_06",
+   "file": "sports_white_06.png",
+   "category": "sports",
+   "color": "white"
+  },
+  {
+   "sid": "sports_white_07",
+   "file": "sports_white_07.png",
    "category": "sports",
    "color": "white"
   },
@@ -6758,30 +5714,6 @@
    "color": "yellow"
   },
   {
-   "sid": "sports_yellow_04",
-   "file": "sports_yellow_04.png",
-   "category": "sports",
-   "color": "yellow"
-  },
-  {
-   "sid": "sports_yellow_05",
-   "file": "sports_yellow_05.png",
-   "category": "sports",
-   "color": "yellow"
-  },
-  {
-   "sid": "sports_yellow_06",
-   "file": "sports_yellow_06.png",
-   "category": "sports",
-   "color": "yellow"
-  },
-  {
-   "sid": "sports_yellow_07",
-   "file": "sports_yellow_07.png",
-   "category": "sports",
-   "color": "yellow"
-  },
-  {
    "sid": "sports_yellow_08",
    "file": "sports_yellow_08.png",
    "category": "sports",
@@ -6794,14 +5726,20 @@
    "color": "yellow"
   },
   {
-   "sid": "toys_blue_01",
-   "file": "toys_blue_01.png",
-   "category": "toys",
-   "color": "blue"
+   "sid": "sports_yellow_10",
+   "file": "sports_yellow_10.png",
+   "category": "sports",
+   "color": "yellow"
   },
   {
-   "sid": "toys_blue_02",
-   "file": "toys_blue_02.png",
+   "sid": "sports_yellow_11",
+   "file": "sports_yellow_11.png",
+   "category": "sports",
+   "color": "yellow"
+  },
+  {
+   "sid": "toys_blue_01",
+   "file": "toys_blue_01.png",
    "category": "toys",
    "color": "blue"
   },
@@ -6812,26 +5750,8 @@
    "color": "blue"
   },
   {
-   "sid": "toys_blue_04",
-   "file": "toys_blue_04.png",
-   "category": "toys",
-   "color": "blue"
-  },
-  {
    "sid": "toys_blue_05",
    "file": "toys_blue_05.png",
-   "category": "toys",
-   "color": "blue"
-  },
-  {
-   "sid": "toys_blue_06",
-   "file": "toys_blue_06.png",
-   "category": "toys",
-   "color": "blue"
-  },
-  {
-   "sid": "toys_blue_07",
-   "file": "toys_blue_07.png",
    "category": "toys",
    "color": "blue"
   },
@@ -6854,14 +5774,38 @@
    "color": "blue"
   },
   {
-   "sid": "toys_green_01",
-   "file": "toys_green_01.png",
+   "sid": "toys_blue_11",
+   "file": "toys_blue_11.png",
    "category": "toys",
-   "color": "green"
+   "color": "blue"
   },
   {
-   "sid": "toys_green_02",
-   "file": "toys_green_02.png",
+   "sid": "toys_blue_12",
+   "file": "toys_blue_12.png",
+   "category": "toys",
+   "color": "blue"
+  },
+  {
+   "sid": "toys_blue_13",
+   "file": "toys_blue_13.png",
+   "category": "toys",
+   "color": "blue"
+  },
+  {
+   "sid": "toys_blue_14",
+   "file": "toys_blue_14.png",
+   "category": "toys",
+   "color": "blue"
+  },
+  {
+   "sid": "toys_blue_15",
+   "file": "toys_blue_15.png",
+   "category": "toys",
+   "color": "blue"
+  },
+  {
+   "sid": "toys_green_01",
+   "file": "toys_green_01.png",
    "category": "toys",
    "color": "green"
   },
@@ -6872,26 +5816,8 @@
    "color": "green"
   },
   {
-   "sid": "toys_green_04",
-   "file": "toys_green_04.png",
-   "category": "toys",
-   "color": "green"
-  },
-  {
    "sid": "toys_green_05",
    "file": "toys_green_05.png",
-   "category": "toys",
-   "color": "green"
-  },
-  {
-   "sid": "toys_green_06",
-   "file": "toys_green_06.png",
-   "category": "toys",
-   "color": "green"
-  },
-  {
-   "sid": "toys_green_07",
-   "file": "toys_green_07.png",
    "category": "toys",
    "color": "green"
   },
@@ -6908,10 +5834,28 @@
    "color": "green"
   },
   {
-   "sid": "toys_orange_01",
-   "file": "toys_orange_01.png",
+   "sid": "toys_green_10",
+   "file": "toys_green_10.png",
    "category": "toys",
-   "color": "orange"
+   "color": "green"
+  },
+  {
+   "sid": "toys_green_11",
+   "file": "toys_green_11.png",
+   "category": "toys",
+   "color": "green"
+  },
+  {
+   "sid": "toys_green_12",
+   "file": "toys_green_12.png",
+   "category": "toys",
+   "color": "green"
+  },
+  {
+   "sid": "toys_green_13",
+   "file": "toys_green_13.png",
+   "category": "toys",
+   "color": "green"
   },
   {
    "sid": "toys_orange_02",
@@ -6922,12 +5866,6 @@
   {
    "sid": "toys_orange_03",
    "file": "toys_orange_03.png",
-   "category": "toys",
-   "color": "orange"
-  },
-  {
-   "sid": "toys_orange_04",
-   "file": "toys_orange_04.png",
    "category": "toys",
    "color": "orange"
   },
@@ -6944,12 +5882,6 @@
    "color": "orange"
   },
   {
-   "sid": "toys_orange_07",
-   "file": "toys_orange_07.png",
-   "category": "toys",
-   "color": "orange"
-  },
-  {
    "sid": "toys_orange_08",
    "file": "toys_orange_08.png",
    "category": "toys",
@@ -6958,6 +5890,12 @@
   {
    "sid": "toys_orange_09",
    "file": "toys_orange_09.png",
+   "category": "toys",
+   "color": "orange"
+  },
+  {
+   "sid": "toys_orange_12",
+   "file": "toys_orange_12.png",
    "category": "toys",
    "color": "orange"
   },
@@ -6974,36 +5912,6 @@
    "color": "pink"
   },
   {
-   "sid": "toys_pink_03",
-   "file": "toys_pink_03.png",
-   "category": "toys",
-   "color": "pink"
-  },
-  {
-   "sid": "toys_pink_04",
-   "file": "toys_pink_04.png",
-   "category": "toys",
-   "color": "pink"
-  },
-  {
-   "sid": "toys_pink_05",
-   "file": "toys_pink_05.png",
-   "category": "toys",
-   "color": "pink"
-  },
-  {
-   "sid": "toys_pink_06",
-   "file": "toys_pink_06.png",
-   "category": "toys",
-   "color": "pink"
-  },
-  {
-   "sid": "toys_pink_07",
-   "file": "toys_pink_07.png",
-   "category": "toys",
-   "color": "pink"
-  },
-  {
    "sid": "toys_pink_08",
    "file": "toys_pink_08.png",
    "category": "toys",
@@ -7016,28 +5924,16 @@
    "color": "pink"
   },
   {
-   "sid": "toys_pink_10",
-   "file": "toys_pink_10.png",
+   "sid": "toys_pink_11",
+   "file": "toys_pink_11.png",
    "category": "toys",
    "color": "pink"
   },
   {
-   "sid": "toys_red_01",
-   "file": "toys_red_01.png",
+   "sid": "toys_purple_01",
+   "file": "toys_purple_01.png",
    "category": "toys",
-   "color": "red"
-  },
-  {
-   "sid": "toys_red_02",
-   "file": "toys_red_02.png",
-   "category": "toys",
-   "color": "red"
-  },
-  {
-   "sid": "toys_red_03",
-   "file": "toys_red_03.png",
-   "category": "toys",
-   "color": "red"
+   "color": "purple"
   },
   {
    "sid": "toys_red_04",
@@ -7048,24 +5944,6 @@
   {
    "sid": "toys_red_05",
    "file": "toys_red_05.png",
-   "category": "toys",
-   "color": "red"
-  },
-  {
-   "sid": "toys_red_06",
-   "file": "toys_red_06.png",
-   "category": "toys",
-   "color": "red"
-  },
-  {
-   "sid": "toys_red_07",
-   "file": "toys_red_07.png",
-   "category": "toys",
-   "color": "red"
-  },
-  {
-   "sid": "toys_red_08",
-   "file": "toys_red_08.png",
    "category": "toys",
    "color": "red"
   },
@@ -7088,12 +5966,6 @@
    "color": "red"
   },
   {
-   "sid": "toys_red_12",
-   "file": "toys_red_12.png",
-   "category": "toys",
-   "color": "red"
-  },
-  {
    "sid": "toys_red_13",
    "file": "toys_red_13.png",
    "category": "toys",
@@ -7106,14 +5978,56 @@
    "color": "red"
   },
   {
-   "sid": "toys_red_15",
-   "file": "toys_red_15.png",
+   "sid": "toys_red_16",
+   "file": "toys_red_16.png",
    "category": "toys",
    "color": "red"
   },
   {
-   "sid": "toys_red_16",
-   "file": "toys_red_16.png",
+   "sid": "toys_red_17",
+   "file": "toys_red_17.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_18",
+   "file": "toys_red_18.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_19",
+   "file": "toys_red_19.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_20",
+   "file": "toys_red_20.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_21",
+   "file": "toys_red_21.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_22",
+   "file": "toys_red_22.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_23",
+   "file": "toys_red_23.png",
+   "category": "toys",
+   "color": "red"
+  },
+  {
+   "sid": "toys_red_25",
+   "file": "toys_red_25.png",
    "category": "toys",
    "color": "red"
   },
@@ -7124,32 +6038,8 @@
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_02",
-   "file": "toys_yellow_02.png",
-   "category": "toys",
-   "color": "yellow"
-  },
-  {
    "sid": "toys_yellow_03",
    "file": "toys_yellow_03.png",
-   "category": "toys",
-   "color": "yellow"
-  },
-  {
-   "sid": "toys_yellow_04",
-   "file": "toys_yellow_04.png",
-   "category": "toys",
-   "color": "yellow"
-  },
-  {
-   "sid": "toys_yellow_05",
-   "file": "toys_yellow_05.png",
-   "category": "toys",
-   "color": "yellow"
-  },
-  {
-   "sid": "toys_yellow_06",
-   "file": "toys_yellow_06.png",
    "category": "toys",
    "color": "yellow"
   },
@@ -7160,56 +6050,50 @@
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_08",
-   "file": "toys_yellow_08.png",
-   "category": "toys",
-   "color": "yellow"
-  },
-  {
    "sid": "toys_yellow_09",
    "file": "toys_yellow_09.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_10",
-   "file": "toys_yellow_10.png",
+   "sid": "toys_yellow_17",
+   "file": "toys_yellow_17.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_11",
-   "file": "toys_yellow_11.png",
+   "sid": "toys_yellow_18",
+   "file": "toys_yellow_18.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_12",
-   "file": "toys_yellow_12.png",
+   "sid": "toys_yellow_19",
+   "file": "toys_yellow_19.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_13",
-   "file": "toys_yellow_13.png",
+   "sid": "toys_yellow_21",
+   "file": "toys_yellow_21.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_14",
-   "file": "toys_yellow_14.png",
+   "sid": "toys_yellow_22",
+   "file": "toys_yellow_22.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_15",
-   "file": "toys_yellow_15.png",
+   "sid": "toys_yellow_23",
+   "file": "toys_yellow_23.png",
    "category": "toys",
    "color": "yellow"
   },
   {
-   "sid": "toys_yellow_16",
-   "file": "toys_yellow_16.png",
+   "sid": "toys_yellow_24",
+   "file": "toys_yellow_24.png",
    "category": "toys",
    "color": "yellow"
   },
@@ -7220,32 +6104,8 @@
    "color": "blue"
   },
   {
-   "sid": "under_sea_blue_02",
-   "file": "under_sea_blue_02.png",
-   "category": "under_sea",
-   "color": "blue"
-  },
-  {
    "sid": "under_sea_blue_03",
    "file": "under_sea_blue_03.png",
-   "category": "under_sea",
-   "color": "blue"
-  },
-  {
-   "sid": "under_sea_blue_04",
-   "file": "under_sea_blue_04.png",
-   "category": "under_sea",
-   "color": "blue"
-  },
-  {
-   "sid": "under_sea_blue_05",
-   "file": "under_sea_blue_05.png",
-   "category": "under_sea",
-   "color": "blue"
-  },
-  {
-   "sid": "under_sea_blue_06",
-   "file": "under_sea_blue_06.png",
    "category": "under_sea",
    "color": "blue"
   },
@@ -7268,20 +6128,8 @@
    "color": "blue"
   },
   {
-   "sid": "under_sea_brown_01",
-   "file": "under_sea_brown_01.png",
-   "category": "under_sea",
-   "color": "brown"
-  },
-  {
    "sid": "under_sea_green_01",
    "file": "under_sea_green_01.png",
-   "category": "under_sea",
-   "color": "green"
-  },
-  {
-   "sid": "under_sea_green_02",
-   "file": "under_sea_green_02.png",
    "category": "under_sea",
    "color": "green"
   },
@@ -7304,20 +6152,8 @@
    "color": "orange"
   },
   {
-   "sid": "under_sea_orange_04",
-   "file": "under_sea_orange_04.png",
-   "category": "under_sea",
-   "color": "orange"
-  },
-  {
    "sid": "under_sea_orange_05",
    "file": "under_sea_orange_05.png",
-   "category": "under_sea",
-   "color": "orange"
-  },
-  {
-   "sid": "under_sea_orange_06",
-   "file": "under_sea_orange_06.png",
    "category": "under_sea",
    "color": "orange"
   },
@@ -7330,12 +6166,6 @@
   {
    "sid": "under_sea_pink_02",
    "file": "under_sea_pink_02.png",
-   "category": "under_sea",
-   "color": "pink"
-  },
-  {
-   "sid": "under_sea_pink_03",
-   "file": "under_sea_pink_03.png",
    "category": "under_sea",
    "color": "pink"
   },
@@ -7382,12 +6212,6 @@
    "color": "red"
   },
   {
-   "sid": "under_sea_red_03",
-   "file": "under_sea_red_03.png",
-   "category": "under_sea",
-   "color": "red"
-  },
-  {
    "sid": "under_sea_white_01",
    "file": "under_sea_white_01.png",
    "category": "under_sea",
@@ -7418,304 +6242,508 @@
    "color": "yellow"
   },
   {
-   "sid": "under_sea_yellow_03",
-   "file": "under_sea_yellow_03.png",
-   "category": "under_sea",
-   "color": "yellow"
-  },
-  {
-   "sid": "under_sea_yellow_04",
-   "file": "under_sea_yellow_04.png",
-   "category": "under_sea",
-   "color": "yellow"
-  },
-  {
-   "sid": "vegitables_green_01",
-   "file": "vegitables_green_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_26",
+   "file": "vegetables_green_26.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_02",
-   "file": "vegitables_green_02.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_27",
+   "file": "vegetables_green_27.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_03",
-   "file": "vegitables_green_03.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_28",
+   "file": "vegetables_green_28.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_04",
-   "file": "vegitables_green_04.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_29",
+   "file": "vegetables_green_29.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_05",
-   "file": "vegitables_green_05.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_30",
+   "file": "vegetables_green_30.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_06",
-   "file": "vegitables_green_06.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_31",
+   "file": "vegetables_green_31.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_07",
-   "file": "vegitables_green_07.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_32",
+   "file": "vegetables_green_32.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_08",
-   "file": "vegitables_green_08.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_33",
+   "file": "vegetables_green_33.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_09",
-   "file": "vegitables_green_09.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_34",
+   "file": "vegetables_green_34.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_10",
-   "file": "vegitables_green_10.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_35",
+   "file": "vegetables_green_35.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_11",
-   "file": "vegitables_green_11.png",
-   "category": "vegitables",
+   "sid": "vegetables_green_36",
+   "file": "vegetables_green_36.png",
+   "category": "vegetables",
    "color": "green"
   },
   {
-   "sid": "vegitables_green_12",
-   "file": "vegitables_green_12.png",
-   "category": "vegitables",
-   "color": "green"
-  },
-  {
-   "sid": "vegitables_green_13",
-   "file": "vegitables_green_13.png",
-   "category": "vegitables",
-   "color": "green"
-  },
-  {
-   "sid": "vegitables_orange_01",
-   "file": "vegitables_orange_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_orange_13",
+   "file": "vegetables_orange_13.png",
+   "category": "vegetables",
    "color": "orange"
   },
   {
-   "sid": "vegitables_orange_02",
-   "file": "vegitables_orange_02.png",
-   "category": "vegitables",
+   "sid": "vegetables_orange_14",
+   "file": "vegetables_orange_14.png",
+   "category": "vegetables",
    "color": "orange"
   },
   {
-   "sid": "vegitables_orange_03",
-   "file": "vegitables_orange_03.png",
-   "category": "vegitables",
+   "sid": "vegetables_orange_15",
+   "file": "vegetables_orange_15.png",
+   "category": "vegetables",
    "color": "orange"
   },
   {
-   "sid": "vegitables_orange_04",
-   "file": "vegitables_orange_04.png",
-   "category": "vegitables",
+   "sid": "vegetables_orange_16",
+   "file": "vegetables_orange_16.png",
+   "category": "vegetables",
    "color": "orange"
   },
   {
-   "sid": "vegitables_orange_05",
-   "file": "vegitables_orange_05.png",
-   "category": "vegitables",
+   "sid": "vegetables_orange_17",
+   "file": "vegetables_orange_17.png",
+   "category": "vegetables",
    "color": "orange"
   },
   {
-   "sid": "vegitables_pink_01",
-   "file": "vegitables_pink_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_pink_04",
+   "file": "vegetables_pink_04.png",
+   "category": "vegetables",
    "color": "pink"
   },
   {
-   "sid": "vegitables_purple_01",
-   "file": "vegitables_purple_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_purple_05",
+   "file": "vegetables_purple_05.png",
+   "category": "vegetables",
    "color": "purple"
   },
   {
-   "sid": "vegitables_purple_02",
-   "file": "vegitables_purple_02.png",
-   "category": "vegitables",
+   "sid": "vegetables_purple_06",
+   "file": "vegetables_purple_06.png",
+   "category": "vegetables",
    "color": "purple"
   },
   {
-   "sid": "vegitables_red_01",
-   "file": "vegitables_red_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_red_07",
+   "file": "vegetables_red_07.png",
+   "category": "vegetables",
    "color": "red"
   },
   {
-   "sid": "vegitables_red_02",
-   "file": "vegitables_red_02.png",
-   "category": "vegitables",
+   "sid": "vegetables_red_08",
+   "file": "vegetables_red_08.png",
+   "category": "vegetables",
    "color": "red"
   },
   {
-   "sid": "vegitables_red_03",
-   "file": "vegitables_red_03.png",
-   "category": "vegitables",
+   "sid": "vegetables_red_09",
+   "file": "vegetables_red_09.png",
+   "category": "vegetables",
    "color": "red"
   },
   {
-   "sid": "vegitables_white_01",
-   "file": "vegitables_white_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_white_03",
+   "file": "vegetables_white_03.png",
+   "category": "vegetables",
    "color": "white"
   },
   {
-   "sid": "vegitables_white_02",
-   "file": "vegitables_white_02.png",
-   "category": "vegitables",
+   "sid": "vegetables_white_04",
+   "file": "vegetables_white_04.png",
+   "category": "vegetables",
    "color": "white"
   },
   {
-   "sid": "vegitables_yellow_01",
-   "file": "vegitables_yellow_01.png",
-   "category": "vegitables",
+   "sid": "vegetables_yellow_07",
+   "file": "vegetables_yellow_07.png",
+   "category": "vegetables",
    "color": "yellow"
   },
   {
-   "sid": "vegitables_yellow_02",
-   "file": "vegitables_yellow_02.png",
-   "category": "vegitables",
+   "sid": "vegetables_yellow_08",
+   "file": "vegetables_yellow_08.png",
+   "category": "vegetables",
    "color": "yellow"
   },
   {
-   "sid": "vegitables_yellow_03",
-   "file": "vegitables_yellow_03.png",
-   "category": "vegitables",
+   "sid": "vegetables_yellow_09",
+   "file": "vegetables_yellow_09.png",
+   "category": "vegetables",
    "color": "yellow"
   },
   {
-   "sid": "vehicles_blue_01",
-   "file": "vehicles_blue_01.png",
-   "category": "vehicles",
+   "sid": "weather_blue_01",
+   "file": "weather_blue_01.png",
+   "category": "weather",
    "color": "blue"
   },
   {
-   "sid": "vehicles_brown_01",
-   "file": "vehicles_brown_01.png",
-   "category": "vehicles",
-   "color": "brown"
+   "sid": "weather_blue_02",
+   "file": "weather_blue_02.png",
+   "category": "weather",
+   "color": "blue"
   },
   {
-   "sid": "vehicles_gray_01",
-   "file": "vehicles_gray_01.png",
-   "category": "vehicles",
+   "sid": "weather_blue_03",
+   "file": "weather_blue_03.png",
+   "category": "weather",
+   "color": "blue"
+  },
+  {
+   "sid": "weather_blue_04",
+   "file": "weather_blue_04.png",
+   "category": "weather",
+   "color": "blue"
+  },
+  {
+   "sid": "weather_blue_05",
+   "file": "weather_blue_05.png",
+   "category": "weather",
+   "color": "blue"
+  },
+  {
+   "sid": "weather_blue_06",
+   "file": "weather_blue_06.png",
+   "category": "weather",
+   "color": "blue"
+  },
+  {
+   "sid": "weather_blue_07",
+   "file": "weather_blue_07.png",
+   "category": "weather",
+   "color": "blue"
+  },
+  {
+   "sid": "weather_gray_01",
+   "file": "weather_gray_01.png",
+   "category": "weather",
    "color": "gray"
   },
   {
-   "sid": "vehicles_green_01",
-   "file": "vehicles_green_01.png",
-   "category": "vehicles",
-   "color": "green"
-  },
-  {
-   "sid": "vehicles_orange_01",
-   "file": "vehicles_orange_01.png",
-   "category": "vehicles",
+   "sid": "weather_orange_02",
+   "file": "weather_orange_02.png",
+   "category": "weather",
    "color": "orange"
   },
   {
-   "sid": "vehicles_orange_02",
-   "file": "vehicles_orange_02.png",
-   "category": "vehicles",
+   "sid": "weather_orange_04",
+   "file": "weather_orange_04.png",
+   "category": "weather",
    "color": "orange"
   },
   {
-   "sid": "vehicles_pink_01",
-   "file": "vehicles_pink_01.png",
-   "category": "vehicles",
+   "sid": "weather_pink_01",
+   "file": "weather_pink_01.png",
+   "category": "weather",
    "color": "pink"
   },
   {
-   "sid": "vehicles_pink_02",
-   "file": "vehicles_pink_02.png",
-   "category": "vehicles",
+   "sid": "weather_pink_02",
+   "file": "weather_pink_02.png",
+   "category": "weather",
    "color": "pink"
   },
   {
-   "sid": "vehicles_red_01",
-   "file": "vehicles_red_01.png",
-   "category": "vehicles",
+   "sid": "weather_pink_03",
+   "file": "weather_pink_03.png",
+   "category": "weather",
+   "color": "pink"
+  },
+  {
+   "sid": "weather_pink_04",
+   "file": "weather_pink_04.png",
+   "category": "weather",
+   "color": "pink"
+  },
+  {
+   "sid": "weather_pink_05",
+   "file": "weather_pink_05.png",
+   "category": "weather",
+   "color": "pink"
+  },
+  {
+   "sid": "weather_red_01",
+   "file": "weather_red_01.png",
+   "category": "weather",
    "color": "red"
   },
   {
-   "sid": "vehicles_red_02",
-   "file": "vehicles_red_02.png",
-   "category": "vehicles",
+   "sid": "weather_red_02",
+   "file": "weather_red_02.png",
+   "category": "weather",
    "color": "red"
   },
   {
-   "sid": "vehicles_red_03",
-   "file": "vehicles_red_03.png",
-   "category": "vehicles",
+   "sid": "weather_red_03",
+   "file": "weather_red_03.png",
+   "category": "weather",
    "color": "red"
   },
   {
-   "sid": "vehicles_red_04",
-   "file": "vehicles_red_04.png",
-   "category": "vehicles",
+   "sid": "weather_red_05",
+   "file": "weather_red_05.png",
+   "category": "weather",
    "color": "red"
   },
   {
-   "sid": "vehicles_red_05",
-   "file": "vehicles_red_05.png",
-   "category": "vehicles",
+   "sid": "weather_red_06",
+   "file": "weather_red_06.png",
+   "category": "weather",
    "color": "red"
   },
   {
-   "sid": "vehicles_white_01",
-   "file": "vehicles_white_01.png",
-   "category": "vehicles",
+   "sid": "weather_teal_01",
+   "file": "weather_teal_01.png",
+   "category": "weather",
+   "color": "teal"
+  },
+  {
+   "sid": "weather_teal_02",
+   "file": "weather_teal_02.png",
+   "category": "weather",
+   "color": "teal"
+  },
+  {
+   "sid": "weather_white_01",
+   "file": "weather_white_01.png",
+   "category": "weather",
    "color": "white"
   },
   {
-   "sid": "vehicles_white_02",
-   "file": "vehicles_white_02.png",
-   "category": "vehicles",
+   "sid": "weather_white_02",
+   "file": "weather_white_02.png",
+   "category": "weather",
    "color": "white"
   },
   {
-   "sid": "vehicles_white_03",
-   "file": "vehicles_white_03.png",
-   "category": "vehicles",
+   "sid": "weather_yellow_01",
+   "file": "weather_yellow_01.png",
+   "category": "weather",
+   "color": "yellow"
+  },
+  {
+   "sid": "weather_yellow_02",
+   "file": "weather_yellow_02.png",
+   "category": "weather",
+   "color": "yellow"
+  },
+  {
+   "sid": "weather_yellow_03",
+   "file": "weather_yellow_03.png",
+   "category": "weather",
+   "color": "yellow"
+  },
+  {
+   "sid": "weather_yellow_06",
+   "file": "weather_yellow_06.png",
+   "category": "weather",
+   "color": "yellow"
+  },
+  {
+   "sid": "weather_yellow_07",
+   "file": "weather_yellow_07.png",
+   "category": "weather",
+   "color": "yellow"
+  },
+  {
+   "sid": "weather_yellow_08",
+   "file": "weather_yellow_08.png",
+   "category": "weather",
+   "color": "yellow"
+  },
+  {
+   "sid": "world_cuisine_black_01",
+   "file": "world_cuisine_black_01.png",
+   "category": "world_cuisine",
+   "color": "black"
+  },
+  {
+   "sid": "world_cuisine_black_02",
+   "file": "world_cuisine_black_02.png",
+   "category": "world_cuisine",
+   "color": "black"
+  },
+  {
+   "sid": "world_cuisine_orange_01",
+   "file": "world_cuisine_orange_01.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_02",
+   "file": "world_cuisine_orange_02.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_04",
+   "file": "world_cuisine_orange_04.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_06",
+   "file": "world_cuisine_orange_06.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_09",
+   "file": "world_cuisine_orange_09.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_10",
+   "file": "world_cuisine_orange_10.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_11",
+   "file": "world_cuisine_orange_11.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_12",
+   "file": "world_cuisine_orange_12.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_14",
+   "file": "world_cuisine_orange_14.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_16",
+   "file": "world_cuisine_orange_16.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_17",
+   "file": "world_cuisine_orange_17.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_18",
+   "file": "world_cuisine_orange_18.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_21",
+   "file": "world_cuisine_orange_21.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_22",
+   "file": "world_cuisine_orange_22.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_24",
+   "file": "world_cuisine_orange_24.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_25",
+   "file": "world_cuisine_orange_25.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_26",
+   "file": "world_cuisine_orange_26.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_orange_27",
+   "file": "world_cuisine_orange_27.png",
+   "category": "world_cuisine",
+   "color": "orange"
+  },
+  {
+   "sid": "world_cuisine_red_01",
+   "file": "world_cuisine_red_01.png",
+   "category": "world_cuisine",
+   "color": "red"
+  },
+  {
+   "sid": "world_cuisine_red_02",
+   "file": "world_cuisine_red_02.png",
+   "category": "world_cuisine",
+   "color": "red"
+  },
+  {
+   "sid": "world_cuisine_red_03",
+   "file": "world_cuisine_red_03.png",
+   "category": "world_cuisine",
+   "color": "red"
+  },
+  {
+   "sid": "world_cuisine_red_04",
+   "file": "world_cuisine_red_04.png",
+   "category": "world_cuisine",
+   "color": "red"
+  },
+  {
+   "sid": "world_cuisine_white_01",
+   "file": "world_cuisine_white_01.png",
+   "category": "world_cuisine",
    "color": "white"
   },
   {
-   "sid": "vehicles_yellow_01",
-   "file": "vehicles_yellow_01.png",
-   "category": "vehicles",
-   "color": "yellow"
+   "sid": "world_cuisine_white_04",
+   "file": "world_cuisine_white_04.png",
+   "category": "world_cuisine",
+   "color": "white"
   },
   {
-   "sid": "vehicles_yellow_02",
-   "file": "vehicles_yellow_02.png",
-   "category": "vehicles",
-   "color": "yellow"
-  },
-  {
-   "sid": "vehicles_yellow_03",
-   "file": "vehicles_yellow_03.png",
-   "category": "vehicles",
-   "color": "yellow"
+   "sid": "world_cuisine_white_05",
+   "file": "world_cuisine_white_05.png",
+   "category": "world_cuisine",
+   "color": "white"
   }
  ]
 }

@@ -92,7 +92,8 @@
     content: '✕'; position: absolute; top: 4px; left: 7px; color: var(--danger);
     font-size: 14px; font-weight: 700;
   }
-  .cell img { display: block; }
+  /* kare kutu içinde en-boy oranı korunur (object-fit) — asla esnetilmez */
+  .cell img { display: block; object-fit: contain; }
   .cell .name { font-size: 10px; color: var(--muted); margin-top: 3px; max-width: 100%;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cell .dot { position: absolute; top: 8px; right: 8px; width: 10px; height: 10px;
@@ -104,8 +105,8 @@
     cursor: zoom-out;
   }
   #lightbox.open { display: flex; }
-  #lightbox img { max-width: 78vw; max-height: 62vh; border-radius: 12px;
-    background: #444; }
+  #lightbox img { max-width: 78vw; max-height: 62vh; width: auto; height: auto;
+    object-fit: contain; border-radius: 12px; background: #444; }
   #lightbox .caption { color: #fff; margin-top: 14px; font-size: 14px; }
   #lbcolors {
     display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;

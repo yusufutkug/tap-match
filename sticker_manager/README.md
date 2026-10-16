@@ -99,24 +99,106 @@ Opak piksellerin HSV dağılımı; kovalara pay hesaplanır:
   sticker (en zayıftan sıralı). Çok renkli objeler doğal olarak listede; elle
   göz kontrolü için öncelik sırasıdır, "yanlış" listesi değildir.
 
-## Kütüphane durumu (son temizlik sonrası)
+## Kütüphane durumu (2026-10-16, ikiz temizliği sonrası)
 
-**1286 sticker, 38 kategori.** (Eski konumda — `apk extractor/sticker_manager` —
-yapılan 11 silme 2026-09-25'te buraya eşitlendi.) Sayılar:
+**1259 sticker, 44 kategori.** Yeni paket kabulünün (aşağıda) ardından aynı
+gün 30 ikiz silindi (`trash/2026-10-16_ikizler/`, her kayıtta `neden` alanı):
+shapes 8 (aynı renkte daire–altıgen–sekizgen, üçgen–koni–damla, beşgen),
+emoji_faces 3, monsters 3, hats 2, landmarks 2, bedroom 2, cleaning_items 2,
+desserts 2, fruits/robots/world_cuisine/gems/animals 1'er. **`vegitables` →
+`vegetables`** birleştirildi: 22 eski sid yalnız kategori adı değişerek
+yeniden adlandırıldı (numaralar korundu, çakışma yok; eşleme
+`trash/2026-10-16_ikizler/_vegitables_to_vegetables.json`). Oyun paketinde
+bu 22 dosyanın adı değişti — `export_stickers/` yeniden kopyalanmalı.
 
-toys 70 · clothes 54 · blocks 53 · sports 53 · cookie_words 51 · flowers 47 ·
-countrylife 46 · bedroom 41 · numbers 40 · camping 39 · school 39 · desserts 37 ·
-fantasy 37 · bags 36 · christmas 36 · under_sea 36 · casino 35 · cleaning_items 35 ·
+toys 60 · cookie_words 51 · sports 47 · animals 46 · desserts 46 · flowers 45 ·
+icons 40 · numbers 40 · school 39 · hats 36 · shapes 36 · cleaning_items 34 ·
+fruits 34 · art_tools 32 · weather 32 · music 30 · countrylife 29 · monsters 29 ·
+gems 28 · halloween 28 · vegetables 27 · bags 26 · clothes 26 · world_cuisine 26 ·
+bedroom 25 · cat_words 25 · breakfast 24 · cold_drink 24 · fantasy 24 ·
+under_sea 24 · kitchen 23 · space 23 · candy 22 · dinosaurs 22 · emoji_faces 22 ·
+carnival 21 · cinema 21 · landmarks 21 · camping 19 · christmas 18 · robots 14 ·
+baby_items 12 · circus 5 · cat_items 3
+
+Renk: orange 222, red 209, yellow 164, green 157, pink 148, blue 142,
+white 88, purple 62, teal 31, brown 19, gray 16, black 1.
+Benzerlik: 35313 çift (d<0.23), 4582 riskli (d<0.19).
+
+Bilerek tutulan sınır çiftler (farklı obje, aynı renk): mavi baklava–artı
+(shapes), kızgın–endişeli yüz (emoji_faces), kep–balıkçı şapka (hats_green),
+baret–balıkçı şapka (hats_yellow), baget–mısır sosisli, kalp–yuvarlak lolipop,
+deniz kabuğu–salyangoz. emoji_faces doğası gereği tek siluet: karışık
+tariflerde aynı renkten en fazla 1–2 yüz çağır.
+
+### Önceki adım (2026-10-16 yeni sticker kabulü)
+
+**1289 sticker, 45 kategori.** 2026-10-16'da oyuna alınan paket
+(`../newstickers/`, dosya adı = sid) tek doğruluk kaynağı kabul edildi:
+730 yeni sticker eklendi (dosya adı `library/<kat>/<sid>.png`, renk sid'den;
+otomatik renk tespiti 730/730 sid'deki renkle aynı çıktı), 58 sticker daha
+elendi (`trash/2026-10-16_elenen/`, en çok blocks 22 → kategori kapandı).
+Yeni sid'ler emekli numaraları atlıyor; `sid_seq.json` kullanılan en büyük
+numaranın bir üstüne çekildi.
+
+12 yeni kategori: hats 38 · monsters 32 · weather 32 · halloween 28 ·
+world_cuisine 27 · emoji_faces 25 · landmarks 23 · space 23 · candy 22 ·
+dinosaurs 22 · robots 15 · **vegetables 5** (yeni yazım; eski `vegitables` 22
+ayrı kategori olarak duruyor — tarif motorunda ikisini aynı tema say).
+
+toys 60 · cookie_words 51 · desserts 48 · animals 47 · sports 47 · flowers 45 ·
+shapes 45 · icons 40 · numbers 40 · school 39 · hats 38 · cleaning_items 36 ·
+fruits 35 · art_tools 32 · monsters 32 · weather 32 · music 30 · countrylife 29 ·
+gems 29 · halloween 28 · bedroom 27 · world_cuisine 27 · bags 26 · clothes 26 ·
+cat_words 25 · emoji_faces 25 · breakfast 24 · cold_drink 24 · fantasy 24 ·
+under_sea 24 · kitchen 23 · landmarks 23 · space 23 · candy 22 · dinosaurs 22 ·
+vegitables 22 · carnival 21 · cinema 21 · camping 19 · christmas 18 · robots 15 ·
+baby_items 12 · circus 5 · vegetables 5 · cat_items 3
+
+Renk: orange 229, red 214, yellow 169, green 159, pink 152, blue 144,
+white 89, purple 62, teal 33, brown 20, gray 16, black 2.
+(Altı ana renk yine 120+ → mono tarifleri için güvenli. purple 62'ye çıktı,
+hâlâ mono için az.)
+
+Benzerlik: 38259 çift (d<0.23), 5232 riskli (d<0.19). Yeni kategorilerle
+gelen çakışmalar: **hats+shapes 68**, numbers+weather 45, shapes+weather 44,
+kitchen+shapes 51, monsters+shapes 36, candy+shapes 31 — shapes hub olmaya
+devam ediyor. Kategori içi aynı-renk ikizler: shapes 57, hats 30,
+emoji_faces 28, monsters 27, landmarks 19 (bkz. aşağıdaki "yeni kategori
+notları"). Yeni 730 sticker `renk_supheli.txt`'ye alınmadı (liste yalnız
+2026-09 taramasını kapsar).
+
+### Önceki durum (2026-10-13 beğeni elemesi)
+
+**617 sticker, 34 kategori.** 2026-10-13'te kullanıcı oyun paketini
+(`../export_stickers/`) elden geçirip beğenmediklerini sildi; kalan 617 sid
+`../new_stickers/` klasörüyle buraya eşitlendi (669 sticker
+`trash/2026-10-13_begenilmeyen/`'e taşındı, liste `_silinen_katalog.json`;
+ayrıca hepsi git geçmişinde). Tamamen boşalan kategoriler: **cafe, casino,
+fairytale, vehicles** (klasörleri kaldırıldı; sid sayaçları `sid_seq.json`'da
+duruyor, numaralar emekli).
+
+cookie_words 51 · numbers 40 · toys 37 · desserts 29 · gems 29 · sports 28 ·
+flowers 27 · shapes 27 · bags 26 · clothes 26 · cat_words 25 · under_sea 25 ·
+vegitables 23 · blocks 22 · school 22 · fruits 21 · music 19 · christmas 18 ·
+animals 16 · icons 15 · breakfast 14 · cleaning_items 14 · baby_items 12 ·
+carnival 10 · countrylife 7 · cold_drink 6 · art_tools 5 · circus 5 · kitchen 5 ·
+cat_items 4 · bedroom 3 · cinema 3 · camping 2 · fantasy 1
+
+Renk dağılımı: orange 114, red 97, pink 91, green 87, blue 78, yellow 71,
+white 34, purple 18, brown 11, teal 11, gray 5, black 0.
+(Hiçbir renk artık 120+ değil — "güvenli mono renk" eşiği 120'den aşağı
+çekilmeli ya da mono tarifleri yeniden düşünülmeli. d≥0.19 ile ayrık
+seçilebilen en büyük aynı-renk set: orange 75, red 72, blue 67, green 62,
+pink 50, yellow 44, white 29 — 24 çiftlik mono board'lar hâlâ dolar.)
+
+Eleme öncesi sayılar (2026-09-25, 1286 sticker, 38 kategori): toys 70 ·
+clothes 54 · blocks 53 · sports 53 · cookie_words 51 · flowers 47 · countrylife 46 ·
+bedroom 41 · numbers 40 · camping 39 · school 39 · desserts 37 · fantasy 37 ·
+bags 36 · christmas 36 · under_sea 36 · casino 35 · cleaning_items 35 ·
 cat_items 35 · music 34 · carnival 32 · circus 30 · vegitables 29 · gems 29 ·
 shapes 27 · cafe 26 · cinema 26 · baby_items 25 · kitchen 25 · cat_words 25 ·
 fairytale 25 · breakfast 23 · art_tools 22 · fruits 22 · vehicles 19 · icons 19 ·
-animals 18 · cold_drink 10
-
-Renk dağılımı (2026-09 algı kalibrasyonu sonrası): orange 247, red 218,
-green 176, blue 165, yellow 135, pink 129, white 85, brown 45, gray 30,
-purple 29, teal 21, black 6.
-(Purple/teal/gray/black az — "tek renk" level tarifleri için tek başına yetmez.
-cold_drink 10 sticker'la tek başına level dolduramaz, mutlaka karışıma girer.)
+animals 18 · cold_drink 10.
 
 ## Benzerlik kuralları (silme kararlarının temeli)
 
@@ -131,7 +213,9 @@ küçük tile görünümünü taklit eder; üç temizlik turunda toplam 60 stick
 (flowers 41 + genel 16 + yeni kategoriler 3), hepsi `trash/`'te.
 
 Aynı metrik `similar.py` ile ön-hesaplanır → `similar_pairs.json`
-(d < 0.23 tüm çiftler; 2026-09: 39816 çift, 4610'u riskli d < 0.19).
+(d < 0.23 tüm çiftler; 2026-09: 39816 çift, 4610'u riskli d < 0.19;
+2026-10-13 eleme sonrası: 8670 çift, 1349 riskli — 259'u aynı kategori+renk,
+bunun 181'i numbers/cookie_words glif çiftleri).
 Level tarif motoru (`../tools/assign_stickers.js`) bu veriyi kullanır:
 d < 0.19 aynı levelda ASLA; erken decade'lerde eşik 0.23'e sıkılır
 (ayrışma rampası). Mono/tek-renk levellarda aynı-renk stickerlar metrikte

@@ -42,7 +42,7 @@ const path = require("path");
 const { isAdjacentCollinear, levelFromExternal, generatorIssues, GEN_DIR_CODES,
         boardFromLevel, matchablePairs } = require("../js/board.js");
 const { effortCurve, spanOf, isCollinear, playTime } = require("../js/flow.js");
-const { hashSeed, mulberry32, buildLevel } = require("./v3_gen_lib.js");
+const { hashSeed, mulberry32, buildLevel, maskSyms, levelSyms, symHasAxisCell } = require("./v3_gen_lib.js");
 
 const ROOT = path.join(__dirname, "..");
 const OUT = path.resolve(ROOT, process.env.TM_OUT || "export_levels_v4");
@@ -59,15 +59,23 @@ for (const guarded of ["export_levels", "export_levels_1010", "old_export_levels
 const HEAD = "t t t t e e m e e e e m e h m e h m m vh".split(" ");
 const LOOP = "m e h e vh m m h m vh".split(" ");
 const labelOf = (no) => (no <= HEAD.length ? HEAD[no - 1] : LOOP[(no - HEAD.length - 1) % LOOP.length]);
-const INTRO = { 9: 1, 11: 2 };                 // şablon tanıtım levelları
-const PURE_HEAD = new Set([5, 6, 7, 8, 10]);   // generator yasak
-// mono slot: 11+ her onluğun ilk e levelı (tanıtım hariç) → saf, 6x8
+const INTRO = { 9: 1, 10: 2 };                 // tanıtım levelları (ardışık: öğrendiğini hemen pekiştir)
+const PURE_HEAD = new Set([5, 6, 7, 8]);       // generator yasak
+// generator takvimi: tanıtımdan sonra mekanik KESİLMEZ — 11-13 zorunlu
+// (1 → 1-2 → 2 generator), 14-30 arasında saf yalnız mono slotu; "lazım
+// oldukça" (saf aday süreyi tutuyorsa generator koyma) yalnız 30+'da.
+const GEN_MIN = { 11: 1, 12: 1, 13: 2 };
+const GEN_MAX_OVERRIDE = {};
+const genMin = (no) => GEN_MIN[no] || 0;
+const genRequired = (no) => no <= 30 && !PURE_HEAD.has(no) && !INTRO[no];
+// mono slot: 11+ her onluğun ilk e levelı (tanıtım / zorunlu generator
+// levelları hariç) → saf, 6x8
 const MONO = new Set();
 {
   const seen = new Set();
   for (let no = 11; no <= Math.max(N, 20); no++) {
     const d = Math.floor((no - 1) / 10);
-    if (labelOf(no) === "e" && !INTRO[no] && !seen.has(d)) { seen.add(d); MONO.add(no); }
+    if (labelOf(no) === "e" && !INTRO[no] && !GEN_MIN[no] && !seen.has(d)) { seen.add(d); MONO.add(no); }
   }
 }
 const isPure = (no) => PURE_HEAD.has(no) || MONO.has(no);
@@ -89,7 +97,9 @@ const SIZE_CAP = {
   "6x9":  { cols: 6, rows: 9,  lo: 12, mid: 20, hi: 30, gMid: 31, gHi: 55, gMax: 74 },
   "7x10": { cols: 7, rows: 10, lo: 17, mid: 28, hi: 41, gMid: 46, gHi: 91, gMax: 119 },
 };
-const HEAD_SIZE = { 5: "5x7", 6: "5x7", 7: "6x8", 8: "6x8", 10: "5x7", 12: "6x8", 13: "6x8" };
+// 10 (tanıtım-2) ve 12: tek generator ancak eksen hücresiyle simetrik olur
+// → tek boyutlu 6x9 (orta satır); 6x8'de generator'lar hep çift sayıda.
+const HEAD_SIZE = { 5: "5x7", 6: "5x7", 7: "6x8", 8: "6x8", 10: "6x9", 11: "6x8", 12: "6x9", 13: "6x8" };
 function sizeOf(no, label, target) {
   if (HEAD_SIZE[no]) return HEAD_SIZE[no];
   if (MONO.has(no)) return "6x8";
@@ -127,7 +137,7 @@ const OPEN_RELAX = [0, 0.05, 0.10, 0.15]; // tutmazsa kademeli gevşeme
 
 // akış cezası (yumuşak; v3 ile aynı)
 const FLOW_W = 0.2, FLOW_STREAK_OK = 6, FLOW_SHARE_OK = 0.6;
-const genCap = (no) => no <= 20 ? 2 : no <= 30 ? 3 : no <= 60 ? 4 : 5;
+const genCap = (no) => GEN_MAX_OVERRIDE[no] || (no <= 20 ? 2 : no <= 30 ? 3 : no <= 60 ? 4 : 5);
 
 // ── açılış boşluğu: tek dışbükey bölge ──
 // Şekil: center (ortada dikdörtgen) · top / bottom (kenar çentiği, ortalı) ·
@@ -148,24 +158,30 @@ function holeMasks(rows, cols, no, label) {
   const minCells = Math.max(2, Math.floor(area * fLo));
   const maxCells = Math.max(minCells + 1, Math.floor(area * fHi));
   const shapes = [];
+  // simetri: dikdörtgen yatayda tam ortalanabilmeli ((cols-hc) çift) → V
+  // aynası; artı yalnız iki boyut da tekse ortalanır
   for (let hr = 1; hr <= rows - 2; hr++) for (let hc = 1; hc <= cols - 2; hc++) {
     const n = hr * hc;
-    if (n < minCells || n > maxCells || (area - n) % 2) continue;
+    if (n < minCells || n > maxCells || (area - n) % 2 || (cols - hc) % 2) continue;
     if (hr > 1 && hc > 1 && hr * 2 < hc) continue; // çok yatık şerit değil
     shapes.push({ kind: "center", hr, hc });
     if (hr >= 2 || hc >= 3) { shapes.push({ kind: "top", hr, hc }); shapes.push({ kind: "bottom", hr, hc }); }
   }
   for (let a = 1; a <= 2; a++) { // artı: kol uzunluğu a → 4a+1 hücre
     const n = 4 * a + 1;
-    if (n >= minCells && n <= maxCells && (area - n) % 2 === 0 && 2 * a + 1 <= cols - 2 && 2 * a + 1 <= rows - 2)
+    if (n >= minCells && n <= maxCells && (area - n) % 2 === 0 && 2 * a + 1 <= cols - 2 && 2 * a + 1 <= rows - 2 &&
+        cols % 2 === 1 && rows % 2 === 1)
       shapes.push({ kind: "plus", a });
   }
-  if (!shapes.length) shapes.push({ kind: "center", hr: 1, hc: (area - 2) % 2 === 0 ? 2 : 3 });
+  if (!shapes.length) {
+    const hc = cols % 2 === 0 ? 2 : 1;
+    shapes.push({ kind: "center", hr: (area - hc) % 2 === 0 ? 1 : 2, hc });
+  }
   const order = shapes.map((s, i) => [s, rng() + i * 1e-9]).sort((a, b) => a[1] - b[1]).map((x) => x[0]).slice(0, 5);
   return order.map((s) => {
     const mask = Array.from({ length: rows }, () => Array(cols).fill(true));
     if (s.kind === "plus") {
-      const r = rows >> 1, c = cols >> 1;
+      const r = (rows - 1) / 2, c = (cols - 1) / 2;
       for (let k = -s.a; k <= s.a; k++) { mask[r][c + k] = false; mask[r + k][c] = false; }
       return mask;
     }
@@ -199,10 +215,10 @@ function recipeOf(cap, target, cand, floor, cpOverride) {
 
 // Kalıp havuzu (v3); erken levellarda doldurma "pairs" zorunlu
 const PLACEMENTS = ["edge", "corner", "inner", "mixed", "facing"];
-function specOf(cap, target, cand, rng, gMax, early) {
+function specOf(cap, target, cand, rng, gMax, early, gMin = 1, symOpts = null, rows = cap.rows, cols = cap.cols) {
   const hg = Math.max(0, Math.min(1.2, (target - cap.mid) / (cap.gHi - cap.mid)));
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  const genN = Math.min(gMax, hg < 0.3 ? pick([1, 2, 2]) : hg < 0.6 ? pick([2, 3, 3]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6]));
+  const genN = Math.max(gMin, Math.min(gMax, hg < 0.3 ? pick([1, 2, 2]) : hg < 0.6 ? pick([2, 3, 3]) : hg < 0.9 ? pick([3, 4, 4, 5]) : pick([4, 5, 6])));
   const queueLen = hg < 0.3 ? pick([2, 3, 4]) : hg < 0.6 ? pick([4, 6, 8]) : pick([6, 8, 12]);
   const pk = hg < 0.3 ? pick(["near", "near", "mid", "alt"])
     : hg < 0.6 ? pick(["near", "mid", "alt", "random", "far"])
@@ -213,23 +229,48 @@ function specOf(cap, target, cand, rng, gMax, early) {
     : hg < 0.3 ? pick(["none", "none", "pairs"])
     : hg < 0.6 ? pick(["none", "pairs", "pairs", "singles"])
     : pick(["pairs", "pairs", "singles", "none"]);
-  const placement = PLACEMENTS[(cand + Math.floor(rng() * 2)) % PLACEMENTS.length];
+  let placement = PLACEMENTS[(cand + Math.floor(rng() * 2)) % PLACEMENTS.length];
+  if (placement === "facing" && gMax < 2) placement = "edge";
   const syncN = genN >= 2 ? (hg < 0.5 ? pick([0, 0, 1]) : pick([0, 1, 2])) : 0;
-  return { placement, genN: placement === "facing" ? Math.max(2, Math.min(gMax, genN)) : genN, queueLen, pick: pk,
-           refill, refillFrac: early ? 1 : pick([0.5, 1]), syncN, queueMax: queueLen + (hg > 0.8 ? 8 : 4), tidy: true, keepColl: true };
+  const s = { placement, genN: placement === "facing" ? Math.max(2, Math.min(gMax, genN)) : genN, queueLen, pick: pk,
+              refill, refillFrac: early ? 1 : pick([0.5, 1]), syncN, queueMax: queueLen + (hg > 0.8 ? 8 : 4), tidy: true, keepColl: true };
+  return symFix(s, symOpts, rows, cols, rng, gMin, gMax);
+}
+// Simetri: maskenin sağladığı eksenlerden biri (V öncelikli — sol/sağ
+// aynası en okunaklı). Karşılıklı yerleşim V/H ister. Tek sayıda generator
+// yalnız eksen hücresi olan eksende; yoksa eksen değiştir ya da sayıyı
+// çifte yuvarla.
+function symFix(s, symOpts, rows, cols, rng, gMin, gMax) {
+  if (!symOpts || !symOpts.length) { s.sym = null; return s; }
+  let opts = symOpts.slice();
+  if (s.placement === "facing") {
+    opts = opts.filter((x) => x !== "P" || rows % 2 === 1 || cols % 2 === 1);
+    if (!opts.length) { s.placement = "edge"; opts = symOpts.slice(); }
+  }
+  const weighted = opts.flatMap((x) => (x === "V" ? [x, x, x] : x === "H" ? [x, x] : [x]));
+  s.sym = weighted[Math.floor(rng() * weighted.length)];
+  if (s.genN % 2 === 1 && !symHasAxisCell(s.sym, rows, cols)) {
+    const alt = opts.find((x) => symHasAxisCell(x, rows, cols));
+    if (alt && s.placement !== "facing") s.sym = alt;
+    else if (s.genN + 1 <= gMax) s.genN += 1;
+    else if (s.genN - 1 >= Math.max(1, gMin, s.placement === "facing" ? 2 : 1)) s.genN -= 1;
+    else return null; // simetrik yerleşim mümkün değil
+  }
+  return s;
 }
 const specSig = (s) => s ? s.placement + "|" + s.genN + "|" + s.pick + "|" + s.refill : "pure";
-function varySpec(spec, below, rng, gMax, early) {
+function varySpec(spec, below, rng, gMax, early, gMin = 1, symOpts, rows, cols) {
   const s = { ...spec };
   const r = rng();
   if (r < 0.3) s.queueLen = Math.max(1, s.queueLen + (below ? 2 : -2));
-  else if (r < 0.5) s.genN = Math.max(s.placement === "facing" ? 2 : 1, Math.min(gMax, s.genN + (below ? 1 : -1)));
+  else if (r < 0.5) s.genN = Math.max(gMin, s.placement === "facing" ? 2 : 1, Math.min(gMax, s.genN + (below ? 1 : -1)));
   else if (r < 0.7 && !early) s.refill = below ? (s.refill === "none" ? "pairs" : "singles") : (s.refill === "singles" ? "pairs" : "none");
   else if (r < 0.85) s.pick = below ? (s.pick === "near" ? "mid" : "far") : (s.pick === "far" ? "mid" : "near");
   else s.placement = PLACEMENTS[Math.floor(rng() * PLACEMENTS.length)];
+  if (s.placement === "facing" && gMax < 2) s.placement = "edge";
   if (s.placement === "facing") s.genN = Math.max(2, Math.min(gMax, s.genN));
   s.queueMax = s.queueLen + 4;
-  return s;
+  return symFix(s, symOpts, rows, cols, rng, gMin, gMax);
 }
 
 // ── ölçüm / skor ──
@@ -298,13 +339,16 @@ function measure(lv, rows, cols, target, recentSigs, spec, no) {
                             Math.max(0, spawnShare - FLOW_SHARE_OK) / 0.25);
   const op = openingStats(lv, rows, cols);
   const compsPen = COMPS_W * Math.max(0, op.comps - 1);
+  const syms = levelSyms(lv, rows, cols).join("");
   return { sec, grind, ecS, relErr, coll, spawnShare, maxStreak, flowPen, comps: op.comps, openShare: op.openShare,
-           empties: op.empties, hasGens: !!(gens && gens.length), key: relErr + gw * grind + div + flowPen + compsPen };
+           empties: op.empties, hasGens: !!(gens && gens.length), syms, key: relErr + gw * grind + div + flowPen + compsPen };
 }
 const isDone = (m, gens) => m.relErr <= DONE_REL && m.grind <= (gens ? GRIND_OK_GEN : GRIND_OK_PURE) && m.flowPen === 0;
-// sert kısıtlar: hizalı taban, boş bileşen tavanı, açık çift tabanı (relax ile)
-const hardOk = (m, floor, no, relax) =>
-  m.coll >= floor - 1e-9 && m.comps <= compsCap(no, m.hasGens) && m.openShare >= openFloor(no) - relax - 1e-9;
+// sert kısıtlar: hizalı taban, boş bileşen tavanı, açık çift tabanı (relax
+// ile), silüet simetrisi (needSym; tutmazsa son çare gevşer → not "asim")
+const hardOk = (m, floor, no, relax, needSym = true) =>
+  m.coll >= floor - 1e-9 && m.comps <= compsCap(no, m.hasGens) && m.openShare >= openFloor(no) - relax - 1e-9 &&
+  (!needSym || m.syms.length > 0);
 
 // ── çift mutasyonu (v3) ──
 function mutateOnce(lv, rows, cols, rng, guide) {
@@ -438,7 +482,8 @@ const row = (no, label, sizeKey, lv, m, pt, spec, mut, extra) => ({
   player: pt ? pt.playerSeconds : NaN, grind: m ? m.grind : NaN, gens: (lv.generators || []).length,
   queued: (lv.generators || []).reduce((a, g) => a + g.queue.length, 0), spec: specSig(spec), mut,
   floor: extra.floor, coll: m ? m.coll : NaN, spawn: m ? m.spawnShare : NaN, streak: m ? m.maxStreak : NaN,
-  comps: m ? m.comps : NaN, open: m ? m.openShare : NaN, empties: m ? m.empties : NaN, note: extra.note || "",
+  comps: m ? m.comps : NaN, open: m ? m.openShare : NaN, empties: m ? m.empties : NaN, sym: m ? (m.syms || "-") : "-",
+  note: extra.note || "",
 });
 const logRow = (r, tl) => console.log(
   String(r.no).padStart(3) + " " + r.label.padEnd(2) + " " + r.size.padEnd(5) + " çift " + String(r.pairs).padEnd(3) +
@@ -447,6 +492,7 @@ const logRow = (r, tl) => console.log(
   " hizalı %" + String(Math.round(100 * r.coll)).padStart(2) + "/" + Math.round(100 * r.floor) +
   " açık %" + String(Math.round(100 * r.open)).padStart(2) + " boş " + String(r.empties).padEnd(2) + "/" + r.comps +
   " spawn %" + String(Math.round(100 * r.spawn)).padStart(2) + " seri " + String(r.streak).padEnd(2) +
+  " sim " + (r.sym || "-").padEnd(3) +
   " oyuncu~" + r.player.toFixed(0) + " gen " + r.gens + " kuyruk " + String(r.queued).padEnd(3) + r.spec.padEnd(24) +
   " mut " + String(r.mut).padEnd(3) + (r.note ? " [" + r.note + "] " : "") + ((Date.now() - tl) / 1000).toFixed(1) + "s");
 
@@ -483,13 +529,20 @@ for (let no = 5; no <= N; no++) {
   // mono slot "kesin kolay": hedef saf 6x8'in rahat bölgesine kırpılır
   // (öğütmeyle süre şişirilmesin)
   if (MONO.has(no)) target = Math.min(target, (cap.mid + cap.hi) / 2);
-  const masks = holeMasks(rows, cols, no, label);
+  let masks = holeMasks(rows, cols, no, label);
+  // tanıtım-2: tek generator eksen hücresinde → maske o eksende simetrik olmalı
+  if (INTRO[no] === 2) {
+    const ax = masks.filter((mk) => maskSyms(mk, rows, cols).some((s) => symHasAxisCell(s, rows, cols)));
+    if (ax.length) masks = ax;
+  }
   let mask = masks[0];
   const recentSigs = recentByLabel[label].slice(-3);
   const rngL = mulberry32(hashSeed("v4:" + no));
   const pure = isPure(no);
   const early = no <= 30;
   const gMax = genCap(no);
+  const gMin = Math.max(1, genMin(no));
+  const needGen = !pure && genRequired(no); // saf aday havuza girmez
   // tanıtım-2: dolu temiz boardda 1 generator, kuyruk 5, near/mid dönüşümlü
   // ("alt"), doldurma yok; saf aday yarışmaz
   const introGen = INTRO[no] === 2;
@@ -502,7 +555,7 @@ for (let no = 5; no <= N; no++) {
   const all = []; // { lv, m, rec, spec, cand, mi }
   const build = (cand, cpOverride, mi, withGen) => {
     const mk = masks[mi];
-    if (!introGen) {
+    if (!introGen && !needGen) {
       const rec = recipeOf(cap, target, cand, floor, cpOverride);
       const lv = buildLevel(rows, cols, rec, null, hashSeed("v4p:" + no + ":" + cand), mk);
       if (lv) { const m = measure(lv, rows, cols, target, recentSigs, null, no); if (m) all.push({ lv, m, rec, spec: null, cand, mi }); }
@@ -514,27 +567,41 @@ for (let no = 5; no <= N; no++) {
       ? { knots: [0, 2, 3][cand % 3], spanBias: [0.6, 0.9][cand % 2], cornerP: [0.2, 0.3, 0.35][Math.floor(cand / 3) % 3],
           frontMode: ["bolge", "yilan", "cepheler"][Math.floor(cand / 2) % 3], cut: null, entryN: 2 + (cand % 2), frontBias: 1 }
       : recipeOf(cap, Math.min(target, cap.hi), cand, floor, cpOverride);
+    // tanıtım-2: kenar ortasında tek generator (eksen hücresi → H aynası)
+    const symOpts = maskSyms(mk, rows, cols);
     const spec = introGen
-      ? { placement: cand % 2 ? "edge" : "corner", genN: 1, queueLen: 5, pick: cand % 3 === 2 ? "near" : "alt",
-          refill: "none", refillFrac: 1, syncN: 0, queueMax: 5, tidy: true, keepColl: true }
-      : specOf(cap, target, cand, rngL, gMax, early);
+      ? { placement: "edge", genN: 1, queueLen: 5, pick: cand % 3 === 2 ? "near" : "alt",
+          refill: "none", refillFrac: 1, syncN: 0, queueMax: 5, tidy: true, keepColl: true,
+          sym: symOpts.find((x) => symHasAxisCell(x, rows, cols)) || null }
+      : specOf(cap, target, cand, rngL, gMax, early, gMin, symOpts, rows, cols);
+    if (!spec) return;
     const lg = buildLevel(rows, cols, recG, spec, hashSeed("v4g:" + no + ":" + cand), mk);
     if (lg) { const m = measure(lg, rows, cols, target, recentSigs, spec, no); if (m) all.push({ lv: lg, m, rec: recG, spec, cand, mi }); }
   };
   const nMasks = early ? Math.min(3, masks.length) : 1;
   const nCand = introGen ? 48 : early ? 20 : CAND_PURE;
   for (let mi = 0; mi < nMasks; mi++) for (let cand = 0; cand < nCand; cand++) build(cand, undefined, mi, !pure);
-  // kısıt seçimi: en küçük gevşemeyle geçen adaylar
-  const passing = (rx) => all.filter((x) => hardOk(x.m, floor, no, rx));
+  // kısıt seçimi: en küçük gevşemeyle geçen adaylar (önce simetrik; simetri
+  // tutmazsa asimetrik — not "asim")
+  let needSym = true;
+  const passing = (rx) => all.filter((x) => hardOk(x.m, floor, no, rx, needSym));
   let pool = [];
-  for (let ri = 0; ri < OPEN_RELAX.length && !pool.length; ri++) { relax = OPEN_RELAX[ri]; pool = passing(relax); }
-  if (pool.length && relax) note += (note ? "," : "") + "açık-" + Math.round(100 * relax);
+  const selectPool = () => {
+    for (const ns of [true, false]) {
+      needSym = ns;
+      for (let ri = 0; ri < OPEN_RELAX.length && !pool.length; ri++) { relax = OPEN_RELAX[ri]; pool = passing(relax); }
+      if (pool.length) return;
+    }
+  };
+  selectPool();
   // cp kurtarması: hizalı taban (ya da bileşen) kimsede tutmadı
   for (let ri = 0; ri < RESCUE_CP.length && !pool.length; ri++) {
     note += (note ? "," : "") + "cp" + RESCUE_CP[ri];
     for (let mi = 0; mi < nMasks; mi++) for (let cand = 0; cand < nCand; cand++) build(100 * (ri + 1) + cand, RESCUE_CP[ri], mi, !pure);
-    for (let rj = 0; rj < OPEN_RELAX.length && !pool.length; rj++) { relax = OPEN_RELAX[rj]; pool = passing(relax); }
+    selectPool();
   }
+  if (pool.length && relax) note += (note ? "," : "") + "açık-" + Math.round(100 * relax);
+  if (pool.length && !needSym) note += (note ? "," : "") + "asim";
   if (!pool.length) throw new Error("kısıtları tutan aday bulunamadı: level " + no + " (hizalı " + floor.toFixed(2) + ", açık " + openFloor(no) + ")");
   // "lazım oldukça": saf aday hedefe yakınsa mutasyonla itilir; tutarsa
   // generator gerekmez. Saf-yalnız levelda saf en iyi her hâlükârda alınır.
@@ -554,12 +621,13 @@ for (let no = 5; no <= N; no++) {
   mask = masks[best.mi];
   if (best.spec && !introGen && !isDone(best.m, best.lv.generators)) {
     for (let r = 0; r < REFINE_ROUNDS && !isDone(best.m, best.lv.generators); r++) {
-      const spec = varySpec(best.spec, best.m.sec < target, rngL, gMax, early);
+      const spec = varySpec(best.spec, best.m.sec < target, rngL, gMax, early, gMin, maskSyms(mask, rows, cols), rows, cols);
+      if (!spec) continue;
       const rec = recipeOf(cap, Math.min(target, cap.hi), best.cand + r + 1, floor, best.rec.cornerP);
       const lv = buildLevel(rows, cols, rec, spec, hashSeed("v4r:" + no + ":" + r), mask);
       if (!lv) continue;
       const m = measure(lv, rows, cols, target, recentSigs, spec, no);
-      if (!m || !hardOk(m, floor, no, relax) || m.key >= best.m.key) continue;
+      if (!m || !hardOk(m, floor, no, relax, needSym) || m.key >= best.m.key) continue;
       best = { lv, m, rec, spec, cand: best.cand };
     }
   }
@@ -583,10 +651,10 @@ const all = fs.readdirSync(OUT).filter((f) => FILE_RE.test(f)).map((f) => f.repl
   .sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 fs.writeFileSync(path.join(OUT, "funnel.csv"), all.join(",") + "\n");
 fs.writeFileSync(path.join(OUT, "report.csv"),
-  "no,label,size,pairs,target_sec,measured_sec,player_sec,grind,gens,queued,spec,mut,coll_floor,coll_share,spawn_share,max_streak,empty_comps,open_share,empties,note\n" +
+  "no,label,size,pairs,target_sec,measured_sec,player_sec,grind,gens,queued,spec,mut,coll_floor,coll_share,spawn_share,max_streak,empty_comps,open_share,empties,sym,note\n" +
   report.map((r) => [r.no, r.label, r.size, r.pairs, r.target.toFixed(1), r.sec.toFixed(1), r.player.toFixed(0),
     r.grind.toFixed(3), r.gens, r.queued, r.spec, r.mut, r.floor.toFixed(3), r.coll.toFixed(3), r.spawn.toFixed(3),
-    r.streak, r.comps, r.open.toFixed(3), r.empties, r.note].join(",")).join("\n") + "\n");
+    r.streak, r.comps, r.open.toFixed(3), r.empties, r.sym, r.note].join(",")).join("\n") + "\n");
 
 const byLabel = {};
 for (const r of report) (byLabel[r.label] = byLabel[r.label] || []).push(r);
@@ -606,6 +674,7 @@ const genR = report.filter((r) => r.gens > 0);
 console.log("  hizalı taban ihlali " + report.filter((r) => r.coll < r.floor - 1e-9).length +
   "; açık taban gevşetilen " + report.filter((r) => /açık-/.test(r.note)).length +
   "; kurtarma " + report.filter((r) => /cp0/.test(r.note)).length +
+  "; asimetrik " + report.filter((r) => r.sym === "-" || r.sym === "").length +
   "; ≤30 boş bileşen>tavan " + report.filter((r) => r.no <= 30 && r.comps > compsCap(r.no, r.gens > 0)).length +
   "; generator'lı: spawn >%60 " + genR.filter((r) => r.spawn > FLOW_SHARE_OK).length +
   ", seri >" + FLOW_STREAK_OK + " " + genR.filter((r) => r.streak > FLOW_STREAK_OK).length + " / " + genR.length);

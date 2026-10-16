@@ -59,23 +59,78 @@ const shuffle = (arr, rng) => {
 };
 const manh = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
 
+// ── simetri ──
+// Silüet simetrisi (tasarımcı: "levellar bir açıdan simetrik olsun"):
+// açılış boşlukları + generator hücreleri/yönleri + çekimle boşalan hücreler
+// bir eksene göre aynadır. "V" dikey ayna (sol↔sağ) · "H" yatay ayna
+// (üst↔alt) · "P" nokta (180°). Çift eşleşmeleri görünmez, simetriye
+// girmez. Maske simetrisi çağıranın sorumluluğu (gen_v4 holeMasks).
+const SYM_FLIP = {
+  V: { L: "R", R: "L", U: "U", D: "D" },
+  H: { U: "D", D: "U", L: "L", R: "R" },
+  P: { L: "R", R: "L", U: "D", D: "U" },
+};
+function mirrorCell(sym, rows, cols, r, c) {
+  if (sym === "V") return [r, cols - 1 - c];
+  if (sym === "H") return [rows - 1 - r, c];
+  if (sym === "P") return [rows - 1 - r, cols - 1 - c];
+  return [r, c];
+}
+// maskenin (mask[r][c] false = boş) sağladığı simetriler
+function maskSyms(mask, rows, cols) {
+  const out = [];
+  for (const sym of ["V", "H", "P"]) {
+    let ok = true;
+    for (let r = 0; r < rows && ok; r++) for (let c = 0; c < cols; c++) {
+      const [mr, mc] = mirrorCell(sym, rows, cols, r, c);
+      if (mask[r][c] !== mask[mr][mc]) { ok = false; break; }
+    }
+    if (ok) out.push(sym);
+  }
+  return out;
+}
+// Eksen üzerinde kendi aynası olan generator hücresi var mı? (tek sayıda
+// generator ancak böyle simetrik yerleşir.) P'de yön de döndüğünden asla.
+const symHasAxisCell = (sym, rows, cols) => sym === "V" ? cols % 2 === 1 : sym === "H" ? rows % 2 === 1 : false;
+
 // ── generator yerleşimi ──
 // Dönüş: [{ r, c, dir }] ya da null (yer bulunamadı). Ön hücreler ayrık,
 // generator hücreleri birbirinin önü değil.
 // occupied: Set(hücre anahtarı) — generator ve ön hücre dolu olmalı.
 // score(r, c, dir): yüksek = tercih (isteğe bağlı; gürültüyle sıralanır).
-function placeGenerators(rows, cols, placement, genN, rng, occupied, score) {
+// sym (isteğe bağlı "V"|"H"|"P"): her generator aynasıyla birlikte konur;
+// tek kalan eksen üzerine (kendi aynası) gider, yoksa null.
+function placeGenerators(rows, cols, placement, genN, rng, occupied, score, sym) {
   const gens = [];
   const taken = new Set(); // generator ve ön hücreler
   const K = (r, c) => r * cols + c;
   const front = (r, c, dir) => [r + GEN_DIRS[dir][0], c + GEN_DIRS[dir][1]];
   const inBoard = (r, c) => r >= 0 && r < rows && c >= 0 && c < cols;
-  const tryAdd = (r, c, dir) => {
+  const tryAdd0 = (r, c, dir) => {
     const [fr, fc] = front(r, c, dir);
     if (!inBoard(fr, fc) || taken.has(K(r, c)) || taken.has(K(fr, fc))) return false;
     if (occupied && (!occupied.has(K(r, c)) || !occupied.has(K(fr, fc)))) return false;
     gens.push({ r, c, dir });
     taken.add(K(r, c)); taken.add(K(fr, fc));
+    return true;
+  };
+  const undoLast = () => {
+    const g = gens.pop();
+    const [fr, fc] = front(g.r, g.c, g.dir);
+    taken.delete(K(g.r, g.c)); taken.delete(K(fr, fc));
+  };
+  const mirrorGen = (r, c, dir) => { const [mr, mc] = mirrorCell(sym, rows, cols, r, c); return [mr, mc, SYM_FLIP[sym][dir]]; };
+  // simetrik ekleme: aday + aynası birlikte; eksen hücresi yalnız tek
+  // kalan slot varsa
+  const tryAdd = (r, c, dir) => {
+    if (!sym) return tryAdd0(r, c, dir);
+    const [mr, mc, md] = mirrorGen(r, c, dir);
+    const self = mr === r && mc === c && md === dir;
+    const need = genN - gens.length;
+    if (self) return need % 2 === 1 ? tryAdd0(r, c, dir) : false;
+    if (need < 2) return false;
+    if (!tryAdd0(r, c, dir)) return false;
+    if (!tryAdd0(mr, mc, md)) { undoLast(); return false; }
     return true;
   };
   const edgeCells = () => {
@@ -99,18 +154,23 @@ function placeGenerators(rows, cols, placement, genN, rng, occupied, score) {
   if (placement === "facing") {
     // aynı satır ya da sütunda birbirine bakan iki generator; kalan
     // generator'lar kenardan
-    const horiz = rng() < 0.5;
+    // simetride: yatay çift V aynası, dikey çift H aynasıdır (P: eksen
+    // satırı/sütunu gerekir → yalnız tek boyut varsa)
+    let horiz = rng() < 0.5;
+    if (sym === "V") horiz = true; else if (sym === "H") horiz = false;
+    else if (sym === "P") { if (rows % 2 === 1 && cols % 2 === 0) horiz = true; else if (cols % 2 === 1 && rows % 2 === 0) horiz = false; else if (rows % 2 === 0) return null; }
     if (horiz) {
-      const r = 1 + Math.floor(rng() * (rows - 2));
-      const a = Math.floor(rng() * 2), b = cols - 1 - Math.floor(rng() * 2);
+      const r = sym === "P" ? (rows - 1) / 2 : 1 + Math.floor(rng() * (rows - 2));
+      const a = Math.floor(rng() * 2), b = sym ? cols - 1 - a : cols - 1 - Math.floor(rng() * 2);
       if (b - a < 4) return null;
-      tryAdd(r, a, "R"); tryAdd(r, b, "L");
+      tryAdd0(r, a, "R"); tryAdd0(r, b, "L");
     } else {
-      const c = 1 + Math.floor(rng() * (cols - 2));
-      const a = Math.floor(rng() * 2), b = rows - 1 - Math.floor(rng() * 2);
+      const c = sym === "P" ? (cols - 1) / 2 : 1 + Math.floor(rng() * (cols - 2));
+      const a = Math.floor(rng() * 2), b = sym ? rows - 1 - a : rows - 1 - Math.floor(rng() * 2);
       if (b - a < 4) return null;
-      tryAdd(a, c, "D"); tryAdd(b, c, "U");
+      tryAdd0(a, c, "D"); tryAdd0(b, c, "U");
     }
+    if (sym && gens.length < 2) return null;
     pool = shuffle(edgeCells(), rng);
   } else if (placement === "corner") {
     pool = shuffle(cornerCells(), rng).concat(shuffle(edgeCells(), rng));
@@ -212,7 +272,7 @@ function applySpec(base, rows, cols, spec, rng) {
   //    edilebilir boşluktur.)
   let gens = null;
   for (let t = 0; t < 10 && !gens; t++) {
-    const pl = placeGenerators(rows, cols, spec.placement, spec.genN, rng, occupied, placeScore);
+    const pl = placeGenerators(rows, cols, spec.placement, spec.genN, rng, occupied, placeScore, spec.sym || null);
     if (!pl) { if (process.env.V3_DEBUG) console.error("place none", spec.placement, spec.genN); return null; }
     const cand = pl.map((g) => ({ r: g.r, c: g.c, dir: g.dir, queue: [] }));
     const fp = cand.map((g) => { const [fr, fc] = frontOf(g); return cellOf.get(K(fr, fc)); });
@@ -238,6 +298,35 @@ function applySpec(base, rows, cols, spec, rng) {
   // board köşeleri çekilemez: açılışta tek başına boş köşe (tasarımcı
   // istemiyor — boşluk ortada kalsın)
   const isCorner = (t) => (t[0] === 0 || t[0] === rows - 1) && (t[1] === 0 || t[1] === cols - 1);
+  // simetri: her çekim aynasıyla birlikte (ayna hücresindeki taş, ayna
+  // generator'ın kuyruğuna). Ayna hücresi çekilemezse çekim başarısız.
+  const sym = spec.sym || null;
+  const mirrorK = (k) => { const [r, c] = RC(k); const [mr, mc] = mirrorCell(sym, rows, cols, r, c); return K(mr, mc); };
+  const mgiOf = (gi) => {
+    const [mr, mc] = mirrorCell(sym, rows, cols, gens[gi].r, gens[gi].c);
+    return gens.findIndex((g) => g.r === mr && g.c === mc);
+  };
+  const mirrorPullable = (k, gi) => {
+    if (!sym) return true;
+    const mk = mirrorK(k);
+    if (mk === k) return true;
+    const mpid = cellOf.get(mk);
+    if (mpid === undefined || genCells.has(mk) || pairs[mpid].length !== 2) return false;
+    const mgi = mgiOf(gi);
+    if (mgi < 0) return false;
+    // aynı çiftin iki taşı: iki ayrı kuyruğa olur (senkron), aynı kuyruğa kilit
+    if (mpid === cellOf.get(k) && mgi === gi) return false;
+    return true;
+  };
+  const pullSym = (k, gi, pos) => {
+    if (!mirrorPullable(k, gi)) return false;
+    const mk = sym ? mirrorK(k) : k;
+    pullCell(k, gens, gi, pos);
+    if (!sym || mk === k) return true;
+    const mgi = mgiOf(gi);
+    pullCell(mk, gens, mgi, insertPos(gens, mgi));
+    return true;
+  };
   // tidy (spec.tidy): çekilecek taş, açılış boşluğuna (maske deliği + önceki
   // çekimler) komşu hücrelerden tercih edilir → boşluk tek blob olarak
   // büyür, dağınık tekil delikler oluşmaz ("parçalı diziliş" yasağı).
@@ -347,12 +436,12 @@ function applySpec(base, rows, cols, spec, rng) {
       }
     }
     if (!cand.length) { if (process.env.V3_DEBUG) console.error("pull nocand gi", gi, "tBreak", tBreak, "/", ec.order.length); return false; }
+    if (sym) cand = cand.filter((c) => { const t = pairs[c.pid][c.pullIdx]; return mirrorPullable(K(t[0], t[1]), gi); });
     cand = tidyOrder(cand, (c) => pairs[c.pid][c.pullIdx]);
-    for (const c of cand.slice(0, 6)) {
+    for (const c of cand.slice(0, sym ? 10 : 6)) {
       const snap = snapshot(gens);
       const t = pairs[c.pid][c.pullIdx];
-      pullCell(K(t[0], t[1]), gens, gi, pos);
-      if (sim(gens)) return true;
+      if (pullSym(K(t[0], t[1]), gi, pos) && sim(gens)) return true;
       restore(snap, gens);
     }
     if (process.env.V3_DEBUG) console.error("pull fail gi", gi, "cand", cand.length, "tBreak", tBreak, "/", ec.order.length);
@@ -390,9 +479,11 @@ function applySpec(base, rows, cols, spec, rng) {
       }
     }
     // tidy: blob kenarındaki hücreler önce (az boş komşu) → boşluk bölünmez
-    const cand = spec.tidy
+    let cand = spec.tidy
       ? shuffle([...candSet], rng).map((k) => [k, emptyAdj(RC(k))]).sort((a, b) => a[1] - b[1]).map((x) => x[0])
       : shuffle([...candSet], rng);
+    // simetri: ayna hücresi de boş olmalı (oraya da tek taş, eşi ayna kuyruğa)
+    if (sym) cand = cand.filter((kk) => { const mk = mirrorK(kk); return mk === kk || (!cellOf.has(mk) && !genCells.has(mk) && mgiOf(gi) >= 0); });
     if (!cand.length) return false;
     for (const kk of cand.slice(0, 5)) {
       const snap = snapshot(gens);
@@ -400,8 +491,14 @@ function applySpec(base, rows, cols, spec, rng) {
       pairs.push([RC(kk)]);
       cellOf.set(kk, pid);
       g.queue.splice(pos, 0, pid);
+      if (sym && mirrorK(kk) !== kk) {
+        const mk = mirrorK(kk), mgi = mgiOf(gi), mpid = pairs.length;
+        pairs.push([RC(mk)]);
+        cellOf.set(mk, mpid);
+        gens[mgi].queue.splice(insertPos(gens, mgi), 0, mpid);
+      }
       if (sim(gens)) return true;
-      restore(snap, gens);
+      restore(snap, gens); pairs.length = snap.pairs.length;
     }
     return false;
   };
@@ -453,9 +550,10 @@ function applySpec(base, rows, cols, spec, rng) {
       const pid = pool[Math.floor(rng() * pool.length)];
       const snap = snapshot(gens);
       const ks = pairs[pid].map((t) => K(t[0], t[1]));
-      pullCell(ks[0], gens, ga, A.pos);
-      pullCell(ks[1], gens, gb, insertPos(gens, gb));
-      if (!sim(gens)) restore(snap, gens);
+      // (ayna çekim çiftin ikinci taşını zaten aldıysa — taşlar birbirinin
+      // aynası — ikinci çekim gerekmez)
+      const ok = pullSym(ks[0], ga, A.pos) && (pairs[pid].length === 0 || pullSym(ks[1], gb, insertPos(gens, gb)));
+      if (!ok || !sim(gens)) restore(snap, gens);
     }
   }
 
@@ -466,6 +564,36 @@ function applySpec(base, rows, cols, spec, rng) {
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const k = K(r, c);
       if (!cellOf.has(k) && !genCells.has(k)) empties.push(k);
+    }
+    const tryPair = (a, b) => {
+      const A = RC(a), B = RC(b);
+      if (isAdjacentCollinear([A, B])) return false;
+      const snap = snapshot(gens);
+      const pid = pairs.length;
+      pairs.push([A, B]);
+      cellOf.set(a, pid); cellOf.set(b, pid);
+      if (sim(gens)) return true;
+      restore(snap, gens); pairs.length = snap.pairs.length;
+      return false;
+    };
+    if (sym) {
+      // simetri: hücre aynasıyla eşlenir (silüet simetrik kalır); eksen
+      // hücreleri kendi aralarında
+      const want = Math.floor(empties.length * frac);
+      let order = shuffle(empties, rng);
+      if (spec.tidy) order = order.map((k) => [k, emptyAdj(RC(k))]).sort((a, b) => a[1] - b[1]).map((x) => x[0]);
+      const done = new Set(), axis = [];
+      let filled = 0;
+      for (const a of order) {
+        if (filled >= want || done.has(a)) continue;
+        const m = mirrorK(a);
+        if (m === a) { axis.push(a); continue; }
+        if (done.has(m) || cellOf.has(m) || genCells.has(m)) continue;
+        done.add(a); done.add(m);
+        if (tryPair(a, m)) filled += 2;
+      }
+      for (let i = 0; i + 1 < axis.length && filled < want; i += 2) if (tryPair(axis[i], axis[i + 1])) filled += 2;
+      empties = [];
     }
     empties = shuffle(empties, rng).slice(0, Math.floor(empties.length * frac));
     // tidy: blob kenarından içe doğru doldur (boşluk bölünmesin)
@@ -491,7 +619,9 @@ function applySpec(base, rows, cols, spec, rng) {
     }
   }
 
-  if (gens.some((g) => g.queue.length === 0)) return null;
+  // kuyruğu yalnız kendi taşından ibaret generator "ölü" (tek basım) — kalıp
+  // ≥2 istiyorsa aday geçersiz (simetride ayna çekimleri tutmayınca olur)
+  if (gens.some((g) => g.queue.length < Math.min(2, spec.queueLen))) return null;
   return { pairs, generators: gens };
 }
 
@@ -550,5 +680,26 @@ function buildLevel(rows, cols, rec, spec, seed, mask) {
   return null;
 }
 
+// Levelın silüet simetrileri: dolu/boş/generator(+yön) deseni aynaya
+// göre aynı. Dönüş: ["V","H","P"] alt kümesi.
+function levelSyms(lv, rows, cols) {
+  const grid = Array.from({ length: rows }, () => Array(cols).fill("."));
+  for (const p of lv.pairs) for (const [r, c] of p) grid[r][c] = "#";
+  for (const g of lv.generators || []) grid[g.r][g.c] = "G" + g.dir;
+  const out = [];
+  for (const sym of ["V", "H", "P"]) {
+    let ok = true;
+    for (let r = 0; r < rows && ok; r++) for (let c = 0; c < cols; c++) {
+      const [mr, mc] = mirrorCell(sym, rows, cols, r, c);
+      const a = grid[r][c], b = grid[mr][mc];
+      const bm = b[0] === "G" ? "G" + SYM_FLIP[sym][b[1]] : b;
+      if (a !== bm) { ok = false; break; }
+    }
+    if (ok) out.push(sym);
+  }
+  return out;
+}
+
 module.exports = { hashSeed, mulberry32, shuffle, placeGenerators, applySpec,
-                   measureLevel, basePure, buildLevel };
+                   measureLevel, basePure, buildLevel,
+                   mirrorCell, maskSyms, levelSyms, symHasAxisCell, SYM_FLIP };

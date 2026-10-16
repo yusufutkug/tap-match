@@ -59,25 +59,25 @@ for (const [a, b, d] of simData.pairs) {
 
 // ── tarif sabitleri ──
 
-// Kategori tanıtım sırası: önde geniş renk yelpazeli, siluetçe net,
-// "sevimli" kategoriler; sona doğru soyut/kelime/ikon setleri.
+// Kategori tanıtım sırası = tasarımcının öncelik listesi (2026-10-16,
+// new_stickers_1610 seti; 41 kategori, katalogla birebir). Önde gelenler
+// funnel'ın başında açılır ve en çok görünür.
 const INTRO_ORDER = [
-  "fruits", "toys", "gems", "flowers", "vegitables",          // decade 0 açık
-  "animals", "sports", "desserts", "under_sea", "breakfast",
-  "music", "school", "vehicles", "clothes", "camping",
-  "kitchen", "cafe", "bedroom", "blocks", "countrylife",
-  "baby_items", "cleaning_items", "art_tools", "carnival", "circus",
-  "christmas", "fantasy", "fairytale", "casino", "cinema",
-  "bags", "cat_items", "cold_drink", "icons", "shapes",
-  "numbers", "cookie_words", "cat_words",
+  "fruits", "flowers", "animals", "candy", "vegetables", "toys",   // decade 0 açık
+  "under_sea", "numbers", "clothes", "desserts", "icons", "hats",
+  "fantasy", "school", "shapes", "bags", "cookie_words", "countrylife",
+  "sports", "breakfast", "gems", "weather", "music", "cleaning_items",
+  "landmarks", "cat_words", "kitchen", "art_tools", "cold_drink", "space",
+  "carnival", "christmas", "cinema", "world_cuisine", "bedroom", "camping",
+  "baby_items", "dinosaurs", "halloween", "robots", "monsters",
 ];
-const START_OPEN = 5;  // decade 0'da açık kategori sayısı
-const PER_DECADE = 2;  // decade başına yeni kategori (bitene dek, ~decade 17)
+const START_OPEN = 6;  // decade 0'da açık kategori sayısı
+const PER_DECADE = 2;  // decade başına yeni kategori (bitene dek, ~decade 18)
 
 // aynı levelda ASLA buluşmayacak kategori çiftleri
 const FORBIDDEN = [
   ["gems", "shapes"], ["icons", "shapes"], ["icons", "gems"],
-  ["fairytale", "fruits"],
+  ["cookie_words", "cat_words"], // iki kelime seti bir arada okunmaz
 ];
 const forbiddenWith = new Map();
 for (const [a, b] of FORBIDDEN) {
@@ -95,7 +95,7 @@ const DUO_COLORS = [
 ];
 
 // favori kategoriler — periyodik ağırlık artışı
-const FAVS = ["gems", "fruits", "toys", "desserts", "flowers", "under_sea"];
+const FAVS = ["fruits", "flowers", "animals", "candy", "toys", "under_sea"];
 
 const DECADES = 100;
 const concave = (d) => {

@@ -43,13 +43,14 @@ fs.writeFileSync(path.join(OUT, "stickers.json"),
   JSON.stringify({ count: manifest.length, stickers: manifest }, null, 1) + "\n");
 
 // funnel kapsaması: level dosyalarının kullandığı her sid pakette mi?
-const EXP = path.join(ROOT, "export_levels");
+// (TM_LEVELS=<klasör>; varsayılan aktif funnel export_levels_v4)
+const EXP = path.resolve(ROOT, process.env.TM_LEVELS || "export_levels_v4");
 const inPack = new Set(manifest.map((m) => m.sid));
 let usedN = 0, unknown = 0;
 if (fs.existsSync(EXP)) {
   const usedSids = new Set();
   for (const f of fs.readdirSync(EXP)) {
-    if (!/^\d+_[emh]\.json$/.test(f)) continue;
+    if (!/^\d+_(t|e|m|h|vh)\.json$/.test(f)) continue;
     const j = JSON.parse(fs.readFileSync(path.join(EXP, f), "utf8"));
     for (const s of j.stickers || []) {
       usedSids.add(s);

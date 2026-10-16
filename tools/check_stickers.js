@@ -27,7 +27,7 @@ const simD = new Map(simData.pairs.map(([a, b, d]) => [simKey(a, b), d]));
 
 const FORBIDDEN = [
   ["gems", "shapes"], ["icons", "shapes"], ["icons", "gems"],
-  ["fairytale", "fruits"],
+  ["cookie_words", "cat_words"],
 ];
 const MONO_COLORS = ["red", "blue", "green", "yellow", "pink", "orange"];
 const DECADES = 100;

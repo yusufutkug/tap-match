@@ -23,7 +23,7 @@ var TM_MECH_LEVELS = [
       5, 0, 0, 0, 5,
     ],
     stickers: [
-      "fruits_red_01", "fruits_yellow_01", "fruits_orange_01",
+      "fruits_red_01", "fruits_yellow_01", "fruits_orange_06",
       "fruits_green_01", "fruits_purple_01",
     ],
     TileGenerators: [{ Cell: 17, Direction: 1, Tiles: [2, 3, 4] }],
@@ -42,7 +42,7 @@ var TM_MECH_LEVELS = [
       0, 0, 0, 0, 0, 6,
     ],
     stickers: [
-      "fruits_red_01", "fruits_yellow_01", "fruits_orange_01",
+      "fruits_red_01", "fruits_yellow_01", "fruits_orange_06",
       "fruits_green_01", "fruits_purple_01", "fruits_blue_01",
     ],
     TileGenerators: [
